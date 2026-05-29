@@ -1,7 +1,7 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
-using TreeCampaign.Repository.Abstractions;
+using Common.Repository.Abstractions;
 
 internal class UpdateTeamEndpoint
 {

@@ -1,8 +1,7 @@
-using System;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Teams.ValueObjects;
-using TreeCampaign.Repository.Abstractions;
+using Common.Repository.Abstractions;
 
 namespace TreeCampaign.Api.Stops;
 

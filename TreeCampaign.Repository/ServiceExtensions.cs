@@ -1,14 +1,14 @@
 using System;
+using Common.Repository.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TreeCampaign.Repository.Abstractions;
 using TreeCampaign.Repository.Queries;
 
 namespace TreeCampaign.Repository;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddTreeCampaign(this IServiceCollection services)
+    public static IServiceCollection AddTreeCampaignRepository(this IServiceCollection services)
     {
         services.AddDbContext<TreeCampaignContext>(options =>
         {

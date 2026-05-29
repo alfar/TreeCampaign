@@ -11,6 +11,6 @@ public sealed class Campaign
 
     public static Campaign Create(CampaignSeason season)
     {
-        return new Campaign { Id = new CampaignId(Guid.NewGuid()), Season = season };
+        return new Campaign { Id = CampaignId.From(Guid.NewGuid()), Season = season };
     }
 }

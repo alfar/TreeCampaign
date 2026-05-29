@@ -1,6 +1,6 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
-using TreeCampaign.Repository.Abstractions;
+using Common.Repository.Abstractions;
 
 namespace TreeCampaign.Api.Stops;
 

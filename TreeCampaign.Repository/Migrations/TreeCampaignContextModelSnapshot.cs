@@ -16,7 +16,7 @@ namespace TreeCampaign.Repository.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
 
             modelBuilder.Entity("TreeCampaign.Domain.Campaigns.Campaign", b =>
                 {
@@ -140,13 +140,9 @@ namespace TreeCampaign.Repository.Migrations
                     b.HasBaseType("TreeCampaign.Domain.Stops.StopBase");
 
                     b.Property<Guid?>("AssignedTeamId")
-                        .HasColumnType("TEXT");
-
-                    b.ToTable("Stops", t =>
-                        {
-                            t.Property("AssignedTeamId")
-                                .HasColumnName("UnassignedStop_AssignedTeamId");
-                        });
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("AssignedTeamId");
 
                     b.HasDiscriminator().HasValue("Unassigned");
                 });

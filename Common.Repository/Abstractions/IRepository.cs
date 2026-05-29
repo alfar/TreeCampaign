@@ -1,6 +1,6 @@
 using System;
 
-namespace TreeCampaign.Repository.Abstractions;
+namespace Common.Repository.Abstractions;
 
 public interface IRepository<TAggregate, TKey>
 {

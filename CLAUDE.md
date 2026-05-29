@@ -16,26 +16,37 @@ The solution contains three bounded contexts, all within one .NET solution. They
 
 Manages campaign seasons, stop assignment, and team dispatch. Receives validated orders from Intake and creates stops.
 
-**Stop ordering** is a read-model concern only: when displaying a team's assigned stops, sort by `StreetSection.SortOrder` (from Territory), then by house number ascending or descending per `StreetSection.SortAscending`. The old paper route cap of 8 trees is gone — the dispatcher assigns stops to teams dynamically in real time.
+**Stop ordering** is a read-model concern only: when displaying a team's assigned stops, sort by `StreetSection.SortOrder` (from Territory), then by house number ascending or descending per `StreetSection.Direction`. The old paper route cap of 8 trees is gone — the dispatcher assigns stops to teams dynamically in real time.
 
-### Territory (supporting subdomain) — not yet built
+### Territory (supporting subdomain) — implemented
 
 The authority on which addresses exist in the service area and how they are traversed. Has no knowledge of payments, stops, or campaigns.
 
 **Domain model:**
 ```
-Neighborhood (aggregate root)
-  └─ StreetSection (entity)
-        ├─ Street reference (by id — Street is a separate aggregate)
-        ├─ HouseNumberFrom / HouseNumberTo
-        ├─ SortAscending (bool)   ← direction of travel within the section
-        └─ SortOrder (int)        ← position in the neighborhood's route
+Territory (aggregate root)
+  └─ Neighborhood (aggregate root, child of Territory)
+        └─ StreetSection (entity, child of Neighborhood)
+              ├─ Street reference (by StreetId — Street is a separate aggregate)
+              ├─ HouseNumberFrom / HouseNumberTo
+              ├─ Direction (enum: Ascending | Descending)   ← direction of travel within the section
+              └─ SortOrder (int)        ← position in the neighborhood's route
 
 Street (separate aggregate — a street can span multiple neighborhoods)
-  └─ Name
+  ├─ Name
+  └─ ZipCode
 ```
 
-The relation is `Neighborhood ← StreetSection → Street`, not `Neighborhood → Street → StreetSection`.
+**Aggregate Boundaries:**
+- `Neighborhood` is the aggregate root; `StreetSection` can only be created through `Neighborhood.AddStreetSection()`. The internal `StreetSection.Create()` factory is not publicly accessible.
+- `Street` is a separate aggregate referenced by StreetId (no navigation property to Street itself—Territory has no knowledge of Street internals).
+- The relation is `Territory → Neighborhood → StreetSection ← Street` (by reference).
+
+**Implementation notes:**
+- ID generation: All aggregates auto-generate GUIDs in their factory methods (e.g., `Territory.Create(name)` generates its own TerritoryId).
+- `Neighborhood._streetSections` is a backing field with EF Core field access mode; the public `StreetSections` property is read-only.
+- Direction enum stored as `byte` in SQLite for space efficiency.
+- Repository pattern: TreeTerritoryContext implements `IUnitOfWork` and `IRepository<T, TId>` for all aggregates.
 
 **Responsibilities:** validate a raw address against known streets and number ranges; return structured address data and sort metadata to callers; accept "add new street" commands triggered by Intake.
 
@@ -85,8 +96,7 @@ These are unsettled and should be discussed before building the relevant parts:
 ### Backend (.NET)
 ```powershell
 dotnet build TreeCampaign.sln
-dotnet run --project TreeCampaign.Api          # API on port 5006
-dotnet run --project TreeCampaign.Console      # Data initialization / seed
+dotnet run --project Host.Api          # API on port 5006
 ```
 
 ### Frontend
@@ -100,24 +110,32 @@ npm run lint
 
 ### Entity Framework Migrations
 ```powershell
-# Migrations live in TreeCampaign.Repository; startup project is TreeCampaign.Console
-dotnet ef database update --project TreeCampaign.Repository --startup-project TreeCampaign.Console
-dotnet ef migrations add <Name> --project TreeCampaign.Repository --startup-project TreeCampaign.Console
+# TreeCampaign migrations (TreeCampaign.Repository)
+dotnet ef database update --project TreeCampaign.Repository --startup-project Host.Api
+dotnet ef migrations add <Name> --project TreeCampaign.Repository --startup-project Host.Api
+
+# Territory migrations (TreeTerritory.Repository)
+dotnet ef database update --project TreeTerritory.Repository --startup-project Host.Api
+dotnet ef migrations add <Name> --project TreeTerritory.Repository --startup-project Host.Api
 ```
 
 Database is SQLite, written to `{BaseDirectory}/app.db` at runtime.
 
-## TreeCampaign Project Structure
+## Project Structure
 
 | Project | Type | Role |
 |---|---|---|
+| `Common.Repository` | Class Library | Shared abstractions: `IUnitOfWork`, `IRepository<TAggregate, TId>` |
 | `TreeCampaign.Domain` | Class Library | Pure domain logic — no external dependencies |
 | `TreeCampaign.Repository` | Class Library | EF Core + SQLite, dual DbContext pattern |
-| `TreeCampaign.Api` | ASP.NET Core | Minimal API endpoints, OpenAPI via Scalar |
-| `TreeCampaign.Console` | Console App | DB migrations host, data seeding |
+| `TreeCampaign.Api` | Class Library | Endpoint extension methods for TreeCampaign context |
+| `TreeTerritory.Domain` | Class Library | Pure domain logic for Territory context |
+| `TreeTerritory.Repository` | Class Library | EF Core persistence for Territory context |
+| `TreeTerritory.Api` | Class Library | Endpoint extension methods for Territory context |
+| `Host.Api` | ASP.NET Core | Web host — wires up all bounded context endpoints |
 | `TreeCampaign.UI` | React/Vite | Frontend SPA |
 
-Dependency direction: `Api` / `Console` → `Repository` → `Domain`.
+Dependency direction: `Host.Api` → `*.Api` → `*.Repository` → `*.Domain`.
 
 ### Domain Model (Stop state machine)
 
@@ -169,5 +187,5 @@ Vite proxies `/api/*` to `:5006`.
 - **Value Objects** as C# records — prefer them over primitives in domain code.
 - **Sealed classes** for Stop state variants — use pattern matching. No enums for state.
 - DI registration centralized in `ServiceExtensions.AddTreeCampaign()`.
-- No dedicated test projects — Console app and Scalar UI serve for integration validation.
+- No dedicated test projects — Scalar UI serves for integration validation.
 - Favor practical usability over theoretical optimality; explicit modeling over clever abstraction.
