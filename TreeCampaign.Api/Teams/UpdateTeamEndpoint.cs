@@ -11,17 +11,18 @@ internal class UpdateTeamEndpoint
         IUnitOfWork unitOfWork,
         CampaignId campaignId,
         TeamId teamId,
-        UpdateTeamCommand command
+        UpdateTeamCommand command,
+        CancellationToken cancellationToken
     )
     {
-        var team = await unitOfWork.GetRepository<Team, TeamId>().TryFindAsync(teamId);
+        var team = await unitOfWork.GetRepository<Team, TeamId>().TryFindAsync(teamId, cancellationToken);
         if (team == null || team.CampaignId != campaignId)
         {
             return TypedResults.NotFound();
         }
 
         team.UpdateName(command.Name);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(team);
     }

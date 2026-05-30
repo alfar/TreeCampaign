@@ -13,10 +13,11 @@ public class AssignStopEndpoint
         IUnitOfWork unitOfWork,
         CampaignId campaignId,
         StopId stopId,
-        AssignStopCommand command
+        AssignStopCommand command,
+        CancellationToken cancellationToken
     )
     {
-        var stop = await unitOfWork.GetRepository<UnassignedStop, StopId>().TryFindAsync(stopId);
+        var stop = await unitOfWork.GetRepository<UnassignedStop, StopId>().TryFindAsync(stopId, cancellationToken);
 
         if (stop == null || stop.CampaignId != campaignId)
         {
@@ -28,7 +29,7 @@ public class AssignStopEndpoint
         unitOfWork.GetRepository<UnassignedStop, StopId>().Delete(stop);
         unitOfWork.GetRepository<AssignedStop, StopId>().Add(assignedStop);
 
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(ProjectionContext.StopProjection.From(assignedStop));
     }

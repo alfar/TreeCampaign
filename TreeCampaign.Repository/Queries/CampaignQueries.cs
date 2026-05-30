@@ -8,6 +8,6 @@ public class CampaignQueries(ProjectionContext context) : ICampaignQueries
         IReadOnlyCollection<ProjectionContext.CampaignProjection>
     > ICampaignQueries.GetCampaignsAsync(CancellationToken cancellationToken)
     {
-        return await context.Campaigns.ToListAsync();
+        return await context.Campaigns.ToListAsync(cancellationToken);
     }
 }

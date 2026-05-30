@@ -31,25 +31,25 @@ public class TreeTerritoryContext(DbContextOptions<TreeTerritoryContext> options
 
     public void Delete(Territory aggregate) => Territories.Remove(aggregate);
 
-    async Task<Territory?> IRepository<Territory, TerritoryId>.TryFindAsync(TerritoryId key) =>
-        await Territories.FirstOrDefaultAsync(t => t.Id == key);
+    async Task<Territory?> IRepository<Territory, TerritoryId>.TryFindAsync(TerritoryId key, CancellationToken cancellationToken) =>
+        await Territories.FirstOrDefaultAsync(t => t.Id == key, cancellationToken);
 
     public void Add(Neighborhood aggregate) => Neighborhoods.Add(aggregate);
 
     public void Delete(Neighborhood aggregate) => Neighborhoods.Remove(aggregate);
 
-    async Task<Neighborhood?> IRepository<Neighborhood, NeighborhoodId>.TryFindAsync(NeighborhoodId key) =>
-        await Neighborhoods.FirstOrDefaultAsync(n => n.Id == key);
+    async Task<Neighborhood?> IRepository<Neighborhood, NeighborhoodId>.TryFindAsync(NeighborhoodId key, CancellationToken cancellationToken) =>
+        await Neighborhoods.Include(n => n.StreetSections).FirstOrDefaultAsync(n => n.Id == key, cancellationToken);
 
     public void Add(Street aggregate) => Streets.Add(aggregate);
 
     public void Delete(Street aggregate) => Streets.Remove(aggregate);
 
-    async Task<Street?> IRepository<Street, StreetId>.TryFindAsync(StreetId key) =>
-        await Streets.FirstOrDefaultAsync(s => s.Id == key);
+    async Task<Street?> IRepository<Street, StreetId>.TryFindAsync(StreetId key, CancellationToken cancellationToken) =>
+        await Streets.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
-    async Task<StreetSection?> IRepository<StreetSection, StreetSectionId>.TryFindAsync(StreetSectionId key) =>
-        await StreetSections.FirstOrDefaultAsync(ss => ss.Id == key);
+    async Task<StreetSection?> IRepository<StreetSection, StreetSectionId>.TryFindAsync(StreetSectionId key, CancellationToken cancellationToken) =>
+        await StreetSections.FirstOrDefaultAsync(ss => ss.Id == key, cancellationToken);
 
     public void Add(StreetSection aggregate) => StreetSections.Add(aggregate);
 

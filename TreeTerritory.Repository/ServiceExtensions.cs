@@ -1,6 +1,7 @@
 using Common.Repository.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TreeTerritory.Repository.Queries;
 
 namespace TreeTerritory.Repository;
 
@@ -16,6 +17,9 @@ public static class ServiceExtensions
         });
 
         services.AddScoped<IUnitOfWork, TreeTerritoryContext>();
+        services.AddScoped<INeighborhoodQueries, NeighborhoodQueries>();
+        services.AddScoped<ITerritoryQueries, TerritoryQueries>();
+        services.AddScoped<IStreetQueries, StreetQueries>();
 
         return services;
     }

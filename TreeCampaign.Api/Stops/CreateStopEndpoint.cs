@@ -12,13 +12,14 @@ public class CreateStopEndpoint
     public static async Task<IResult> Handle(
         IUnitOfWork unitOfWork,
         CampaignId campaignId,
-        CreateStopCommand command
+        CreateStopCommand command,
+        CancellationToken cancellationToken
     )
     {
         var stop = UnassignedStop.Create(campaignId, command.Address, command.Amount);
 
         unitOfWork.GetRepository<UnassignedStop, StopId>().Add(stop);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(ProjectionContext.StopProjection.From(stop));
     }

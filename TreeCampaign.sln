@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -17,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Api", "Host.Api\Host.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Repository", "Common.Repository\Common.Repository.csproj", "{4F82DAF1-9226-4254-9D7E-4CAE3B6ED3B1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TreeTerritory.Api", "TreeTerritory.Api", "{9BE1E049-B306-DDAD-7FDD-43B72DB9DD4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeTerritory.Api", "TreeTerritory.Api\TreeTerritory.Api.csproj", "{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +112,18 @@ Global
 		{4F82DAF1-9226-4254-9D7E-4CAE3B6ED3B1}.Release|x64.Build.0 = Release|Any CPU
 		{4F82DAF1-9226-4254-9D7E-4CAE3B6ED3B1}.Release|x86.ActiveCfg = Release|Any CPU
 		{4F82DAF1-9226-4254-9D7E-4CAE3B6ED3B1}.Release|x86.Build.0 = Release|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Debug|x64.Build.0 = Debug|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Debug|x86.Build.0 = Debug|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Release|x64.ActiveCfg = Release|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Release|x64.Build.0 = Release|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Release|x86.ActiveCfg = Release|Any CPU
+		{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,10 +11,11 @@ public class CollectStopEndpoint
     public static async Task<IResult> Handle(
         IUnitOfWork unitOfWork,
         CampaignId campaignId,
-        StopId stopId
+        StopId stopId,
+        CancellationToken cancellationToken
     )
     {
-        var stop = await unitOfWork.GetRepository<AssignedStop, StopId>().TryFindAsync(stopId);
+        var stop = await unitOfWork.GetRepository<AssignedStop, StopId>().TryFindAsync(stopId, cancellationToken);
 
         if (stop == null || stop.CampaignId != campaignId)
         {
@@ -26,7 +27,7 @@ public class CollectStopEndpoint
         unitOfWork.GetRepository<AssignedStop, StopId>().Delete(stop);
         unitOfWork.GetRepository<CollectedStop, StopId>().Add(collectedStop);
 
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(ProjectionContext.StopProjection.From(collectedStop));
     }

@@ -1,4 +1,8 @@
 using TreeTerritory.Repository;
+using TreeTerritory.Api.Streets;
+using TreeTerritory.Api.Territories;
+using TreeTerritory.Api.Neighborhoods;
+using TreeTerritory.Api.JsonConverters;
 
 namespace TreeTerritory.Api;
 
@@ -6,7 +10,10 @@ public static class EndpointExtensions
 {
     public static IEndpointRouteBuilder MapTreeTerritoryEndpoints(this IEndpointRouteBuilder app)
     {
-        // app.MapNeighborhoodEndpoints();
+        app.MapStreetEndpoints();
+        app.MapTerritoryEndpoints();
+        app.MapGroup("/Territories/{territoryId:guid}")
+            .MapNeighborhoodEndpoints();
 
         return app;
     }
@@ -15,17 +22,15 @@ public static class EndpointExtensions
     {
         services.AddTreeTerritoryRepository();
 
-/*        services.ConfigureHttpJsonOptions(options =>
+        services.ConfigureHttpJsonOptions(options =>
         {
-            options.SerializerOptions.Converters.Add(new TreeCountJsonConverter());
-            options.SerializerOptions.Converters.Add(new StopIdJsonConverter());
-            options.SerializerOptions.Converters.Add(new TeamIdJsonConverter());
-            options.SerializerOptions.Converters.Add(new CollectionCampaignIdJsonConverter());
-            options.SerializerOptions.Converters.Add(new CampaignSeasonJsonConverter());
-            options.SerializerOptions.Converters.Add(new ReasonTextJsonConverter());
-            options.SerializerOptions.Converters.Add(new TeamNameJsonConverter());
+            options.SerializerOptions.Converters.Add(new NeighborhoodIdJsonConverter());
+            options.SerializerOptions.Converters.Add(new StreetIdJsonConverter());
+            options.SerializerOptions.Converters.Add(new StreetSectionIdJsonConverter());
+            options.SerializerOptions.Converters.Add(new ZipCodeJsonConverter());
+            options.SerializerOptions.Converters.Add(new TerritoryIdJsonConverter());
+            options.SerializerOptions.Converters.Add(new HouseNumberJsonConverter());
         });
-*/
 
         return services;
     }

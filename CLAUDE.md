@@ -182,6 +182,16 @@ Vite proxies `/api/*` to `:5006`.
 
 **Dispatch UI principle**: fast decisions under mild pressure. Stops grouped by street/area; dispatcher selects group, selects team. No map required.
 
+## Technology Stack
+
+- **.NET 10** with C# 13
+- **EF Core 10.0.7** with SQLite
+- **Value Objects:** Configure all value object properties with either:
+  1. **ValueConverter** (traditional): `builder.Property(s => s.ZipCode).HasConversion(new ZipCodeValueConverter())`
+  2. **ComplexProperty** (EF Core 8+): `builder.ComplexProperty(s => s.Address, a => { a.Property(p => p.DisplayName).HasColumnName("AddressDisplayName"); })`
+  
+  The error "entity type requires a primary key" occurs when a value object property is discovered by EF Core's model builder but lacks configuration. Always add a converter or mark it as a complex property. Both approaches work; choose based on whether the VO is simple (converter) or composite (complex property).
+
 ## Key Conventions
 
 - **Value Objects** as C# records — prefer them over primitives in domain code.

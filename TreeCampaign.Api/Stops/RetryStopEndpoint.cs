@@ -11,10 +11,11 @@ public class RetryStopEndpoint
     public static async Task<IResult> Handle(
         IUnitOfWork unitOfWork,
         CampaignId campaignId,
-        StopId stopId
+        StopId stopId,
+        CancellationToken cancellationToken
     )
     {
-        var stop = await unitOfWork.GetRepository<UnresolvedStop, StopId>().TryFindAsync(stopId);
+        var stop = await unitOfWork.GetRepository<UnresolvedStop, StopId>().TryFindAsync(stopId, cancellationToken);
 
         if (stop == null || stop.CampaignId != campaignId)
         {
@@ -26,7 +27,7 @@ public class RetryStopEndpoint
         unitOfWork.GetRepository<UnresolvedStop, StopId>().Delete(stop);
         unitOfWork.GetRepository<AssignedStop, StopId>().Add(retriedStop);
 
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(ProjectionContext.StopProjection.From(retriedStop));
     }

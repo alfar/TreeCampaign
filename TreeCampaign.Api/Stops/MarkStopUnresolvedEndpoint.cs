@@ -12,10 +12,11 @@ public class MarkStopUnresolvedEndpoint
         IUnitOfWork unitOfWork,
         CampaignId campaignId,
         StopId stopId,
-        MarkStopUnresolvedCommand command
+        MarkStopUnresolvedCommand command,
+        CancellationToken cancellationToken
     )
     {
-        var stop = await unitOfWork.GetRepository<AssignedStop, StopId>().TryFindAsync(stopId);
+        var stop = await unitOfWork.GetRepository<AssignedStop, StopId>().TryFindAsync(stopId, cancellationToken);
 
         if (stop == null || stop.CampaignId != campaignId)
         {
@@ -27,7 +28,7 @@ public class MarkStopUnresolvedEndpoint
         unitOfWork.GetRepository<AssignedStop, StopId>().Delete(stop);
         unitOfWork.GetRepository<UnresolvedStop, StopId>().Add(unresolvedStop);
 
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(ProjectionContext.StopProjection.From(unresolvedStop));
     }

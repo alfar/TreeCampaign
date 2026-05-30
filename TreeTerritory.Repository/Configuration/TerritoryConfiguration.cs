@@ -20,6 +20,7 @@ internal static class TerritoryConfiguration
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).HasConversion(new TerritoryIdValueConverter());
         builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
+        builder.Property(c => c.DefaultZipCode).HasConversion(new NullableZipCodeValueConverter()).HasColumnName("DefaultZipCode");
         builder.HasMany<Neighborhood>().WithOne().HasForeignKey(s => s.TerritoryId);
     }
 }

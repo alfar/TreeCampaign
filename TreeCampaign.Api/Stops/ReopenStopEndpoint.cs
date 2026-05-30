@@ -11,10 +11,11 @@ public class ReopenStopEndpoint
     public static async Task<IResult> Handle(
         IUnitOfWork unitOfWork,
         CampaignId campaignId,
-        StopId stopId
+        StopId stopId,
+        CancellationToken cancellationToken
     )
     {
-        var stop = await unitOfWork.GetRepository<ReopenableStop, StopId>().TryFindAsync(stopId);
+        var stop = await unitOfWork.GetRepository<ReopenableStop, StopId>().TryFindAsync(stopId, cancellationToken);
 
         if (stop == null || stop.CampaignId != campaignId)
         {
@@ -26,7 +27,7 @@ public class ReopenStopEndpoint
         unitOfWork.GetRepository<ReopenableStop, StopId>().Delete(stop);
         unitOfWork.GetRepository<UnassignedStop, StopId>().Add(unassignedStop);
 
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(ProjectionContext.StopProjection.From(unassignedStop));
     }

@@ -12,13 +12,14 @@ internal class CreateTeamEndpoint
     internal static async Task<IResult> Handle(
         IUnitOfWork unitOfWork,
         CampaignId campaignId,
-        CreateTeamCommand command
+        CreateTeamCommand command,
+        CancellationToken cancellationToken
     )
     {
         var team = Team.Create(campaignId, command.Name);
 
         unitOfWork.GetRepository<Team, TeamId>().Add(team);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(team);
     }

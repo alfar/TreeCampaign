@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Common.Repository\Common.Repository.csproj" />
     <ProjectReference Include="..\TreeTerritory.Repository\TreeTerritory.Repository.csproj" />
+    <ProjectReference Include="..\TreeTerritory.Domain\TreeTerritory.Domain.csproj" />
   </ItemGroup>
 </Project>

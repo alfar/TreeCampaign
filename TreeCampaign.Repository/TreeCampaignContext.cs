@@ -35,15 +35,15 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
 
     public void Delete(Campaign aggregate) => CollectionCampaigns.Remove(aggregate);
 
-    async Task<Campaign?> IRepository<Campaign, CampaignId>.TryFindAsync(CampaignId key) =>
-        await CollectionCampaigns.FirstOrDefaultAsync(c => c.Id == key);
+    async Task<Campaign?> IRepository<Campaign, CampaignId>.TryFindAsync(CampaignId key, CancellationToken cancellationToken = default) =>
+        await CollectionCampaigns.FirstOrDefaultAsync(c => c.Id == key, cancellationToken);
 
     public void Add(UnassignedStop aggregate) => UnassignedStops.Add(aggregate);
 
     public void Delete(UnassignedStop aggregate) => UnassignedStops.Remove(aggregate);
 
-    async Task<UnassignedStop?> IRepository<UnassignedStop, StopId>.TryFindAsync(StopId key) =>
-        await UnassignedStops.FirstOrDefaultAsync(s => s.Id == key);
+    async Task<UnassignedStop?> IRepository<UnassignedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+        await UnassignedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(AssignedStop aggregate) => AssignedStops.Add(aggregate);
 
@@ -53,32 +53,32 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
 
     public void Delete(ReopenableStop aggregate) => ReopenableStops.Remove(aggregate);
 
-    async Task<ReopenableStop?> IRepository<ReopenableStop, StopId>.TryFindAsync(StopId key) =>
-        await ReopenableStops.FirstOrDefaultAsync(s => s.Id == key);
+    async Task<ReopenableStop?> IRepository<ReopenableStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+        await ReopenableStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
-    async Task<AssignedStop?> IRepository<AssignedStop, StopId>.TryFindAsync(StopId key) =>
-        await AssignedStops.FirstOrDefaultAsync(s => s.Id == key);
+    async Task<AssignedStop?> IRepository<AssignedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+        await AssignedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(CollectedStop aggregate) => CollectedStops.Add(aggregate);
 
     public void Delete(CollectedStop aggregate) => CollectedStops.Remove(aggregate);
 
-    async Task<CollectedStop?> IRepository<CollectedStop, StopId>.TryFindAsync(StopId key) =>
-        await CollectedStops.FirstOrDefaultAsync(s => s.Id == key);
+    async Task<CollectedStop?> IRepository<CollectedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+        await CollectedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(UnresolvedStop aggregate) => UnresolvedStops.Add(aggregate);
 
     public void Delete(UnresolvedStop aggregate) => UnresolvedStops.Remove(aggregate);
 
-    async Task<UnresolvedStop?> IRepository<UnresolvedStop, StopId>.TryFindAsync(StopId key) =>
-        await UnresolvedStops.FirstOrDefaultAsync(s => s.Id == key);
+    async Task<UnresolvedStop?> IRepository<UnresolvedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+        await UnresolvedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(Team aggregate) => Teams.Add(aggregate);
 
     public void Delete(Team aggregate) => Teams.Remove(aggregate);
 
-    async Task<Team?> IRepository<Team, TeamId>.TryFindAsync(TeamId key) =>
-        await Teams.FirstOrDefaultAsync(t => t.Id == key);
+    async Task<Team?> IRepository<Team, TeamId>.TryFindAsync(TeamId key, CancellationToken cancellationToken = default) =>
+        await Teams.FirstOrDefaultAsync(t => t.Id == key, cancellationToken);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

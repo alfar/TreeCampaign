@@ -10,13 +10,14 @@ internal class CreateCampaignEndpoint
 
     internal static async Task<IResult> Handle(
         IUnitOfWork unitOfWork,
-        CreateCampaignCommand command
+        CreateCampaignCommand command,
+        CancellationToken cancellationToken
     )
     {
         var campaign = Campaign.Create(command.Season);
 
         unitOfWork.GetRepository<Campaign, CampaignId>().Add(campaign);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(campaign);
     }
