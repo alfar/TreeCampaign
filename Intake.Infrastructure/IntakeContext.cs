@@ -1,0 +1,71 @@
+using Common.InfraStructure;
+using Common.InfraStructure.Abstractions;
+using Intake.Domain.Orders;
+using Intake.Domain.Orders.ValueObjects;
+using Intake.InfraStructure.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+
+namespace Intake.InfraStructure;
+
+public class IntakeContext(DbContextOptions<IntakeContext> options)
+    : OutboxDbContext(options),
+      IIntakeUnitOfWork,
+      IRepository<IncomingOrder, OrderId>,
+      IRepository<UnwashedOrder, OrderId>,
+      IRepository<WashedOrder, OrderId>,
+      IRepository<OutOfBoundsOrder, OrderId>,
+      IRepository<ValidatedOrder, OrderId>
+{
+    internal DbSet<OrderBase> Orders { get; set; }
+    public DbSet<IncomingOrder> IncomingOrders { get; set; }
+    public DbSet<UnwashedOrder> UnwashedOrders { get; set; }
+    public DbSet<WashedOrder> WashedOrders { get; set; }
+    public DbSet<OutOfBoundsOrder> OutOfBoundsOrders { get; set; }
+    public DbSet<ValidatedOrder> ValidatedOrders { get; set; }
+
+    public IRepository<TAggregate, TKey> GetRepository<TAggregate, TKey>() =>
+        (IRepository<TAggregate, TKey>)this;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.AddOrders();
+    }
+
+    public void Add(IncomingOrder aggregate) => IncomingOrders.Add(aggregate);
+    public void Delete(IncomingOrder aggregate) => IncomingOrders.Remove(aggregate);
+    async Task<IncomingOrder?> IRepository<IncomingOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken ct) =>
+        await IncomingOrders.FirstOrDefaultAsync(o => o.Id == key, ct);
+
+    public void Add(UnwashedOrder aggregate) => UnwashedOrders.Add(aggregate);
+    public void Delete(UnwashedOrder aggregate) => UnwashedOrders.Remove(aggregate);
+    async Task<UnwashedOrder?> IRepository<UnwashedOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken ct) =>
+        await UnwashedOrders.FirstOrDefaultAsync(o => o.Id == key, ct);
+
+    public void Add(WashedOrder aggregate) => WashedOrders.Add(aggregate);
+    public void Delete(WashedOrder aggregate) => WashedOrders.Remove(aggregate);
+    async Task<WashedOrder?> IRepository<WashedOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken ct) =>
+        await WashedOrders.FirstOrDefaultAsync(o => o.Id == key, ct);
+
+    public void Add(OutOfBoundsOrder aggregate) => OutOfBoundsOrders.Add(aggregate);
+    public void Delete(OutOfBoundsOrder aggregate) => OutOfBoundsOrders.Remove(aggregate);
+    async Task<OutOfBoundsOrder?> IRepository<OutOfBoundsOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken ct) =>
+        await OutOfBoundsOrders.FirstOrDefaultAsync(o => o.Id == key, ct);
+
+    public void Add(ValidatedOrder aggregate) => ValidatedOrders.Add(aggregate);
+    public void Delete(ValidatedOrder aggregate) => ValidatedOrders.Remove(aggregate);
+    async Task<ValidatedOrder?> IRepository<ValidatedOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken ct) =>
+        await ValidatedOrders.FirstOrDefaultAsync(o => o.Id == key, ct);
+}
+
+public class IntakeContextFactory : IDesignTimeDbContextFactory<IntakeContext>
+{
+    public IntakeContext CreateDbContext(string[] args)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<IntakeContext>();
+        var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
+        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        return new IntakeContext(optionsBuilder.Options);
+    }
+}

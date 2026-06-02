@@ -8,6 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Intake.Domain\Intake.Domain.csproj" />
-    <ProjectReference Include="..\Intake.Repository\Intake.Repository.csproj" />
+    <ProjectReference Include="..\Intake.InfraStructure\Intake.InfraStructure.csproj" />
   </ItemGroup>
 </Project>

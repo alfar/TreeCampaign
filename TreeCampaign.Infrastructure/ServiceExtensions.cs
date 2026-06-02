@@ -1,0 +1,34 @@
+using System;
+using Common.InfraStructure.Abstractions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using TreeCampaign.InfraStructure.Queries;
+
+namespace TreeCampaign.InfraStructure;
+
+public static class ServiceExtensions
+{
+    public static IServiceCollection AddTreeCampaignRepository(this IServiceCollection services)
+    {
+        services.AddDbContext<TreeCampaignContext>(options =>
+        {
+            var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
+
+            options.UseSqlite($"Data Source={dbPath}");
+        });
+
+        services.AddDbContext<ProjectionContext>(options =>
+        {
+            var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
+
+            options.UseSqlite($"Data Source={dbPath}");
+        });
+
+        services.AddScoped<ITreeCampaignUnitOfWork, TreeCampaignContext>();
+        services.AddScoped<IStopQueries, StopQueries>();
+        services.AddScoped<ICampaignQueries, CampaignQueries>();
+        services.AddScoped<ITeamQueries, TeamQueries>();
+
+        return services;
+    }
+}

@@ -4,7 +4,7 @@ using TreeTerritory.Domain.Streets.ValueObjects;
 using TreeTerritory.Domain.StreetSections.ValueObjects;
 using TreeTerritory.Domain.StreetSections;
 using TreeTerritory.Domain.Territories.ValueObjects;
-using TreeTerritory.Repository;
+using TreeTerritory.InfraStructure;
 
 namespace TreeTerritory.Api.Neighborhoods;
 

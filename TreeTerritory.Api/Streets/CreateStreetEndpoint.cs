@@ -1,6 +1,6 @@
 using TreeTerritory.Domain.Streets;
 using TreeTerritory.Domain.Streets.ValueObjects;
-using TreeTerritory.Repository;
+using TreeTerritory.InfraStructure;
 
 namespace TreeTerritory.Api.Streets;
 

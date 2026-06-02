@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common.InfraStructure\Common.InfraStructure.csproj" />
+    <ProjectReference Include="..\Intake.Domain\Intake.Domain.csproj" />
+    <ProjectReference Include="..\TreeTerritory.InfraStructure\TreeTerritory.InfraStructure.csproj" />
+    <ProjectReference Include="..\TreeCampaign.InfraStructure\TreeCampaign.InfraStructure.csproj" />
+  </ItemGroup>
+</Project>

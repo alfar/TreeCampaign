@@ -1,6 +1,6 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
-using TreeCampaign.Repository;
+using TreeCampaign.InfraStructure;
 
 namespace TreeCampaign.Api.Stops;
 

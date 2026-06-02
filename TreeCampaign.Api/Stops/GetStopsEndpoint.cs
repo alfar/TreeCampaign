@@ -1,6 +1,6 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
-using TreeCampaign.Repository.Queries;
+using TreeCampaign.InfraStructure.Queries;
 
 namespace TreeCampaign.Api.Stops;
 

@@ -88,7 +88,7 @@ OutOfBoundsOrder
 - `IAddressValidationService` — `Task<AddressValidationResult> ValidateAsync(ParsedAddress, CampaignRef, CancellationToken)`
 - `AddressValidationResult` — sealed discriminated union: `ValidationSuccess` | `StreetNotFound` | `HouseNumberOutOfBounds`
 
-**What's not yet built:** `Intake.Repository` (EF Core, validation service implementation), `Intake.Api` (endpoints).
+**What's not yet built:** `Intake.InfraStructure` (EF Core, validation service implementation), `Intake.Api` (endpoints).
 
 ## Context Interactions
 
@@ -126,17 +126,17 @@ npm run lint
 
 ### Entity Framework Migrations
 ```powershell
-# TreeCampaign migrations (TreeCampaign.Repository)
-dotnet ef database update --project TreeCampaign.Repository --startup-project Host.Api
-dotnet ef migrations add <Name> --project TreeCampaign.Repository --startup-project Host.Api
+# TreeCampaign migrations (TreeCampaign.InfraStructure)
+dotnet ef database update --project TreeCampaign.InfraStructure --startup-project Host.Api
+dotnet ef migrations add <Name> --project TreeCampaign.InfraStructure --startup-project Host.Api
 
-# Territory migrations (TreeTerritory.Repository)
-dotnet ef database update --project TreeTerritory.Repository --startup-project Host.Api
-dotnet ef migrations add <Name> --project TreeTerritory.Repository --startup-project Host.Api
+# Territory migrations (TreeTerritory.InfraStructure)
+dotnet ef database update --project TreeTerritory.InfraStructure --startup-project Host.Api
+dotnet ef migrations add <Name> --project TreeTerritory.InfraStructure --startup-project Host.Api
 
-# Intake migrations (Intake.Repository) — not yet created
-dotnet ef database update --project Intake.Repository --startup-project Host.Api
-dotnet ef migrations add <Name> --project Intake.Repository --startup-project Host.Api
+# Intake migrations (Intake.InfraStructure) — not yet created
+dotnet ef database update --project Intake.InfraStructure --startup-project Host.Api
+dotnet ef migrations add <Name> --project Intake.InfraStructure --startup-project Host.Api
 ```
 
 Database is SQLite, written to `{BaseDirectory}/app.db` at runtime.
@@ -146,12 +146,12 @@ Database is SQLite, written to `{BaseDirectory}/app.db` at runtime.
 | Project | Type | Role |
 |---|---|---|
 | `Common.Domain` | Class Library | Shared domain abstractions: `IDomainEvent` |
-| `Common.Repository` | Class Library | Shared infrastructure abstractions: `IUnitOfWork`, `IRepository<TAggregate, TId>` |
+| `Common.InfraStructure` | Class Library | Shared infrastructure abstractions: `IUnitOfWork`, `IRepository<TAggregate, TId>` |
 | `TreeCampaign.Domain` | Class Library | Pure domain logic — no external dependencies |
-| `TreeCampaign.Repository` | Class Library | EF Core + SQLite, dual DbContext pattern |
+| `TreeCampaign.InfraStructure` | Class Library | EF Core + SQLite, dual DbContext pattern |
 | `TreeCampaign.Api` | Class Library | Endpoint extension methods for TreeCampaign context |
 | `TreeTerritory.Domain` | Class Library | Pure domain logic for Territory context |
-| `TreeTerritory.Repository` | Class Library | EF Core persistence for Territory context |
+| `TreeTerritory.InfraStructure` | Class Library | EF Core persistence for Territory context |
 | `TreeTerritory.Api` | Class Library | Endpoint extension methods for Territory context |
 | `Intake.Domain` | Class Library | Pure domain logic for Intake context |
 | `Host.Api` | ASP.NET Core | Web host — wires up all bounded context endpoints |

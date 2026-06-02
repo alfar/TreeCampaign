@@ -1,6 +1,6 @@
 using TreeCampaign.Api.Campaigns;
 using TreeCampaign.Api.Stops;
-using TreeCampaign.Repository;
+using TreeCampaign.InfraStructure;
 
 namespace TreeCampaign.Api;
 

@@ -1,4 +1,4 @@
-using Intake.Repository;
+using Intake.InfraStructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
