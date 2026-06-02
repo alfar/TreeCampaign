@@ -1,15 +1,13 @@
-using System;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
-using TreeCampaign.Domain.Teams;
-using Common.Repository.Abstractions;
+using TreeCampaign.Repository;
 
 namespace TreeCampaign.Api.Stops;
 
 public class CorrectStopEndpoint
 {
     public static async Task<IResult> Handle(
-        IUnitOfWork unitOfWork,
+        ITreeCampaignUnitOfWork unitOfWork,
         CampaignId campaignId,
         StopId stopId,
         CancellationToken cancellationToken

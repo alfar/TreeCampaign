@@ -1,6 +1,6 @@
-using Common.Repository.Abstractions;
 using TreeTerritory.Domain.Streets;
 using TreeTerritory.Domain.Streets.ValueObjects;
+using TreeTerritory.Repository;
 
 namespace TreeTerritory.Api.Streets;
 
@@ -10,7 +10,7 @@ internal class CreateStreetEndpoint
 
     internal static async Task<IResult> Handle(
         CreateStreetRequest request,
-        IUnitOfWork unitOfWork,
+        ITreeTerritoryUnitOfWork unitOfWork,
         CancellationToken cancellationToken
     )
     {

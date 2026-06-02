@@ -1,3 +1,5 @@
+using Common.Domain.Abstractions;
+
 namespace TreeCampaign.Domain.Stops.Events;
 
 public sealed record StopMarkedUnresolved(StopId Id, ReasonText UnresolvedReason) : IDomainEvent

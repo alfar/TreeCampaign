@@ -21,7 +21,7 @@ public class UnassignedStop : StopBase
         return result;
     }
 
-    internal UnassignedStop() { }
+    private UnassignedStop() { }
 
     public AssignedStop AssignToTeam(TeamId teamId)
     {

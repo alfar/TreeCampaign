@@ -26,6 +26,9 @@ namespace TreeCampaign.Repository.Migrations
                     b.Property<int>("Season")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("TerritoryId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.ToTable("Campaigns", (string)null);

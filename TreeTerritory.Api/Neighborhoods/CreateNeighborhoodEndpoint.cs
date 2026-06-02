@@ -1,7 +1,7 @@
-using Common.Repository.Abstractions;
 using TreeTerritory.Domain.Neighborhoods;
 using TreeTerritory.Domain.Neighborhoods.ValueObjects;
 using TreeTerritory.Domain.Territories.ValueObjects;
+using TreeTerritory.Repository;
 
 namespace TreeTerritory.Api.Neighborhoods;
 
@@ -12,7 +12,7 @@ internal class CreateNeighborhoodEndpoint
     internal static async Task<IResult> Handle(
         TerritoryId territoryId,
         CreateNeighborhoodRequest request,
-        IUnitOfWork unitOfWork,
+        ITreeTerritoryUnitOfWork unitOfWork,
         CancellationToken cancellationToken
     )
     {

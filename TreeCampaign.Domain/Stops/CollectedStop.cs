@@ -8,7 +8,7 @@ public class CollectedStop : ReopenableStop
 {
     public required TeamId CollectedByTeamId { get; init; }
 
-    internal CollectedStop() { }
+    private CollectedStop() { }
 
     public AssignedStop CorrectMistakenCollection()
     {

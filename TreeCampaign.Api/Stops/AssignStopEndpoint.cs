@@ -1,7 +1,7 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Teams.ValueObjects;
-using Common.Repository.Abstractions;
+using TreeCampaign.Repository;
 
 namespace TreeCampaign.Api.Stops;
 
@@ -10,7 +10,7 @@ public class AssignStopEndpoint
     public record AssignStopCommand(TeamId TeamId);
 
     public static async Task<IResult> Handle(
-        IUnitOfWork unitOfWork,
+        ITreeCampaignUnitOfWork unitOfWork,
         CampaignId campaignId,
         StopId stopId,
         AssignStopCommand command,

@@ -1,6 +1,6 @@
-using Common.Repository.Abstractions;
 using TreeTerritory.Domain.Territories;
 using TreeTerritory.Domain.Territories.ValueObjects;
+using TreeTerritory.Repository;
 
 namespace TreeTerritory.Api.Territories;
 
@@ -10,7 +10,7 @@ internal class CreateTerritoryEndpoint
 
     internal static async Task<IResult> Handle(
         CreateTerritoryRequest request,
-        IUnitOfWork unitOfWork,
+        ITreeTerritoryUnitOfWork unitOfWork,
         CancellationToken cancellationToken
     )
     {

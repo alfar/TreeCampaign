@@ -1,16 +1,14 @@
-using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Repository;
-using Common.Repository.Abstractions;
 
 internal class CreateTeamEndpoint
 {
     public record CreateTeamCommand(TeamName Name);
 
     internal static async Task<IResult> Handle(
-        IUnitOfWork unitOfWork,
+        ITreeCampaignUnitOfWork unitOfWork,
         CampaignId campaignId,
         CreateTeamCommand command,
         CancellationToken cancellationToken

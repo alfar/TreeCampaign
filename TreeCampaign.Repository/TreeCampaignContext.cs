@@ -12,7 +12,7 @@ namespace TreeCampaign.Repository;
 
 public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
     : DbContext(options),
-        IUnitOfWork,
+        ITreeCampaignUnitOfWork,
         IRepository<Campaign, CampaignId>,
         IRepository<UnassignedStop, StopId>,
         IRepository<AssignedStop, StopId>,
@@ -35,14 +35,14 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
 
     public void Delete(Campaign aggregate) => CollectionCampaigns.Remove(aggregate);
 
-    async Task<Campaign?> IRepository<Campaign, CampaignId>.TryFindAsync(CampaignId key, CancellationToken cancellationToken = default) =>
+    async Task<Campaign?> IRepository<Campaign, CampaignId>.TryFindAsync(CampaignId key, CancellationToken cancellationToken) =>
         await CollectionCampaigns.FirstOrDefaultAsync(c => c.Id == key, cancellationToken);
 
     public void Add(UnassignedStop aggregate) => UnassignedStops.Add(aggregate);
 
     public void Delete(UnassignedStop aggregate) => UnassignedStops.Remove(aggregate);
 
-    async Task<UnassignedStop?> IRepository<UnassignedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+    async Task<UnassignedStop?> IRepository<UnassignedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken) =>
         await UnassignedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(AssignedStop aggregate) => AssignedStops.Add(aggregate);
@@ -53,31 +53,31 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
 
     public void Delete(ReopenableStop aggregate) => ReopenableStops.Remove(aggregate);
 
-    async Task<ReopenableStop?> IRepository<ReopenableStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+    async Task<ReopenableStop?> IRepository<ReopenableStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken) =>
         await ReopenableStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
-    async Task<AssignedStop?> IRepository<AssignedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+    async Task<AssignedStop?> IRepository<AssignedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken) =>
         await AssignedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(CollectedStop aggregate) => CollectedStops.Add(aggregate);
 
     public void Delete(CollectedStop aggregate) => CollectedStops.Remove(aggregate);
 
-    async Task<CollectedStop?> IRepository<CollectedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+    async Task<CollectedStop?> IRepository<CollectedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken) =>
         await CollectedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(UnresolvedStop aggregate) => UnresolvedStops.Add(aggregate);
 
     public void Delete(UnresolvedStop aggregate) => UnresolvedStops.Remove(aggregate);
 
-    async Task<UnresolvedStop?> IRepository<UnresolvedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken = default) =>
+    async Task<UnresolvedStop?> IRepository<UnresolvedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken) =>
         await UnresolvedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(Team aggregate) => Teams.Add(aggregate);
 
     public void Delete(Team aggregate) => Teams.Remove(aggregate);
 
-    async Task<Team?> IRepository<Team, TeamId>.TryFindAsync(TeamId key, CancellationToken cancellationToken = default) =>
+    async Task<Team?> IRepository<Team, TeamId>.TryFindAsync(TeamId key, CancellationToken cancellationToken) =>
         await Teams.FirstOrDefaultAsync(t => t.Id == key, cancellationToken);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -88,7 +88,7 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
     public IRepository<TAggregate, TKey> GetRepository<TAggregate, TKey>() =>
         (IRepository<TAggregate, TKey>)this;
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         var entities = ChangeTracker.Entries<StopBase>();
 

@@ -16,5 +16,6 @@ internal static class CampaignConfiguration
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).HasConversion(new CampaignIdValueConverter());
         builder.Property(c => c.Season).HasConversion(new CampaignSeasonValueConverter());
+        builder.Property(c => c.TerritoryId).HasConversion(new NullableTerritoryRefValueConverter());
     }
 }

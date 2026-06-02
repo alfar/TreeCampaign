@@ -18,6 +18,8 @@ Manages campaign seasons, stop assignment, and team dispatch. Receives validated
 
 **Stop ordering** is a read-model concern only: when displaying a team's assigned stops, sort by `StreetSection.SortOrder` (from Territory), then by house number ascending or descending per `StreetSection.Direction`. The old paper route cap of 8 trees is gone — the dispatcher assigns stops to teams dynamically in real time.
 
+**Campaign** carries a `TerritoryRef` (local value object wrapping a Guid, defined in `TreeCampaign.Domain/Campaigns/ExternalReferences/`) to scope address validation to the right territory. This is a correlation ID — Campaign has no compile-time dependency on the Territory domain.
+
 ### Territory (supporting subdomain) — implemented
 
 The authority on which addresses exist in the service area and how they are traversed. Has no knowledge of payments, stops, or campaigns.
@@ -46,34 +48,47 @@ Street (separate aggregate — a street can span multiple neighborhoods)
 - ID generation: All aggregates auto-generate GUIDs in their factory methods (e.g., `Territory.Create(name)` generates its own TerritoryId).
 - `Neighborhood._streetSections` is a backing field with EF Core field access mode; the public `StreetSections` property is read-only.
 - Direction enum stored as `byte` in SQLite for space efficiency.
-- Repository pattern: TreeTerritoryContext implements `IUnitOfWork` and `IRepository<T, TId>` for all aggregates.
+- Repository pattern: `TreeTerritoryContext` implements `ITreeTerritoryUnitOfWork` and `IRepository<T, TId>` for all aggregates.
 
 **Responsibilities:** validate a raw address against known streets and number ranges; return structured address data and sort metadata to callers; accept "add new street" commands triggered by Intake.
 
-### Intake (supporting subdomain) — not yet built
+### Intake (supporting subdomain) — domain layer implemented
 
-Turns raw CSV payment rows into validated orders submitted to TreeCampaign.
+Turns raw payment messages into validated orders submitted to TreeCampaign.
 
-**Domain model:**
+**Domain model — type-based state machine** (same Zoran Horvat style as Stops):
+
 ```
 IncomingOrder
-  ├─ RawText       (original CSV line, including any greeting text)
-  ├─ Amount (DKK)
-  ├─ WashedAddress (nullable — set after address washing)
-  └─ State: Pending | AwaitingResolution | Validated | Submitted | Rejected
+  ├─ Accept(ValidationSuccess)       → ValidatedOrder
+  ├─ MarkUnwashed()                  → UnwashedOrder      (street not found, or parse failed)
+  └─ MarkOutOfBounds(result)         → OutOfBoundsOrder   (street found, house number outside sections)
+
+UnwashedOrder
+  ├─ Accept(ValidationSuccess)       → ValidatedOrder     (bulk retry: street now exists in Territory)
+  └─ Wash(WashedAddress)             → WashedOrder
+
+WashedOrder
+  ├─ Accept(ValidationSuccess)       → ValidatedOrder
+  └─ MarkOutOfBounds(result)         → OutOfBoundsOrder
+
+OutOfBoundsOrder
+  └─ Accept(ValidationSuccess)       → ValidatedOrder     (retry after Territory section expanded)
 ```
 
-**Flow:**
-1. Import CSV → one `IncomingOrder` per row, state `Pending`
-2. Wash address text (strip greetings, extract the address string)
-3. Validate against Territory → match found: `Validated`; no match: `AwaitingResolution`
-4. Resolution queue (human reviews unresolved orders), three outcomes:
-   - **Reject** → `Rejected`, trigger refund
-   - **Adjust** → correct address, re-validate against Territory
-   - **Add street** → instruct Territory to add the street, then re-validate
-5. `Validated` → submit to TreeCampaign, which creates an `UnassignedStop`
+`OrderBase` carries: `OrderId`, `CampaignRef`, `Sender` (name + phone), `MoneyAmount`, `OrderDate`, `Message` (original free text).
 
-`AddressResolution` is an Intake concern. Territory is a service Intake calls; the pending payment lifecycle belongs to Intake.
+**Value objects:**
+- `ParsedAddress(StreetName, HouseNumber, ZipCode?, City?)` — what the auto-parser extracted from `Message`
+- `WashedAddress(StreetName, HouseNumber, ZipCode?)` — what a human operator explicitly supplied
+- Cross-context refs in `ExternalReferences/`: `TerritoryRef`, `NeighborhoodRef`, `StreetRef`, `StreetSectionRef`, `CampaignRef`
+
+**Service interfaces (in `Intake.Domain/Orders/Services/`):**
+- `IAddressParser` — `ParsedAddress? TryParse(string message)`
+- `IAddressValidationService` — `Task<AddressValidationResult> ValidateAsync(ParsedAddress, CampaignRef, CancellationToken)`
+- `AddressValidationResult` — sealed discriminated union: `ValidationSuccess` | `StreetNotFound` | `HouseNumberOutOfBounds`
+
+**What's not yet built:** `Intake.Repository` (EF Core, validation service implementation), `Intake.Api` (endpoints).
 
 ## Context Interactions
 
@@ -89,7 +104,8 @@ TreeCampaign ──reads► Territory       (projection: sort order + direction 
 These are unsettled and should be discussed before building the relevant parts:
 
 - How do Intake and TreeCampaign communicate when an order is submitted — domain event, direct call, or anti-corruption layer?
-- Address washing: regex heuristic or LLM-assisted?
+- Address parsing: regex heuristic or LLM-assisted?
+- Should `OutOfBoundsOrder` be re-validatable directly, or does it always require human review first?
 
 ## Build & Run Commands
 
@@ -117,6 +133,10 @@ dotnet ef migrations add <Name> --project TreeCampaign.Repository --startup-proj
 # Territory migrations (TreeTerritory.Repository)
 dotnet ef database update --project TreeTerritory.Repository --startup-project Host.Api
 dotnet ef migrations add <Name> --project TreeTerritory.Repository --startup-project Host.Api
+
+# Intake migrations (Intake.Repository) — not yet created
+dotnet ef database update --project Intake.Repository --startup-project Host.Api
+dotnet ef migrations add <Name> --project Intake.Repository --startup-project Host.Api
 ```
 
 Database is SQLite, written to `{BaseDirectory}/app.db` at runtime.
@@ -125,17 +145,19 @@ Database is SQLite, written to `{BaseDirectory}/app.db` at runtime.
 
 | Project | Type | Role |
 |---|---|---|
-| `Common.Repository` | Class Library | Shared abstractions: `IUnitOfWork`, `IRepository<TAggregate, TId>` |
+| `Common.Domain` | Class Library | Shared domain abstractions: `IDomainEvent` |
+| `Common.Repository` | Class Library | Shared infrastructure abstractions: `IUnitOfWork`, `IRepository<TAggregate, TId>` |
 | `TreeCampaign.Domain` | Class Library | Pure domain logic — no external dependencies |
 | `TreeCampaign.Repository` | Class Library | EF Core + SQLite, dual DbContext pattern |
 | `TreeCampaign.Api` | Class Library | Endpoint extension methods for TreeCampaign context |
 | `TreeTerritory.Domain` | Class Library | Pure domain logic for Territory context |
 | `TreeTerritory.Repository` | Class Library | EF Core persistence for Territory context |
 | `TreeTerritory.Api` | Class Library | Endpoint extension methods for Territory context |
+| `Intake.Domain` | Class Library | Pure domain logic for Intake context |
 | `Host.Api` | ASP.NET Core | Web host — wires up all bounded context endpoints |
 | `TreeCampaign.UI` | React/Vite | Frontend SPA |
 
-Dependency direction: `Host.Api` → `*.Api` → `*.Repository` → `*.Domain`.
+Dependency direction: `Host.Api` → `*.Api` → `*.Repository` → `*.Domain` → `Common.Domain`.
 
 ### Domain Model (Stop state machine)
 
@@ -152,16 +174,39 @@ UnassignedStop → AssignedStop → CollectedStop
 AssignedStop ← CorrectMistakenCollection ← CollectedStop
 ```
 
-Each transition raises an `IDomainEvent`. Events are persisted to `StoredDomainEvents` and cleared from the aggregate after save, intended for future projections and analytics.
+Each transition raises an `IDomainEvent` (from `Common.Domain`). Events are persisted to `StoredDomainEvents` and cleared from the aggregate after save, intended for future projections and analytics.
 
 EF Core maps the hierarchy via **Table-Per-Hierarchy (TPH)** with a `StopType` discriminator column. The repository explicitly nulls `AssignedTeamId` when saving an `UnassignedStop` — an invariant EF cannot enforce through TPH alone.
 
 ### Data Access
 
-- **`TreeCampaignContext`** — write model (aggregates + event log)
+- **`TreeCampaignContext`** — write model (aggregates + event log); implements `ITreeCampaignUnitOfWork`
 - **`ProjectionContext`** — read-only, `AsNoTracking`, flat DTOs; never exposes domain entities to the UI
-- Repositories via `IUnitOfWork.GetRepository<TAggregate, TId>()`
+- Repositories via the context-specific unit of work interface (see IUnitOfWork convention below)
 - All Value Objects have EF Core value converters (e.g., `StopId` ↔ `Guid`)
+
+### IUnitOfWork Convention
+
+Each bounded context defines its own empty sub-interface of `IUnitOfWork` to avoid DI registration conflicts when multiple contexts are registered in one host:
+
+```csharp
+public interface ITreeCampaignUnitOfWork : IUnitOfWork { }
+public interface ITreeTerritoryUnitOfWork : IUnitOfWork { }
+public interface IIntakeUnitOfWork : IUnitOfWork { }
+```
+
+Each context's `ServiceExtensions` registers only its own sub-interface. Endpoints inject the context-specific interface, never the base `IUnitOfWork`.
+
+### Cross-Context References
+
+When one bounded context needs to reference an entity from another, it defines a local **reference record** in an `ExternalReferences/` folder — a named wrapper around a `Guid` with no compile-time dependency on the other context:
+
+```csharp
+// In Intake.Domain/Orders/ExternalReferences/
+public record TerritoryRef(Guid Value) { public static TerritoryRef From(Guid v) => new(v); }
+```
+
+This keeps contexts isolated at the project level while preserving meaningful naming. The same pattern applies to `TerritoryRef` in `TreeCampaign.Domain/Campaigns/ExternalReferences/`.
 
 ### API
 
@@ -195,7 +240,8 @@ Vite proxies `/api/*` to `:5006`.
 ## Key Conventions
 
 - **Value Objects** as C# records — prefer them over primitives in domain code.
-- **Sealed classes** for Stop state variants — use pattern matching. No enums for state.
-- DI registration centralized in `ServiceExtensions.AddTreeCampaign()`.
+- **Type-based state machines** for aggregates with lifecycle — no `State` enum, no `State` property. Each state is its own class exposing only valid behavior. Transitions return a new instance via `internal static CreateFrom()` factories.
+- **ExternalReferences/** folder for cross-context IDs — local record wrappers around Guid, never imported types from another context's domain project.
+- DI registration centralized in `ServiceExtensions.Add*()` per bounded context.
 - No dedicated test projects — Scalar UI serves for integration validation.
 - Favor practical usability over theoretical optimality; explicit modeling over clever abstraction.

@@ -1,10 +1,9 @@
-using Common.Repository.Abstractions;
 using TreeTerritory.Domain.Neighborhoods;
 using TreeTerritory.Domain.Neighborhoods.ValueObjects;
 using TreeTerritory.Domain.Streets.ValueObjects;
 using TreeTerritory.Domain.StreetSections;
-using TreeTerritory.Domain.StreetSections.ValueObjects;
 using TreeTerritory.Domain.Territories.ValueObjects;
+using TreeTerritory.Repository;
 
 namespace TreeTerritory.Api.Neighborhoods;
 
@@ -16,7 +15,7 @@ internal class AddStreetSectionToNeighborhoodEndpoint
         TerritoryId territoryId,
         NeighborhoodId neighborhoodId,
         AddStreetSectionToNeighborhoodRequest request,
-        IUnitOfWork unitOfWork,
+        ITreeTerritoryUnitOfWork unitOfWork,
         CancellationToken cancellationToken
     )
     {

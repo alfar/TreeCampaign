@@ -8,7 +8,7 @@ public class AssignedStop : StopBase
 {
     public required TeamId AssignedTeamId { get; init; }
 
-    internal AssignedStop() { }
+    private AssignedStop() { }
 
     public UnassignedStop Unassign()
     {

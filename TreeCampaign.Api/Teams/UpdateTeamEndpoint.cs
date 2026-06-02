@@ -1,14 +1,14 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
-using Common.Repository.Abstractions;
+using TreeCampaign.Repository;
 
 internal class UpdateTeamEndpoint
 {
     public record UpdateTeamCommand(TeamName Name);
 
     internal static async Task<IResult> Handle(
-        IUnitOfWork unitOfWork,
+        ITreeCampaignUnitOfWork unitOfWork,
         CampaignId campaignId,
         TeamId teamId,
         UpdateTeamCommand command,

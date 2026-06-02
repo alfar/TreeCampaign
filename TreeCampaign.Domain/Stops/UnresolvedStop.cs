@@ -9,7 +9,7 @@ public class UnresolvedStop : ReopenableStop
     public required ReasonText UnresolvedReason { get; init; }
     public required TeamId UnresolvedByTeamId { get; init; }
 
-    internal UnresolvedStop() { }
+    private UnresolvedStop() { }
 
     public AssignedStop Retry()
     {

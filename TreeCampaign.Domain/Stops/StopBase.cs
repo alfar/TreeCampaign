@@ -1,3 +1,4 @@
+using Common.Domain.Abstractions;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 
 namespace TreeCampaign.Domain.Stops;

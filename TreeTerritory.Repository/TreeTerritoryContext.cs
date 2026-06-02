@@ -16,7 +16,7 @@ namespace TreeTerritory.Repository;
 
 public class TreeTerritoryContext(DbContextOptions<TreeTerritoryContext> options)
     : DbContext(options),
-        IUnitOfWork,
+        ITreeTerritoryUnitOfWork,
         IRepository<Territory, TerritoryId>,
         IRepository<Neighborhood, NeighborhoodId>,
         IRepository<Street, StreetId>,

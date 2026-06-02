@@ -10,4 +10,8 @@
     <Folder Include="Stops\Events\" />
     <Folder Include="Teams\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common.Domain\Common.Domain.csproj" />
+  </ItemGroup>
 </Project>
