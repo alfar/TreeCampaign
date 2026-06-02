@@ -3,7 +3,7 @@ using TreeCampaign.Domain.Campaigns.ValueObjects;
 
 namespace TreeCampaign.Domain.Stops;
 
-public abstract class StopBase
+public abstract class StopBase : IHasDomainEvents
 {
     private readonly List<IDomainEvent> _newEvents = new();
     public IReadOnlyCollection<IDomainEvent> NewEvents => _newEvents.AsReadOnly();

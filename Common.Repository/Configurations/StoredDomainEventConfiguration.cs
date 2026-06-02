@@ -1,7 +1,8 @@
+using Common.Repository.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TreeCampaign.Repository.Events;
-using TreeCampaign.Repository.ValueConverters;
+
+namespace Common.Repository.Configurations;
 
 internal static class StoredDomainEventConfiguration
 {

@@ -6,12 +6,11 @@ using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
-using TreeCampaign.Repository.Events;
 
 namespace TreeCampaign.Repository;
 
 public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
-    : DbContext(options),
+    : OutboxDbContext(options),
         ITreeCampaignUnitOfWork,
         IRepository<Campaign, CampaignId>,
         IRepository<UnassignedStop, StopId>,
@@ -29,7 +28,6 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
     public DbSet<CollectedStop> CollectedStops { get; set; }
     public DbSet<UnresolvedStop> UnresolvedStops { get; set; }
     public DbSet<Team> Teams { get; set; }
-    public DbSet<StoredDomainEvent> StoredDomainEvents { get; set; }
 
     public void Add(Campaign aggregate) => CollectionCampaigns.Add(aggregate);
 
@@ -82,42 +80,12 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.AddCampaigns().AddTeams().AddStops().AddStoredDomainEvents();
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.AddCampaigns().AddTeams().AddStops();
     }
 
     public IRepository<TAggregate, TKey> GetRepository<TAggregate, TKey>() =>
         (IRepository<TAggregate, TKey>)this;
-
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
-    {
-        var entities = ChangeTracker.Entries<StopBase>();
-
-        var events = entities.SelectMany(e => e.Entity.NewEvents).ToList();
-
-        var result = await base.SaveChangesAsync(cancellationToken);
-
-        if (events.Count > 0)
-        {
-            StoredDomainEvents.AddRange(
-                events.Select(e => new StoredDomainEvent
-                {
-                    AggregateId = e.AggregateId,
-                    OccurredAtUtc = e.OccurredOn.UtcDateTime,
-                    Type = e.GetType().FullName!,
-                    Data = System.Text.Json.JsonSerializer.Serialize(e, e.GetType()),
-                })
-            );
-
-            await base.SaveChangesAsync(cancellationToken);
-
-            foreach (var entry in entities)
-            {
-                entry.Entity.ClearEvents();
-            }
-        }
-
-        return result;
-    }
 }
 
 public class TreeCampaignContextFactory : IDesignTimeDbContextFactory<TreeCampaignContext>

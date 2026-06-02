@@ -4,7 +4,7 @@ using Intake.Domain.Orders.ValueObjects;
 
 namespace Intake.Domain.Orders;
 
-public abstract class OrderBase
+public abstract class OrderBase : IHasDomainEvents
 {
     private readonly List<IDomainEvent> _newEvents = new();
     public IReadOnlyCollection<IDomainEvent> NewEvents => _newEvents.AsReadOnly();
