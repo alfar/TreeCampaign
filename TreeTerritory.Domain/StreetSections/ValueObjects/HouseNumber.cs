@@ -1,3 +1,5 @@
+namespace TreeTerritory.Domain.StreetSections.ValueObjects;
+
 public record HouseNumber(int Number, char? Letter = null) : IComparable<HouseNumber>
 {
     public static HouseNumber Parse(string value)

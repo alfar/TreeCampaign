@@ -12,8 +12,8 @@ using TreeCampaign.Repository;
 namespace TreeCampaign.Repository.Migrations
 {
     [DbContext(typeof(TreeCampaignContext))]
-    [Migration("20260602194602_AddProcessedAtToStoredDomainEvents")]
-    partial class AddProcessedAtToStoredDomainEvents
+    [Migration("20260602202925_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,7 +46,10 @@ namespace TreeCampaign.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StoredDomainEvents", (string)null);
+                    b.ToTable("StoredDomainEvents", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("TreeCampaign.Domain.Campaigns.Campaign", b =>

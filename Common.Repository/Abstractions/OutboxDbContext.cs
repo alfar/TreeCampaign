@@ -12,7 +12,7 @@ public abstract class OutboxDbContext(DbContextOptions options) : DbContext(opti
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.AddStoredDomainEvents();
+        modelBuilder.AddStoredDomainEventsWithoutMigrations();
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

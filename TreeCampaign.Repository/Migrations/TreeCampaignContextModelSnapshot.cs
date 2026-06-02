@@ -43,7 +43,10 @@ namespace TreeCampaign.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StoredDomainEvents", (string)null);
+                    b.ToTable("StoredDomainEvents", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("TreeCampaign.Domain.Campaigns.Campaign", b =>

@@ -1,6 +1,7 @@
 using TreeTerritory.Domain.Neighborhoods;
 using TreeTerritory.Domain.Neighborhoods.ValueObjects;
 using TreeTerritory.Domain.Streets.ValueObjects;
+using TreeTerritory.Domain.StreetSections.ValueObjects;
 using TreeTerritory.Domain.StreetSections;
 using TreeTerritory.Domain.Territories.ValueObjects;
 using TreeTerritory.Repository;

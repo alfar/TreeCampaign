@@ -1,3 +1,4 @@
+using Intake.Api;
 using Scalar.AspNetCore;
 using TreeCampaign.Api;
 using TreeTerritory.Api;
@@ -8,10 +9,10 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddTreeCampaign();
 builder.Services.AddTreeTerritory();
+builder.Services.AddIntake();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -20,5 +21,6 @@ if (app.Environment.IsDevelopment())
 
 app.MapTreeCampaignEndpoints();
 app.MapTreeTerritoryEndpoints();
+app.MapIntakeEndpoints();
 
 app.Run();

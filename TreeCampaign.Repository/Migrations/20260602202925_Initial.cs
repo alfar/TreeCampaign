@@ -6,23 +6,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TreeCampaign.Repository.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "CollectionCampaigns",
+                name: "Campaigns",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Season = table.Column<int>(type: "INTEGER", nullable: false),
+                    TerritoryId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CollectionCampaigns", x => x.Id);
-                }
-            );
+                    table.PrimaryKey("PK_Campaigns", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Stops",
@@ -31,18 +31,17 @@ namespace TreeCampaign.Repository.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     CampaignId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Amount = table.Column<int>(type: "INTEGER", nullable: false),
-                    StopType = table.Column<string>(type: "TEXT", maxLength: 13, nullable: false),
+                    StopType = table.Column<string>(type: "TEXT", maxLength: 21, nullable: false),
                     AddressDisplayName = table.Column<string>(type: "TEXT", nullable: false),
                     AddressLatitude = table.Column<decimal>(type: "TEXT", nullable: false),
                     AddressLongitude = table.Column<decimal>(type: "TEXT", nullable: false),
                     AssignedTeamId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    UnresolvedReason = table.Column<string>(type: "TEXT", nullable: true),
+                    UnresolvedReason = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Stops", x => x.Id);
-                }
-            );
+                });
 
             migrationBuilder.CreateTable(
                 name: "Teams",
@@ -50,23 +49,25 @@ namespace TreeCampaign.Repository.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    CollectionCampaignId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CampaignId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Teams", x => x.Id);
-                }
-            );
+                });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(name: "CollectionCampaigns");
+            migrationBuilder.DropTable(
+                name: "Campaigns");
 
-            migrationBuilder.DropTable(name: "Stops");
+            migrationBuilder.DropTable(
+                name: "Stops");
 
-            migrationBuilder.DropTable(name: "Teams");
+            migrationBuilder.DropTable(
+                name: "Teams");
         }
     }
 }

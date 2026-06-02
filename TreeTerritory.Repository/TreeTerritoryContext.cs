@@ -1,4 +1,3 @@
-
 using Common.Repository.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;

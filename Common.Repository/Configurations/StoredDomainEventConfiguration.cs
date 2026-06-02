@@ -13,6 +13,13 @@ internal static class StoredDomainEventConfiguration
         return modelBuilder;
     }
 
+    public static ModelBuilder AddStoredDomainEventsWithoutMigrations(this ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<StoredDomainEvent>().Configure().Metadata.SetIsTableExcludedFromMigrations(true);
+
+        return modelBuilder;
+    }
+
     public static EntityTypeBuilder<StoredDomainEvent> Configure(
         this EntityTypeBuilder<StoredDomainEvent> builder
     )
