@@ -16,7 +16,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Common.InfraStructure\Common.InfraStructure.csproj" />
     <ProjectReference Include="..\Intake.Domain\Intake.Domain.csproj" />
-    <ProjectReference Include="..\TreeTerritory.InfraStructure\TreeTerritory.InfraStructure.csproj" />
-    <ProjectReference Include="..\TreeCampaign.InfraStructure\TreeCampaign.InfraStructure.csproj" />
   </ItemGroup>
 </Project>

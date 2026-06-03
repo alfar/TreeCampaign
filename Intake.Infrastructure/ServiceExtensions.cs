@@ -1,6 +1,6 @@
 using Intake.Domain.Orders.Services;
+using Intake.Domain.Services;
 using Intake.InfraStructure.Queries;
-using Intake.InfraStructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

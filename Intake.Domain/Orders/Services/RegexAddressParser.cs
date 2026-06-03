@@ -2,15 +2,15 @@ using System.Text.RegularExpressions;
 using Intake.Domain.Orders.Services;
 using Intake.Domain.Orders.ValueObjects;
 
-namespace Intake.InfraStructure.Services;
+namespace Intake.Domain.Services;
 
 public class RegexAddressParser : IAddressParser
 {
     // Matches Danish addresses: <street name> <number>[<letter>][, <zip>[ <city>]]
     // Street names may contain Æ Ø Å and hyphens (e.g. "H.C. Andersens Vej", "Nørre-Allé")
     private static readonly Regex AddressPattern = new(
-        @"(?<street>[A-Za-zÆæØøÅå][A-Za-zÆæØøÅå0-9\s\-\.]*?)" +
-        @"\s+(?<number>\d+)\s*(?<letter>[A-Za-z])?" +
+        @"(?<street>[A-Za-zÆæØøÅå][A-Za-zÆæØøÅå0-9\s\-\.]+)" +
+        @"\s+(?<number>\d+)\s*(?<letter>[A-Za-zÆæØøÅå])?" +
         @"(?:\s*,\s*(?<zip>\d{4})(?:\s+(?<city>[A-Za-zÆæØøÅå\s]+))?)?$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline
     );

@@ -10,7 +10,7 @@ using TreeTerritory.InfraStructure;
 using TreeTerritory.InfraStructure.Queries;
 using TerritoryHouseNumber = TreeTerritory.Domain.StreetSections.ValueObjects.HouseNumber;
 
-namespace Intake.InfraStructure.Services;
+namespace Intake.Application.Services;
 
 public class AddressValidationService(
     TreeCampaignContext campaignContext,
