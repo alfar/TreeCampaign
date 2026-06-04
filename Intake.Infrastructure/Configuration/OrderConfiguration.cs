@@ -27,12 +27,6 @@ internal static class OrderConfiguration
         });
         orderBase.Property(o => o.Amount).HasConversion(new MoneyAmountValueConverter());
 
-        modelBuilder.Entity<WashedOrder>().ComplexProperty(o => o.WashedAddress, w =>
-        {
-            w.Property(p => p.Street).HasColumnName("WashedStreet").IsRequired(false);
-            w.Property(p => p.HouseNumber).HasColumnName("WashedHouseNumber").IsRequired(false);
-            w.Property(p => p.ZipCode).HasColumnName("WashedZipCode").IsRequired(false);
-        });
 
         // StreetId is shared between OutOfBoundsOrder and ValidatedOrder
         modelBuilder.Entity<OutOfBoundsOrder>()
@@ -40,14 +34,27 @@ internal static class OrderConfiguration
             .HasColumnName("StreetId")
             .HasConversion(new StreetRefValueConverter());
 
-        modelBuilder.Entity<ValidatedOrder>()
+        modelBuilder.Entity<WashedOrder>()
             .Property(o => o.StreetId)
             .HasColumnName("StreetId")
             .HasConversion(new StreetRefValueConverter());
 
         modelBuilder.Entity<ValidatedOrder>()
+            .Property(o => o.StreetId)
+            .HasColumnName("StreetId")
+            .HasConversion(new StreetRefValueConverter());
+
+        modelBuilder.Entity<WashedOrder>()
             .Property(o => o.StreetSectionId)
             .HasConversion(new StreetSectionRefValueConverter());
+
+        modelBuilder.Entity<ValidatedOrder>()
+            .Property(o => o.StreetSectionId)
+            .HasConversion(new StreetSectionRefValueConverter());
+
+        modelBuilder.Entity<WashedOrder>()
+            .Property(o => o.NeighborhoodId)
+            .HasConversion(new NeighborhoodRefValueConverter());
 
         modelBuilder.Entity<ValidatedOrder>()
             .Property(o => o.NeighborhoodId)

@@ -7,6 +7,7 @@ public static class TeamExtensions
         group.MapGet("/", GetTeamsEndpoint.Handle);
 
         group.MapPost("/", CreateTeamEndpoint.Handle);
+        group.MapPut("/{teamId:guid}", UpdateTeamEndpoint.Handle);
 
         return app;
     }

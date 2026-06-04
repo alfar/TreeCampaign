@@ -32,7 +32,7 @@ public class AddressValidationService(
             return new StreetNotFound();
 
         var streetQuery = territoryContext.Streets
-            .Where(s => s.Name.ToLower() == address.Street.ToLower());
+            .Where(s => s.Name == address.Street.ToLower());
 
         if (address.ZipCode is not null && ZipCode.TryParse(address.ZipCode, out var zipCode))
             streetQuery = streetQuery.Where(s => s.ZipCode == zipCode);

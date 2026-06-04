@@ -18,7 +18,6 @@ public static class ServiceExtensions
 
         services.AddScoped<IIntakeUnitOfWork, IntakeContext>();
         services.AddScoped<IAddressParser, RegexAddressParser>();
-        services.AddScoped<IAddressValidationService, AddressValidationService>();
         services.AddScoped<IOrderQueries, OrderQueries>();
 
         return services;

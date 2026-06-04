@@ -19,8 +19,9 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.MapTreeCampaignEndpoints();
-app.MapTreeTerritoryEndpoints();
-app.MapIntakeEndpoints();
+var apiGroup =app.MapGroup("/api");
+apiGroup.MapTreeCampaignEndpoints();
+apiGroup.MapTreeTerritoryEndpoints();
+apiGroup.MapIntakeEndpoints();
 
 app.Run();

@@ -7,7 +7,6 @@ namespace Intake.Domain.Orders;
 public class IncomingOrder : OrderBase
 {
     public static IncomingOrder Create(
-        OrderId id,
         CampaignRef campaignId,
         Sender sender,
         MoneyAmount amount,
@@ -17,7 +16,7 @@ public class IncomingOrder : OrderBase
     {
         var order = new IncomingOrder
         {
-            Id = id,
+            Id = OrderId.From(Guid.NewGuid()),
             CampaignId = campaignId,
             Sender = sender,
             Amount = amount,
@@ -25,7 +24,7 @@ public class IncomingOrder : OrderBase
             Message = message
         };
 
-        order.Raise(new Events.OrderReceived(id));
+        order.Raise(new Events.OrderReceived(order.Id));
 
         return order;
     }

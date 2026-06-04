@@ -8,7 +8,7 @@ public static class EndpointExtensions
 {
     public static IEndpointRouteBuilder MapTreeCampaignEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGroup("/api")
+        app
             .MapCampaignEndpoints()
             .MapGroup("/{campaignId}")
             .MapStopEndpoints()

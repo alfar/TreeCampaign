@@ -1,3 +1,4 @@
+using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders.Services;
 using Intake.Domain.Orders.ValueObjects;
 
@@ -22,9 +23,9 @@ public class UnwashedOrder : OrderBase
         return order;
     }
 
-    public WashedOrder Wash(WashedAddress washedAddress)
+    public WashedOrder Wash(StreetRef streetId, StreetSectionRef streetSectionId, NeighborhoodRef neighborhoodId)
     {
-        return WashedOrder.CreateFrom(this, washedAddress);
+        return WashedOrder.CreateFrom(this, streetId, streetSectionId, neighborhoodId);
     }
 
     public ValidatedOrder Accept(ValidationSuccess result)

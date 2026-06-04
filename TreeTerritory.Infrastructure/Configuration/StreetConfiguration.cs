@@ -16,7 +16,7 @@ internal static class StreetConfiguration
     {
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).HasConversion(new StreetIdValueConverter());
-        builder.Property(c => c.Name).IsRequired().HasMaxLength(200);
+        builder.Property(c => c.Name).IsRequired().HasMaxLength(200).UseCollation("NOCASE");
         builder.Property(c => c.ZipCode).IsRequired().HasConversion(new ZipCodeValueConverter());
     }
 }
