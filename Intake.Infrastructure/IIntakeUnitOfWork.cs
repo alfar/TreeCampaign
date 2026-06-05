@@ -1,9 +1,9 @@
-using Common.InfraStructure.Abstractions;
+using Common.Infrastructure.Abstractions;
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders;
 using Intake.Domain.Orders.ValueObjects;
 
-namespace Intake.InfraStructure;
+namespace Intake.Infrastructure;
 
 public interface IIntakeUnitOfWork : IUnitOfWork
 {

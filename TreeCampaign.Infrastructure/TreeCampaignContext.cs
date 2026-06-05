@@ -1,4 +1,6 @@
-﻿using Common.InfraStructure.Abstractions;
+﻿using System.Threading.Channels;
+using Common.Infrastructure.Abstractions;
+using Common.Infrastructure.BackgroundWorkers.Signals;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using TreeCampaign.Domain.Campaigns;
@@ -7,10 +9,10 @@ using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 
-namespace TreeCampaign.InfraStructure;
+namespace TreeCampaign.Infrastructure;
 
-public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options)
-    : OutboxDbContext(options),
+public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, ChannelWriter<EventDispatchSignal> eventDispatcher)
+    : OutboxDbContext(options, eventDispatcher),
         ITreeCampaignUnitOfWork,
         IRepository<Campaign, CampaignId>,
         IRepository<UnassignedStop, StopId>,
@@ -96,6 +98,6 @@ public class TreeCampaignContextFactory : IDesignTimeDbContextFactory<TreeCampai
         var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
 
-        return new TreeCampaignContext(optionsBuilder.Options);
+        return new TreeCampaignContext(optionsBuilder.Options, null!);
     }
 }

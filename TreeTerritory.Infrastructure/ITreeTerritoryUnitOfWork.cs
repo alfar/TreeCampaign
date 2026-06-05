@@ -1,6 +1,6 @@
 
-using Common.InfraStructure.Abstractions;
+using Common.Infrastructure.Abstractions;
 
-namespace TreeTerritory.InfraStructure;
+namespace TreeTerritory.Infrastructure;
 
 public interface ITreeTerritoryUnitOfWork : IUnitOfWork {}

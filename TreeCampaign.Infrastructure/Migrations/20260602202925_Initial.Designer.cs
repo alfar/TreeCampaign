@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TreeCampaign.InfraStructure;
+using TreeCampaign.Infrastructure;
 
 #nullable disable
 
-namespace TreeCampaign.InfraStructure.Migrations
+namespace TreeCampaign.Infrastructure.Migrations
 {
     [DbContext(typeof(TreeCampaignContext))]
     [Migration("20260602202925_Initial")]
@@ -21,7 +21,7 @@ namespace TreeCampaign.InfraStructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
 
-            modelBuilder.Entity("Common.InfraStructure.Events.StoredDomainEvent", b =>
+            modelBuilder.Entity("Common.Infrastructure.Events.StoredDomainEvent", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()

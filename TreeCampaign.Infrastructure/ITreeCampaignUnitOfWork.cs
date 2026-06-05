@@ -1,5 +1,5 @@
-using Common.InfraStructure.Abstractions;
+using Common.Infrastructure.Abstractions;
 
-namespace TreeCampaign.InfraStructure;
+namespace TreeCampaign.Infrastructure;
 
 public interface ITreeCampaignUnitOfWork : IUnitOfWork {}

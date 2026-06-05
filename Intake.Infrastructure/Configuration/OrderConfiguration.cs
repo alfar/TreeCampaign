@@ -1,8 +1,8 @@
 using Intake.Domain.Orders;
-using Intake.InfraStructure.ValueConverters;
+using Intake.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 
-namespace Intake.InfraStructure.Configuration;
+namespace Intake.Infrastructure.Configuration;
 
 internal static class OrderConfiguration
 {

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Common.InfraStructure.Migrations
+namespace Common.Infrastructure.Migrations
 {
     [DbContext(typeof(StoredDomainEventContext))]
     partial class StoredDomainEventContextModelSnapshot : ModelSnapshot
@@ -16,7 +16,7 @@ namespace Common.InfraStructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
 
-            modelBuilder.Entity("Common.InfraStructure.Events.StoredDomainEvent", b =>
+            modelBuilder.Entity("Common.Infrastructure.Events.StoredDomainEvent", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()

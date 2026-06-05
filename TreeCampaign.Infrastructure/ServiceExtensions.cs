@@ -1,10 +1,10 @@
 using System;
-using Common.InfraStructure.Abstractions;
+using Common.Infrastructure.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TreeCampaign.InfraStructure.Queries;
+using TreeCampaign.Infrastructure.Queries;
 
-namespace TreeCampaign.InfraStructure;
+namespace TreeCampaign.Infrastructure;
 
 public static class ServiceExtensions
 {

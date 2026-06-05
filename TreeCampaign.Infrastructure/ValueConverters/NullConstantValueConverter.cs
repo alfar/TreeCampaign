@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace TreeCampaign.InfraStructure.ValueConverters;
+namespace TreeCampaign.Infrastructure.ValueConverters;
 
 public class NullValueGenerator<T> : ValueGenerator<T?>
     where T : struct

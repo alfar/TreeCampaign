@@ -13,18 +13,18 @@ primary
 lastDtbSucceeded
 
 [properties]
-AssemblyName=TreeCampaign.InfraStructure
+AssemblyName=TreeCampaign.Infrastructure
 CommandLineArgsForDesignTimeEvaluation=-langversion:14.0 -define:TRACE
 CompilerGeneratedFilesOutputPath=
 MaxSupportedLangVersion=14.0
 ProjectAssetsFile=<PATH>obj/project.assets.json
-RootNamespace=TreeCampaign.InfraStructure
+RootNamespace=TreeCampaign.Infrastructure
 RunAnalyzers=
 RunAnalyzersDuringLiveAnalysis=
 SolutionPath=<PATH>../TreeCampaign.sln
 TargetFrameworkIdentifier=.NETCoreApp
-TargetPath=<PATH>bin/Debug/net10.0/TreeCampaign.InfraStructure.dll
-TargetRefPath=<PATH>obj/Debug/net10.0/ref/TreeCampaign.InfraStructure.dll
+TargetPath=<PATH>bin/Debug/net10.0/TreeCampaign.Infrastructure.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/TreeCampaign.Infrastructure.dll
 TemporaryDependencyNodeTargetIdentifier=net10.0
 
 [commandLineArguments]
@@ -44,8 +44,8 @@ TemporaryDependencyNodeTargetIdentifier=net10.0
 /debug:portable
 /filealign:512
 /optimize-
-/out:obj\Debug\net10.0\TreeCampaign.InfraStructure.dll
-/refout:obj\Debug\net10.0\refint\TreeCampaign.InfraStructure.dll
+/out:obj\Debug\net10.0\TreeCampaign.Infrastructure.dll
+/refout:obj\Debug\net10.0\refint\TreeCampaign.Infrastructure.dll
 /target:library
 /warnaserror-
 /utf8output
@@ -79,8 +79,8 @@ Migrations/
  TreeCampaignContextModelSnapshot.cs
 obj/Debug/net10.0/
  .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
- TreeCampaign.InfraStructure.AssemblyInfo.cs
- TreeCampaign.InfraStructure.GlobalUsings.g.cs
+ TreeCampaign.Infrastructure.AssemblyInfo.cs
+ TreeCampaign.Infrastructure.GlobalUsings.g.cs
 Queries/
  CampaignQueries.cs
  ICampaignQueries.cs
@@ -312,4 +312,4 @@ ValueConverters/
 
 [analyzerConfigFiles]
 <DOTNET>/sdk/10.0.100/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_10_default.globalconfig
-obj/Debug/net10.0/TreeCampaign.InfraStructure.GeneratedMSBuildEditorConfig.editorconfig
+obj/Debug/net10.0/TreeCampaign.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig

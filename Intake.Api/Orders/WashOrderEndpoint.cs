@@ -1,7 +1,7 @@
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders;
 using Intake.Domain.Orders.ValueObjects;
-using Intake.InfraStructure;
+using Intake.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Intake.Api.Orders;

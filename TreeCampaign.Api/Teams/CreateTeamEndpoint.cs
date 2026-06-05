@@ -1,7 +1,7 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
-using TreeCampaign.InfraStructure;
+using TreeCampaign.Infrastructure;
 
 internal class CreateTeamEndpoint
 {

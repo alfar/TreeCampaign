@@ -1,10 +1,10 @@
 using Intake.Domain.Orders.Services;
 using Intake.Domain.Services;
-using Intake.InfraStructure.Queries;
+using Intake.Infrastructure.Queries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Intake.InfraStructure;
+namespace Intake.Infrastructure;
 
 public static class ServiceExtensions
 {

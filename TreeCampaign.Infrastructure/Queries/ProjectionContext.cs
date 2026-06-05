@@ -2,8 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Teams.ValueObjects;
-using TreeCampaign.InfraStructure.Queries;
-using TreeCampaign.InfraStructure.ValueConverters;
+using TreeCampaign.Infrastructure.Queries;
+using TreeCampaign.Infrastructure.ValueConverters;
 
 public class ProjectionContext(DbContextOptions<ProjectionContext> options) : DbContext(options)
 {

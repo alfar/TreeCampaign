@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TreeTerritory.InfraStructure;
+using TreeTerritory.Infrastructure;
 
 #nullable disable
 
-namespace TreeTerritory.InfraStructure.Migrations
+namespace TreeTerritory.Infrastructure.Migrations
 {
     [DbContext(typeof(TreeTerritoryContext))]
     [Migration("20260602202947_Initial")]

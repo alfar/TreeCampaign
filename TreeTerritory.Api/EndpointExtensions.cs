@@ -1,4 +1,4 @@
-using TreeTerritory.InfraStructure;
+using TreeTerritory.Infrastructure;
 using TreeTerritory.Api.Streets;
 using TreeTerritory.Api.Territories;
 using TreeTerritory.Api.Neighborhoods;

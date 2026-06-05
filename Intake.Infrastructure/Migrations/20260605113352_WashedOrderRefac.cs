@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Intake.InfraStructure.Migrations
+namespace Intake.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class WashedOrderRefac : Migration

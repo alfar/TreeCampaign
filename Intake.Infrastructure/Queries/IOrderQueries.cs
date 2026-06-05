@@ -1,7 +1,7 @@
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders.ValueObjects;
 
-namespace Intake.InfraStructure.Queries;
+namespace Intake.Infrastructure.Queries;
 
 public interface IOrderQueries
 {

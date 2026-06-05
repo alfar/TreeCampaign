@@ -3,11 +3,11 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TreeTerritory.InfraStructure;
+using TreeTerritory.Infrastructure;
 
 #nullable disable
 
-namespace TreeTerritory.InfraStructure.Migrations
+namespace TreeTerritory.Infrastructure.Migrations
 {
     [DbContext(typeof(TreeTerritoryContext))]
     partial class TreeTerritoryContextModelSnapshot : ModelSnapshot

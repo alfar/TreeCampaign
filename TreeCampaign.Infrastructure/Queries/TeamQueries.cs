@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 
-namespace TreeCampaign.InfraStructure.Queries;
+namespace TreeCampaign.Infrastructure.Queries;
 
 public class TeamQueries(ProjectionContext context) : ITeamQueries
 {

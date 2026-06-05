@@ -1,4 +1,4 @@
-namespace Common.InfraStructure.Abstractions;
+namespace Common.Infrastructure.Abstractions;
 
 public static class TransitionHelper
 {

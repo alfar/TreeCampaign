@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeTerritory.Domain.Streets.ValueObjects;
 using TreeTerritory.Domain.StreetSections.ValueObjects;
 
-namespace TreeTerritory.InfraStructure.ValueConverters;
+namespace TreeTerritory.Infrastructure.ValueConverters;
 
 internal class HouseNumberValueConverter : ValueConverter<HouseNumber, string>
 {

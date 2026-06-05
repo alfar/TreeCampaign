@@ -1,7 +1,7 @@
 using Intake.Domain.ExternalReferences;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Intake.InfraStructure.ValueConverters;
+namespace Intake.Infrastructure.ValueConverters;
 
 internal class CampaignRefValueConverter : ValueConverter<CampaignRef, Guid>
 {

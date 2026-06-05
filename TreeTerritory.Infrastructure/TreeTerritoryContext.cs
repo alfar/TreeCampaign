@@ -1,4 +1,4 @@
-using Common.InfraStructure.Abstractions;
+using Common.Infrastructure.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using TreeTerritory.Domain.Neighborhoods;
@@ -9,9 +9,9 @@ using TreeTerritory.Domain.StreetSections;
 using TreeTerritory.Domain.StreetSections.ValueObjects;
 using TreeTerritory.Domain.Territories;
 using TreeTerritory.Domain.Territories.ValueObjects;
-using TreeTerritory.InfraStructure.Configuration;
+using TreeTerritory.Infrastructure.Configuration;
 
-namespace TreeTerritory.InfraStructure;
+namespace TreeTerritory.Infrastructure;
 
 public class TreeTerritoryContext(DbContextOptions<TreeTerritoryContext> options)
     : DbContext(options),

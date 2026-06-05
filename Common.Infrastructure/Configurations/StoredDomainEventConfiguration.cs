@@ -1,8 +1,8 @@
-using Common.InfraStructure.Events;
+using Common.Infrastructure.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Common.InfraStructure.Configurations;
+namespace Common.Infrastructure.Configurations;
 
 internal static class StoredDomainEventConfiguration
 {

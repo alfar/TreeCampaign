@@ -1,7 +1,7 @@
 using TreeTerritory.Domain.Neighborhoods;
 using TreeTerritory.Domain.Neighborhoods.ValueObjects;
 using TreeTerritory.Domain.Territories.ValueObjects;
-using TreeTerritory.InfraStructure;
+using TreeTerritory.Infrastructure;
 
 namespace TreeTerritory.Api.Neighborhoods;
 

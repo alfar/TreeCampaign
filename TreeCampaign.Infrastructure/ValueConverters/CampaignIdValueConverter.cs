@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 
-namespace TreeCampaign.InfraStructure.ValueConverters;
+namespace TreeCampaign.Infrastructure.ValueConverters;
 
 internal class CampaignIdValueConverter : ValueConverter<CampaignId, Guid>
 {

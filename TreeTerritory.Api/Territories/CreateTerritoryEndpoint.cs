@@ -1,6 +1,6 @@
 using TreeTerritory.Domain.Territories;
 using TreeTerritory.Domain.Territories.ValueObjects;
-using TreeTerritory.InfraStructure;
+using TreeTerritory.Infrastructure;
 
 namespace TreeTerritory.Api.Territories;
 

@@ -2,7 +2,7 @@ using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
-namespace Intake.InfraStructure.Queries;
+namespace Intake.Infrastructure.Queries;
 
 public class OrderQueries(IntakeProjectionContext context) : IOrderQueries
 {

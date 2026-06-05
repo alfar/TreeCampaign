@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common.InfraStructure\Common.InfraStructure.csproj" />
-    <ProjectReference Include="..\TreeTerritory.InfraStructure\TreeTerritory.InfraStructure.csproj" />
+    <ProjectReference Include="..\Common.Infrastructure\Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\TreeTerritory.Infrastructure\TreeTerritory.Infrastructure.csproj" />
     <ProjectReference Include="..\TreeTerritory.Domain\TreeTerritory.Domain.csproj" />
   </ItemGroup>
 </Project>

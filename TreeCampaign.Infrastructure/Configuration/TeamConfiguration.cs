@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TreeCampaign.Domain.Teams;
-using TreeCampaign.InfraStructure.ValueConverters;
+using TreeCampaign.Infrastructure.ValueConverters;
 
 internal static class TeamConfiguration
 {

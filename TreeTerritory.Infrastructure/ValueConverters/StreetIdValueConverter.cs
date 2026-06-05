@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeTerritory.Domain.Streets.ValueObjects;
 
-namespace TreeTerritory.InfraStructure.ValueConverters;
+namespace TreeTerritory.Infrastructure.ValueConverters;
 
 internal class StreetIdValueConverter : ValueConverter<StreetId, Guid>
 {

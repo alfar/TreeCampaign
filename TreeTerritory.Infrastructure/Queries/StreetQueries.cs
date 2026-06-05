@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TreeTerritory.Domain.Streets;
 using TreeTerritory.Domain.Streets.ValueObjects;
 
-namespace TreeTerritory.InfraStructure.Queries;
+namespace TreeTerritory.Infrastructure.Queries;
 
 public interface IStreetQueries
 {

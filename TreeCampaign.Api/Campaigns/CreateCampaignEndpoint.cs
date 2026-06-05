@@ -1,7 +1,7 @@
 using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.ExternalReferences;
-using TreeCampaign.InfraStructure;
+using TreeCampaign.Infrastructure;
 
 namespace TreeCampaign.Api.Campaigns;
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace Common.InfraStructure.Abstractions;
+namespace Common.Infrastructure.Abstractions;
 
 public interface IUnitOfWork
 {

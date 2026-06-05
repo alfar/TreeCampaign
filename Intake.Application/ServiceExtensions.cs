@@ -1,6 +1,8 @@
 using System.Threading.Channels;
+using Common.InfraStructure.Abstractions;
 using Intake.Application.BackgroundWorkers;
 using Intake.Application.BackgroundWorkers.Signals;
+using Intake.Application.EventHandlers;
 using Intake.Application.Services;
 using Intake.Domain.Orders.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,8 @@ public static class ServiceExtensions
         services.AddHostedService<OrderValidationWorker>();
 
         services.AddScoped<IAddressValidationService, AddressValidationService>();
+
+        services.AddScoped<OrderReceivedEventHandler>();
         return services;
     }
 }

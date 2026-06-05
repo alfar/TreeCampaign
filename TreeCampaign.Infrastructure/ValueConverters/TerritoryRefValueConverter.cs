@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeCampaign.Domain.ExternalReferences;
 
-namespace TreeCampaign.InfraStructure.ValueConverters;
+namespace TreeCampaign.Infrastructure.ValueConverters;
 
 internal class TerritoryRefValueConverter : ValueConverter<TerritoryRef, Guid>
 {

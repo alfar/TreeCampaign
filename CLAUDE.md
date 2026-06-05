@@ -118,21 +118,21 @@ npm run lint
 
 ### Entity Framework Migrations
 ```powershell
-# StoredDomainEvents (Common.InfraStructure — owns the StoredDomainEvents table)
-dotnet ef migrations add <Name> --project Common.InfraStructure --startup-project Host.Api --context StoredDomainEventContext
-dotnet ef database update --project Common.InfraStructure --startup-project Host.Api --context StoredDomainEventContext
+# StoredDomainEvents (Common.Infrastructure — owns the StoredDomainEvents table)
+dotnet ef migrations add <Name> --project Common.Infrastructure --startup-project Host.Api --context StoredDomainEventContext
+dotnet ef database update --project Common.Infrastructure --startup-project Host.Api --context StoredDomainEventContext
 
-# TreeCampaign migrations (TreeCampaign.InfraStructure)
-dotnet ef migrations add <Name> --project TreeCampaign.InfraStructure --startup-project Host.Api --context TreeCampaignContext
-dotnet ef database update --project TreeCampaign.InfraStructure --startup-project Host.Api --context TreeCampaignContext
+# TreeCampaign migrations (TreeCampaign.Infrastructure)
+dotnet ef migrations add <Name> --project TreeCampaign.Infrastructure --startup-project Host.Api --context TreeCampaignContext
+dotnet ef database update --project TreeCampaign.Infrastructure --startup-project Host.Api --context TreeCampaignContext
 
-# Territory migrations (TreeTerritory.InfraStructure)
-dotnet ef migrations add <Name> --project TreeTerritory.InfraStructure --startup-project Host.Api --context TreeTerritoryContext
-dotnet ef database update --project TreeTerritory.InfraStructure --startup-project Host.Api --context TreeTerritoryContext
+# Territory migrations (TreeTerritory.Infrastructure)
+dotnet ef migrations add <Name> --project TreeTerritory.Infrastructure --startup-project Host.Api --context TreeTerritoryContext
+dotnet ef database update --project TreeTerritory.Infrastructure --startup-project Host.Api --context TreeTerritoryContext
 
-# Intake migrations (Intake.InfraStructure)
-dotnet ef migrations add <Name> --project Intake.InfraStructure --startup-project Host.Api --context IntakeContext
-dotnet ef database update --project Intake.InfraStructure --startup-project Host.Api --context IntakeContext
+# Intake migrations (Intake.Infrastructure)
+dotnet ef migrations add <Name> --project Intake.Infrastructure --startup-project Host.Api --context IntakeContext
+dotnet ef database update --project Intake.Infrastructure --startup-project Host.Api --context IntakeContext
 ```
 
 Database is SQLite, written to `{BaseDirectory}/app.db` at runtime.
@@ -142,23 +142,23 @@ Database is SQLite, written to `{BaseDirectory}/app.db` at runtime.
 | Project | Type | Role |
 |---|---|---|
 | `Common.Domain` | Class Library | Shared domain abstractions: `IDomainEvent`, `IHasDomainEvents` |
-| `Common.InfraStructure` | Class Library | Shared infrastructure: `IUnitOfWork`, `IRepository<TAggregate, TId>`, `OutboxDbContext`, `StoredDomainEventContext` |
+| `Common.Infrastructure` | Class Library | Shared infrastructure: `IUnitOfWork`, `IRepository<TAggregate, TId>`, `OutboxDbContext`, `StoredDomainEventContext` |
 | `TreeCampaign.Domain` | Class Library | Pure domain logic — no external dependencies |
-| `TreeCampaign.InfraStructure` | Class Library | EF Core + SQLite, dual DbContext pattern |
+| `TreeCampaign.Infrastructure` | Class Library | EF Core + SQLite, dual DbContext pattern |
 | `TreeCampaign.Api` | Class Library | Endpoint extension methods for TreeCampaign context |
 | `TreeTerritory.Domain` | Class Library | Pure domain logic for Territory context |
-| `TreeTerritory.InfraStructure` | Class Library | EF Core persistence for Territory context |
+| `TreeTerritory.Infrastructure` | Class Library | EF Core persistence for Territory context |
 | `TreeTerritory.Api` | Class Library | Endpoint extension methods for Territory context |
 | `Intake.Domain` | Class Library | Pure domain logic for Intake context; includes `RegexAddressParser` (domain service) |
 | `Intake.Application` | Class Library | Application services: `AddressValidationService` and future cross-context event handlers |
-| `Intake.InfraStructure` | Class Library | EF Core persistence for Intake context |
+| `Intake.Infrastructure` | Class Library | EF Core persistence for Intake context |
 | `Intake.Api` | Class Library | Endpoint extension methods for Intake context |
 | `Host.Api` | ASP.NET Core | Web host — wires up all bounded context endpoints |
 | `TreeCampaign.UI` | React/Vite | Frontend SPA |
 
-Dependency direction: `Host.Api` → `*.Api` → `*.Application` → `*.InfraStructure` → `*.Domain` → `Common.Domain`.
+Dependency direction: `Host.Api` → `*.Api` → `*.Application` → `*.Infrastructure` → `*.Domain` → `Common.Domain`.
 
-Note: `*.Application` projects may reference multiple `*.InfraStructure` projects for cross-context coordination. This is the intended seam where bounded contexts interact.
+Note: `*.Application` projects may reference multiple `*.Infrastructure` projects for cross-context coordination. This is the intended seam where bounded contexts interact.
 
 ### Domain Model (Stop state machine)
 
@@ -181,8 +181,8 @@ EF Core maps the hierarchy via **Table-Per-Hierarchy (TPH)** with a `StopType` d
 
 ### Data Access
 
-- **`OutboxDbContext`** (in `Common.InfraStructure`) — abstract base for all write contexts; handles `StoredDomainEvent` persistence atomically with aggregate saves in one `SaveChangesAsync` transaction
-- **`StoredDomainEventContext`** (in `Common.InfraStructure`) — owns the `StoredDomainEvents` migration; all other contexts call `ExcludeFromMigrations()` for that table
+- **`OutboxDbContext`** (in `Common.Infrastructure`) — abstract base for all write contexts; handles `StoredDomainEvent` persistence atomically with aggregate saves in one `SaveChangesAsync` transaction
+- **`StoredDomainEventContext`** (in `Common.Infrastructure`) — owns the `StoredDomainEvents` migration; all other contexts call `ExcludeFromMigrations()` for that table
 - Each bounded context's write DbContext extends `OutboxDbContext` and implements its own `IUnitOfWork` sub-interface
 - Each bounded context has a read-only `ProjectionContext` — `AsNoTracking`, flat DTOs, throws on `SaveChanges`
 - All Value Objects have EF Core value converters (e.g., `StopId` ↔ `Guid`) or are configured as complex properties
@@ -202,10 +202,10 @@ Each context's `ServiceExtensions` registers only its own sub-interface. Endpoin
 ### Domain Event Handler Placement
 
 When implementing `IDomainEventHandler<TEvent>`:
-- **Handler updates a projection or triggers a technical operation** → `*.InfraStructure`
+- **Handler updates a projection or triggers a technical operation** → `*.Infrastructure`
 - **Handler coordinates across bounded contexts** (e.g., `OrderValidated` → create `UnassignedStop`) → `*.Application`
 
-The dispatch infrastructure (background worker, channel notification) lives in `Host.Api`.
+The dispatch infrastructure (background worker, channel notification) is implemented in `Common.Infrastructure` and orchestrated in `Host.Api`.
 
 ### Cross-Context References
 

@@ -1,3 +1,4 @@
+using Common.InfraStructure;
 using Intake.Api;
 using Intake.Application;
 using Scalar.AspNetCore;
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+builder.Services.AddDomainEventServices();
 builder.Services.AddTreeCampaign();
 builder.Services.AddTreeTerritory();
 builder.Services.AddIntake();

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeTerritory.Domain.Territories.ValueObjects;
 
-namespace TreeTerritory.InfraStructure.ValueConverters;
+namespace TreeTerritory.Infrastructure.ValueConverters;
 
 internal class TerritoryIdValueConverter : ValueConverter<TerritoryId, Guid>
 {

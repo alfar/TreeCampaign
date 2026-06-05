@@ -1,4 +1,4 @@
-namespace Common.InfraStructure.Events;
+namespace Common.Infrastructure.Events;
 
 public class StoredDomainEvent
 {

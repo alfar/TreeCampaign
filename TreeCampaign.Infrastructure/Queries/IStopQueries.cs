@@ -2,7 +2,7 @@ using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Teams.ValueObjects;
 
-namespace TreeCampaign.InfraStructure.Queries;
+namespace TreeCampaign.Infrastructure.Queries;
 
 public interface IStopQueries
 {

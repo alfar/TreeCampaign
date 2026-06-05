@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
 
-namespace TreeCampaign.InfraStructure.Queries;
+namespace TreeCampaign.Infrastructure.Queries;
 
 public class StopQueries(ProjectionContext context) : IStopQueries
 {

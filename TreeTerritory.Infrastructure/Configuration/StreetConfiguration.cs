@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TreeTerritory.Domain.Streets;
-using TreeTerritory.InfraStructure.ValueConverters;
+using TreeTerritory.Infrastructure.ValueConverters;
 
 internal static class StreetConfiguration
 {

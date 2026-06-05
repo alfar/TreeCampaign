@@ -5,17 +5,17 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeCampaign.Domain", "TreeCampaign.Domain\TreeCampaign.Domain.csproj", "{E1AA2539-1A36-40DC-B601-6B098560A071}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeCampaign.InfraStructure", "TreeCampaign.InfraStructure\TreeCampaign.InfraStructure.csproj", "{202DD59C-5AD4-41F8-AC40-E138B736BB76}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeCampaign.Infrastructure", "TreeCampaign.Infrastructure\TreeCampaign.Infrastructure.csproj", "{202DD59C-5AD4-41F8-AC40-E138B736BB76}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeCampaign.Api", "TreeCampaign.Api\TreeCampaign.Api.csproj", "{FFE57D93-4F49-4F17-9F7F-6A2C554210E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeTerritory.Domain", "TreeTerritory.Domain\TreeTerritory.Domain.csproj", "{88EB7910-0E14-46A6-8E21-1BA38AD8A3BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeTerritory.InfraStructure", "TreeTerritory.InfraStructure\TreeTerritory.InfraStructure.csproj", "{B08AFA15-A1BE-4282-B7D5-24A3768EF08D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeTerritory.Infrastructure", "TreeTerritory.Infrastructure\TreeTerritory.Infrastructure.csproj", "{B08AFA15-A1BE-4282-B7D5-24A3768EF08D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Api", "Host.Api\Host.Api.csproj", "{D8F8EC14-64C2-4456-80B1-183E3B3F8C6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.InfraStructure", "Common.InfraStructure\Common.InfraStructure.csproj", "{4F82DAF1-9226-4254-9D7E-4CAE3B6ED3B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Infrastructure", "Common.Infrastructure\Common.Infrastructure.csproj", "{4F82DAF1-9226-4254-9D7E-4CAE3B6ED3B1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeTerritory.Api", "TreeTerritory.Api\TreeTerritory.Api.csproj", "{3AEE8924-73FB-41BB-BC80-5CDE4F794CDC}"
 EndProject
@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intake.Domain", "Intake.Dom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Domain", "Common.Domain\Common.Domain.csproj", "{13CFADF3-5391-40E2-A44A-E40AAAD3B8E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intake.InfraStructure", "Intake.InfraStructure\Intake.InfraStructure.csproj", "{47346D60-ED94-4A30-B28E-3550A2FC173F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intake.Infrastructure", "Intake.Infrastructure\Intake.Infrastructure.csproj", "{47346D60-ED94-4A30-B28E-3550A2FC173F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intake.Api", "Intake.Api\Intake.Api.csproj", "{99ED41AF-2BE3-4779-A908-3A0492BF7ED7}"
 EndProject

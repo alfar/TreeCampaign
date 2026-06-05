@@ -1,5 +1,5 @@
-using Common.InfraStructure.Configurations;
-using Common.InfraStructure.Events;
+using Common.Infrastructure.Configurations;
+using Common.Infrastructure.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -16,6 +16,8 @@ public class StoredDomainEventContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.AddStoredDomainEvents();
     }
+
+    public IQueryable<StoredDomainEvent> UnprocessedEvents => StoredDomainEvents.Where(e => e.ProcessedAtUtc == null);
 }
 
 public class StoredDomainEventContextFactory : IDesignTimeDbContextFactory<StoredDomainEventContext>

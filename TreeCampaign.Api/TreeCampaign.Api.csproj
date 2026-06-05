@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TreeCampaign.Domain\TreeCampaign.Domain.csproj" />
-    <ProjectReference Include="..\TreeCampaign.InfraStructure\TreeCampaign.InfraStructure.csproj" />
+    <ProjectReference Include="..\TreeCampaign.Infrastructure\TreeCampaign.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

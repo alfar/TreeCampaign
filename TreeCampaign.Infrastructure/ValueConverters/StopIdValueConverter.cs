@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeCampaign.Domain.Stops;
 
-namespace TreeCampaign.InfraStructure.ValueConverters;
+namespace TreeCampaign.Infrastructure.ValueConverters;
 
 public class StopIdValueConverter : ValueConverter<StopId, Guid>
 {

@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common.InfraStructure\Common.InfraStructure.csproj" />
+    <ProjectReference Include="..\Common.Infrastructure\Common.Infrastructure.csproj" />
     <ProjectReference Include="..\Intake.Domain\Intake.Domain.csproj" />
-    <ProjectReference Include="..\Intake.InfraStructure\Intake.InfraStructure.csproj" />
-    <ProjectReference Include="..\TreeTerritory.InfraStructure\TreeTerritory.InfraStructure.csproj" />
-    <ProjectReference Include="..\TreeCampaign.InfraStructure\TreeCampaign.InfraStructure.csproj" />
+    <ProjectReference Include="..\Intake.Infrastructure\Intake.Infrastructure.csproj" />
+    <ProjectReference Include="..\TreeTerritory.Infrastructure\TreeTerritory.Infrastructure.csproj" />
+    <ProjectReference Include="..\TreeCampaign.Infrastructure\TreeCampaign.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

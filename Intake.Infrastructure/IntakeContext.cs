@@ -1,16 +1,18 @@
-using Common.InfraStructure;
-using Common.InfraStructure.Abstractions;
+using System.Threading.Channels;
+using Common.Infrastructure;
+using Common.Infrastructure.Abstractions;
+using Common.Infrastructure.BackgroundWorkers.Signals;
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders;
 using Intake.Domain.Orders.ValueObjects;
-using Intake.InfraStructure.Configuration;
+using Intake.Infrastructure.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Intake.InfraStructure;
+namespace Intake.Infrastructure;
 
-public class IntakeContext(DbContextOptions<IntakeContext> options)
-    : OutboxDbContext(options),
+public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWriter<EventDispatchSignal> eventDispatcher)
+    : OutboxDbContext(options, eventDispatcher),
       IIntakeUnitOfWork,
       IRepository<IncomingOrder, OrderId>,
       IRepository<UnwashedOrder, OrderId>,
@@ -76,6 +78,6 @@ public class IntakeContextFactory : IDesignTimeDbContextFactory<IntakeContext>
         var optionsBuilder = new DbContextOptionsBuilder<IntakeContext>();
         var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
-        return new IntakeContext(optionsBuilder.Options);
+        return new IntakeContext(optionsBuilder.Options, null!);
     }
 }

@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TreeTerritory.Domain.Neighborhoods;
 using TreeTerritory.Domain.StreetSections;
-using TreeTerritory.InfraStructure.ValueConverters;
+using TreeTerritory.Infrastructure.ValueConverters;
 
-namespace TreeTerritory.InfraStructure.Configuration;
+namespace TreeTerritory.Infrastructure.Configuration;
 
 internal static class StreetSectionConfiguration
 {

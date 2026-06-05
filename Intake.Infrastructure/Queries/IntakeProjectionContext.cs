@@ -1,8 +1,8 @@
-using Intake.InfraStructure.Queries;
-using Intake.InfraStructure.ValueConverters;
+using Intake.Infrastructure.Queries;
+using Intake.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 
-namespace Intake.InfraStructure;
+namespace Intake.Infrastructure;
 
 public class IntakeProjectionContext(DbContextOptions<IntakeProjectionContext> options) : DbContext(options)
 {

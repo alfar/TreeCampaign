@@ -1,9 +1,9 @@
-using Common.InfraStructure.Abstractions;
+using Common.Infrastructure.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TreeTerritory.InfraStructure.Queries;
+using TreeTerritory.Infrastructure.Queries;
 
-namespace TreeTerritory.InfraStructure;
+namespace TreeTerritory.Infrastructure;
 
 public static class ServiceExtensions
 {

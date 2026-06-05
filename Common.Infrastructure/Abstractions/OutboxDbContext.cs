@@ -1,11 +1,13 @@
+using System.Threading.Channels;
 using Common.Domain.Abstractions;
-using Common.InfraStructure.Configurations;
-using Common.InfraStructure.Events;
+using Common.Infrastructure.BackgroundWorkers.Signals;
+using Common.Infrastructure.Configurations;
+using Common.Infrastructure.Events;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.InfraStructure.Abstractions;
+namespace Common.Infrastructure.Abstractions;
 
-public abstract class OutboxDbContext(DbContextOptions options) : DbContext(options)
+public abstract class OutboxDbContext(DbContextOptions options, ChannelWriter<EventDispatchSignal> eventDispatcher) : DbContext(options)
 {
     protected DbSet<StoredDomainEvent> StoredDomainEvents { get; set; }
 
@@ -36,9 +38,14 @@ public abstract class OutboxDbContext(DbContextOptions options) : DbContext(opti
 
         var result = await base.SaveChangesAsync(cancellationToken);
 
-        foreach (var entry in entities)
+        if (events.Count > 0)
         {
-            entry.Entity.ClearEvents();
+            await eventDispatcher.WriteAsync(new EventDispatchSignal(), cancellationToken);
+
+            foreach (var entry in entities)
+            {
+                entry.Entity.ClearEvents();
+            }
         }
 
         return result;

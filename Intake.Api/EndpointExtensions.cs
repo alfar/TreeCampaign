@@ -1,9 +1,10 @@
 using Intake.Api.Orders;
-using Intake.InfraStructure;
+using Intake.Infrastructure;
 using Intake.Application;
 using System.Threading.Channels;
 using Intake.Application.BackgroundWorkers.Signals;
 using Intake.Api.JsonConverters;
+using Common.InfraStructure;
 
 namespace Intake.Api;
 

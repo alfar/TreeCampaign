@@ -1,7 +1,7 @@
 using Intake.Domain.Orders.ValueObjects;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Intake.InfraStructure.ValueConverters;
+namespace Intake.Infrastructure.ValueConverters;
 
 internal class OrderIdValueConverter : ValueConverter<OrderId, Guid>
 {

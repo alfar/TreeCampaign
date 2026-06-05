@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace TreeCampaign.InfraStructure.Queries;
+namespace TreeCampaign.Infrastructure.Queries;
 
 public class CampaignQueries(ProjectionContext context) : ICampaignQueries
 {

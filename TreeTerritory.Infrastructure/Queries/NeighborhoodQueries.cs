@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TreeTerritory.Domain.Neighborhoods;
 using TreeTerritory.Domain.Territories.ValueObjects;
 
-namespace TreeTerritory.InfraStructure.Queries;
+namespace TreeTerritory.Infrastructure.Queries;
 
 public interface INeighborhoodQueries
 {

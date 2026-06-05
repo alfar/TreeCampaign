@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeCampaign.Domain.Teams.ValueObjects;
 
-namespace TreeCampaign.InfraStructure.ValueConverters;
+namespace TreeCampaign.Infrastructure.ValueConverters;
 
 public class TeamIdValueConverter : ValueConverter<TeamId, Guid>
 {

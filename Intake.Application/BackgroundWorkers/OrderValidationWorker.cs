@@ -1,11 +1,11 @@
 using System.Threading.Channels;
-using Common.InfraStructure.Abstractions;
+using Common.Infrastructure.Abstractions;
 using Intake.Application.BackgroundWorkers.Signals;
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders;
 using Intake.Domain.Orders.Services;
 using Intake.Domain.Orders.ValueObjects;
-using Intake.InfraStructure;
+using Intake.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
