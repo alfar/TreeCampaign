@@ -4,7 +4,7 @@ using Intake.Domain.Orders.ValueObjects;
 
 namespace Intake.Domain.Orders;
 
-public class IncomingOrder : OrderBase
+public class IncomingOrder : OrderBase, IParseableOrder
 {
     public static IncomingOrder Create(
         CampaignRef campaignId,

@@ -29,9 +29,9 @@ public class WashedOrder : OrderBase
         return order;
     }
 
-    public OutOfBoundsOrder MarkOutOfBounds(HouseNumberOutOfBounds result)
+    public OutOfBoundsOrder MarkOutOfBounds()
     {
-        return OutOfBoundsOrder.CreateFrom(this, result.StreetId);
+        return OutOfBoundsOrder.CreateFrom(this, StreetId);
     }
 
     public ValidatedOrder Accept(ValidationSuccess result)

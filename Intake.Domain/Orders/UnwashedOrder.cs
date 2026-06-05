@@ -4,7 +4,7 @@ using Intake.Domain.Orders.ValueObjects;
 
 namespace Intake.Domain.Orders;
 
-public class UnwashedOrder : OrderBase
+public class UnwashedOrder : OrderBase, IParseableOrder
 {
     public static UnwashedOrder CreateFrom(IncomingOrder incomingOrder)
     {

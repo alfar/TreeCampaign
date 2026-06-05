@@ -21,9 +21,6 @@ public class IntakeProjectionContext(DbContextOptions<IntakeProjectionContext> o
         modelBuilder.Entity<OrderProjection>().Property(o => o.Amount).HasColumnName("Amount").HasConversion(new MoneyAmountValueConverter());
         modelBuilder.Entity<OrderProjection>().Property(o => o.OrderDate).HasColumnName("OrderDate");
         modelBuilder.Entity<OrderProjection>().Property(o => o.Message).HasColumnName("Message");
-        modelBuilder.Entity<OrderProjection>().Property(o => o.WashedStreet).HasColumnName("WashedStreet");
-        modelBuilder.Entity<OrderProjection>().Property(o => o.WashedHouseNumber).HasColumnName("WashedHouseNumber");
-        modelBuilder.Entity<OrderProjection>().Property(o => o.WashedZipCode).HasColumnName("WashedZipCode");
         modelBuilder.Entity<OrderProjection>().Property(o => o.StreetId).HasColumnName("StreetId").HasConversion(new NullableStreetRefValueConverter());
         modelBuilder.Entity<OrderProjection>().Property(o => o.StreetSectionId).HasColumnName("StreetSectionId").HasConversion(new NullableStreetSectionRefValueConverter());
         modelBuilder.Entity<OrderProjection>().Property(o => o.NeighborhoodId).HasColumnName("NeighborhoodId").HasConversion(new NullableNeighborhoodRefValueConverter());

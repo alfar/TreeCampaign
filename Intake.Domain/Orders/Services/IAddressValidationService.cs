@@ -9,4 +9,10 @@ public interface IAddressValidationService
         ParsedAddress address,
         CampaignRef campaignId,
         CancellationToken cancellationToken = default);
+    Task<AddressValidationResult> ValidateRefsAsync(
+        StreetRef streetId,
+        StreetSectionRef streetSectionId,
+        NeighborhoodRef neighborhoodId,
+        CampaignRef campaignId,
+        CancellationToken cancellationToken = default);
 }

@@ -8,7 +8,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Common.InfraStructure\Common.InfraStructure.csproj" />
     <ProjectReference Include="..\Intake.Domain\Intake.Domain.csproj" />
+    <ProjectReference Include="..\Intake.InfraStructure\Intake.InfraStructure.csproj" />
     <ProjectReference Include="..\TreeTerritory.InfraStructure\TreeTerritory.InfraStructure.csproj" />
     <ProjectReference Include="..\TreeCampaign.InfraStructure\TreeCampaign.InfraStructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.8" />
   </ItemGroup>
 </Project>

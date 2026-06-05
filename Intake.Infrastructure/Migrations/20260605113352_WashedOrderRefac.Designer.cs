@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Intake.InfraStructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Intake.InfraStructure.Migrations
 {
     [DbContext(typeof(IntakeContext))]
-    partial class IntakeContextModelSnapshot : ModelSnapshot
+    [Migration("20260605113352_WashedOrderRefac")]
+    partial class WashedOrderRefac
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");

@@ -1,5 +1,6 @@
 using Common.InfraStructure;
 using Common.InfraStructure.Abstractions;
+using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders;
 using Intake.Domain.Orders.ValueObjects;
 using Intake.InfraStructure.Configuration;
@@ -23,6 +24,15 @@ public class IntakeContext(DbContextOptions<IntakeContext> options)
     public DbSet<WashedOrder> WashedOrders { get; set; }
     public DbSet<OutOfBoundsOrder> OutOfBoundsOrders { get; set; }
     public DbSet<ValidatedOrder> ValidatedOrders { get; set; }
+
+    public IQueryable<OrderBase> GetUnvalidatedOrdersByCampaign(CampaignRef campaignId) =>
+        Orders.Where(o => !(o is ValidatedOrder) && o.CampaignId == campaignId);
+
+    public IQueryable<OrderBase> GetUnvalidatedOrders() =>
+        Orders.Where(o => !(o is ValidatedOrder));
+
+    public async Task<OrderBase?> FindOrderByIdAsync(OrderId orderId, CancellationToken cancellationToken) =>
+        await Orders.FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
 
     public IRepository<TAggregate, TKey> GetRepository<TAggregate, TKey>() =>
         (IRepository<TAggregate, TKey>)this;

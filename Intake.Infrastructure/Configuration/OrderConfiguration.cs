@@ -27,8 +27,6 @@ internal static class OrderConfiguration
         });
         orderBase.Property(o => o.Amount).HasConversion(new MoneyAmountValueConverter());
 
-
-        // StreetId is shared between OutOfBoundsOrder and ValidatedOrder
         modelBuilder.Entity<OutOfBoundsOrder>()
             .Property(o => o.StreetId)
             .HasColumnName("StreetId")

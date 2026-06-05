@@ -3,7 +3,7 @@ using Intake.Domain.Orders.Services;
 
 namespace Intake.Domain.Orders;
 
-public class OutOfBoundsOrder : OrderBase
+public class OutOfBoundsOrder : OrderBase, IParseableOrder
 {
     public required StreetRef StreetId { get; init; }
 

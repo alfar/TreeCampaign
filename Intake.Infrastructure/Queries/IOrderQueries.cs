@@ -20,13 +20,9 @@ public class OrderProjection
     public required MoneyAmount Amount { get; init; }
     public required DateTimeOffset OrderDate { get; init; }
     public string Message { get; init; } = default!;
-    // WashedOrder only
-    public string? WashedStreet { get; init; }
-    public string? WashedHouseNumber { get; init; }
-    public string? WashedZipCode { get; init; }
-    // OutOfBoundsOrder + ValidatedOrder
+    // OutOfBoundsOrder + ValidatedOrder + WashedOrder
     public StreetRef? StreetId { get; init; }
-    // ValidatedOrder only
+    // ValidatedOrder + WashedOrder
     public StreetSectionRef? StreetSectionId { get; init; }
     public NeighborhoodRef? NeighborhoodId { get; init; }
 }

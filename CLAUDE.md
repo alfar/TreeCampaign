@@ -66,7 +66,7 @@ IncomingOrder
 
 UnwashedOrder
   ├─ Accept(ValidationSuccess)       → ValidatedOrder     (bulk retry: street now exists in Territory)
-  └─ Wash(WashedAddress)             → WashedOrder
+  └─ Wash(StreetRef, StreetSectionRef, NeighborhoodRef) → WashedOrder
 
 WashedOrder
   ├─ Accept(ValidationSuccess)       → ValidatedOrder
@@ -80,7 +80,6 @@ OutOfBoundsOrder
 
 **Value objects:**
 - `ParsedAddress(Street, HouseNumber, ZipCode?, City?)` — what the auto-parser extracted from `Message`
-- `WashedAddress(Street, HouseNumber, ZipCode?)` — what a human operator explicitly supplied
 - Cross-context refs in `ExternalReferences/`: `TerritoryRef`, `NeighborhoodRef`, `StreetRef`, `StreetSectionRef`, `CampaignRef`
 
 **Service interfaces (in `Intake.Domain/Orders/Services/`):**
@@ -88,24 +87,17 @@ OutOfBoundsOrder
 - `IAddressValidationService` — `Task<AddressValidationResult> ValidateAsync(ParsedAddress, CampaignRef, CancellationToken)` — implemented in `Intake.Application` (application service: coordinates across Territory and TreeCampaign contexts)
 - `AddressValidationResult` — sealed discriminated union: `ValidationSuccess` | `StreetNotFound` | `HouseNumberOutOfBounds`
 
-**Address washing (manual):** When an order is `UnwashedOrder`, the operator corrects the address. The frontend calls an external Danish address validation API directly (not via the backend) to assist with autocomplete/lookup. The operator submits the corrected `WashedAddress` via the Intake API, which triggers re-validation against Territory.
-
-**What's not yet built:** `Intake.Application` (application services), `Intake.Api` (endpoints).
+**Address washing (manual):** When an order is `UnwashedOrder`, the operator corrects the address. The frontend calls an external Danish address validation API directly (not via the backend) to assist with autocomplete/lookup. The operator submits resolved `StreetRef`, `StreetSectionRef`, and `NeighborhoodRef` via the Intake API — the address is already validated by the external API; the backend records the Territory refs directly on `WashedOrder`. The refs are not to be trusted, but must be validated against the TreeTerritory domain before the WashedOrder can be accepted and go to the ValidatedOrder state.
 
 ## Context Interactions
 
 ```
 Intake ──validates──► Territory       ("is this address in our service area?")
-Intake ──add street─► Territory       ("add this previously unknown street")
 Intake ──submits────► TreeCampaign    ("create a stop for this validated order")
 TreeCampaign ──reads► Territory       (projection: sort order + direction for stop display)
 ```
 
-## Open Design Questions
-
-These are unsettled and should be discussed before building the relevant parts:
-
-- How do Intake and TreeCampaign communicate when an order is submitted — domain event via the outbox, or direct application service call?
+Triggered interactions between the contexts happen through domain events being published via an outbox pattern and then processed by a background worker that distributes events to their respective handlers.
 
 ## Build & Run Commands
 
@@ -245,7 +237,7 @@ Vite proxies `/api/*` to `:5006`.
 
 **Dispatch UI principle**: fast decisions under mild pressure. Stops grouped by street/area; dispatcher selects group, selects team. No map required.
 
-**Manual washing UI**: when displaying `UnwashedOrder` records, the frontend calls an external Danish address validation API directly to assist the operator with address autocomplete. The corrected address is submitted to the backend via `POST /api/intake/orders/{id}/wash`.
+**Manual washing UI**: when displaying `UnwashedOrder` records, the frontend calls an external Danish address validation API directly to assist the operator with address autocomplete. It also calls the TreeTerritory.Api to select the correct StreetId, StreetSectionId and NeighborhoodId. The ids are submitted to the backend via `POST /api/intake/orders/{id}/wash`.
 
 ## Technology Stack
 
