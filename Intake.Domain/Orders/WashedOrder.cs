@@ -1,15 +1,17 @@
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders.Services;
+using Intake.Domain.Orders.ValueObjects;
 
 namespace Intake.Domain.Orders;
 
 public class WashedOrder : OrderBase
 {
+    public required HouseNumber HouseNumber { get; init; }
     public required StreetRef StreetId { get; init; }
     public required StreetSectionRef StreetSectionId { get; init; }
     public required NeighborhoodRef NeighborhoodId { get; init; }
 
-    public static WashedOrder CreateFrom(UnwashedOrder unwashedOrder, StreetRef streetId, StreetSectionRef streetSectionId, NeighborhoodRef neighborhoodId)
+    public static WashedOrder CreateFrom(UnwashedOrder unwashedOrder, StreetRef streetId, StreetSectionRef streetSectionId, NeighborhoodRef neighborhoodId, HouseNumber houseNumber)
     {
         var order = new WashedOrder
         {
@@ -21,7 +23,8 @@ public class WashedOrder : OrderBase
             Message = unwashedOrder.Message,
             StreetId = streetId,
             StreetSectionId = streetSectionId,
-            NeighborhoodId = neighborhoodId
+            NeighborhoodId = neighborhoodId,
+            HouseNumber = houseNumber
         };
 
         order.Raise(new Events.OrderWashed(unwashedOrder.Id));
@@ -36,7 +39,7 @@ public class WashedOrder : OrderBase
 
     public ValidatedOrder Accept(ValidationSuccess result)
     {
-        return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId);
+        return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber);
     }
 
     private WashedOrder() { }

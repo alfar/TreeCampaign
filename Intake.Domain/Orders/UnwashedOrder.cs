@@ -23,14 +23,14 @@ public class UnwashedOrder : OrderBase, IParseableOrder
         return order;
     }
 
-    public WashedOrder Wash(StreetRef streetId, StreetSectionRef streetSectionId, NeighborhoodRef neighborhoodId)
+    public WashedOrder Wash(StreetRef streetId, StreetSectionRef streetSectionId, NeighborhoodRef neighborhoodId, HouseNumber houseNumber)
     {
-        return WashedOrder.CreateFrom(this, streetId, streetSectionId, neighborhoodId);
+        return WashedOrder.CreateFrom(this, streetId, streetSectionId, neighborhoodId, houseNumber);
     }
 
     public ValidatedOrder Accept(ValidationSuccess result)
     {
-        return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId);
+        return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber);
     }
 
     private UnwashedOrder() { }

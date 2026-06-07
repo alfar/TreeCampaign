@@ -13,6 +13,8 @@ using TreeTerritory.Domain.StreetSections.ValueObjects;
 using TreeTerritory.Domain.Territories.ValueObjects;
 using TreeTerritory.Infrastructure;
 using TreeTerritory.Infrastructure.Queries;
+using HouseNumber = Intake.Domain.Orders.ValueObjects.HouseNumber;
+using TreeTerritoryHouseNumber = TreeTerritory.Domain.StreetSections.ValueObjects.HouseNumber;
 
 namespace Intake.Application.Services;
 
@@ -32,7 +34,7 @@ public class AddressValidationService(
 
         var territoryId = TerritoryId.From(campaign.TerritoryId.Value);
 
-        if (!HouseNumber.TryParse(address.HouseNumber, out var houseNumber))
+        if (!TreeTerritoryHouseNumber.TryParse(address.HouseNumber, out var territoryHouseNumber))
             return new StreetNotFound();
 
         var streetQuery = territoryContext.Streets
@@ -54,15 +56,16 @@ public class AddressValidationService(
             {
                 var section = neighborhood.StreetSections.FirstOrDefault(s =>
                     s.StreetId == street.Id &&
-                    s.StartHouseNumber.CompareTo(houseNumber) <= 0 &&
-                    s.EndHouseNumber.CompareTo(houseNumber) >= 0);
+                    s.StartHouseNumber.CompareTo(territoryHouseNumber) <= 0 &&
+                    s.EndHouseNumber.CompareTo(territoryHouseNumber) >= 0);
 
                 if (section is not null)
                     return new ValidationSuccess(
                         TerritoryRef.From(territoryId.Value),
                         NeighborhoodRef.From(neighborhood.Id.Value),
                         StreetRef.From(street.Id.Value),
-                        StreetSectionRef.From(section.Id.Value));
+                        StreetSectionRef.From(section.Id.Value),
+                        ToIntake(territoryHouseNumber));
             }
         }
 
@@ -73,11 +76,12 @@ public class AddressValidationService(
         StreetRef streetId,
         StreetSectionRef streetSectionId,
         NeighborhoodRef neighborhoodId,
+        HouseNumber houseNumber,
         CampaignRef campaignId,
         CancellationToken cancellationToken = default)
     {
-         var campaign = await campaignContext.GetRepository<Campaign, CampaignId>()
-            .TryFindAsync(CampaignId.From(campaignId.Value), cancellationToken);
+        var campaign = await campaignContext.GetRepository<Campaign, CampaignId>()
+           .TryFindAsync(CampaignId.From(campaignId.Value), cancellationToken);
 
         if (campaign?.TerritoryId is null)
             return new StreetNotFound();
@@ -101,10 +105,24 @@ public class AddressValidationService(
         if (section is null)
             return new StreetNotFound();
 
+        var territoryHouseNumber = ToTerritory(houseNumber);
+        if (section.StartHouseNumber.CompareTo(territoryHouseNumber) > 0 || section.EndHouseNumber.CompareTo(territoryHouseNumber) < 0)
+        {
+            return new HouseNumberOutOfBounds(streetId);
+        }
+
         return new ValidationSuccess(
                 TerritoryRef.From(territoryId.Value),
                 NeighborhoodRef.From(neighborhood.Id.Value),
                 StreetRef.From(street.Id.Value),
-                StreetSectionRef.From(section.Id.Value));
+                StreetSectionRef.From(section.Id.Value),
+                houseNumber
+                );
     }
+
+    private static HouseNumber ToIntake(TreeTerritoryHouseNumber input) =>
+        HouseNumber.Parse(input.ToString());
+    
+    private static TreeTerritoryHouseNumber ToTerritory(HouseNumber input) =>
+        TreeTerritoryHouseNumber.Parse(input.ToString());
 }

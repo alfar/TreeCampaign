@@ -13,6 +13,7 @@ public interface IAddressValidationService
         StreetRef streetId,
         StreetSectionRef streetSectionId,
         NeighborhoodRef neighborhoodId,
+        HouseNumber houseNumber,
         CampaignRef campaignId,
         CancellationToken cancellationToken = default);
 }

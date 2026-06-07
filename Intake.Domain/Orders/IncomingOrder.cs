@@ -41,7 +41,7 @@ public class IncomingOrder : OrderBase, IParseableOrder
 
     public ValidatedOrder Accept(ValidationSuccess result)
     {
-        return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId);
+        return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber);
     }
 
     private IncomingOrder() { }    

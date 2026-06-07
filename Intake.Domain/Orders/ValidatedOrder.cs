@@ -1,9 +1,11 @@
 using Intake.Domain.ExternalReferences;
+using Intake.Domain.Orders.ValueObjects;
 
 namespace Intake.Domain.Orders;
 
 public class ValidatedOrder : OrderBase
 {
+    public required HouseNumber HouseNumber { get; init; }
     public required StreetRef StreetId { get; init; }
     public required StreetSectionRef StreetSectionId { get; init; }
     public required NeighborhoodRef NeighborhoodId { get; init; }
@@ -14,7 +16,8 @@ public class ValidatedOrder : OrderBase
         IncomingOrder incomingOrder,
         StreetRef streetId,
         StreetSectionRef streetSectionId,
-        NeighborhoodRef neighborhoodId
+        NeighborhoodRef neighborhoodId,
+        HouseNumber houseNumber
     )
     {
         var order = new ValidatedOrder
@@ -27,7 +30,8 @@ public class ValidatedOrder : OrderBase
             Message = incomingOrder.Message,
             StreetId = streetId,
             StreetSectionId = streetSectionId,
-            NeighborhoodId = neighborhoodId
+            NeighborhoodId = neighborhoodId,
+            HouseNumber = houseNumber
         };
     
         order.Raise(new Events.OrderValidated(order.Id));
@@ -39,7 +43,8 @@ public class ValidatedOrder : OrderBase
         UnwashedOrder unwashedOrder,
         StreetRef streetId,
         StreetSectionRef streetSectionId,
-        NeighborhoodRef neighborhoodId
+        NeighborhoodRef neighborhoodId,
+        HouseNumber houseNumber
     )
     {
         var order = new ValidatedOrder
@@ -52,7 +57,8 @@ public class ValidatedOrder : OrderBase
             Message = unwashedOrder.Message,
             StreetId = streetId,
             StreetSectionId = streetSectionId,
-            NeighborhoodId = neighborhoodId
+            NeighborhoodId = neighborhoodId,
+            HouseNumber = houseNumber
         };
 
         order.Raise(new Events.OrderValidated(order.Id));
@@ -64,7 +70,8 @@ public class ValidatedOrder : OrderBase
         WashedOrder washedOrder,
         StreetRef streetId,
         StreetSectionRef streetSectionId,
-        NeighborhoodRef neighborhoodId
+        NeighborhoodRef neighborhoodId,
+        HouseNumber houseNumber
     )
     {
         var order = new ValidatedOrder
@@ -77,7 +84,8 @@ public class ValidatedOrder : OrderBase
             Message = washedOrder.Message,
             StreetId = streetId,
             StreetSectionId = streetSectionId,
-            NeighborhoodId = neighborhoodId
+            NeighborhoodId = neighborhoodId,
+            HouseNumber = houseNumber
         };
 
         order.Raise(new Events.OrderValidated(order.Id));
@@ -89,7 +97,8 @@ public class ValidatedOrder : OrderBase
         OutOfBoundsOrder outOfBoundsOrder,
         StreetRef streetId,
         StreetSectionRef streetSectionId,
-        NeighborhoodRef neighborhoodId
+        NeighborhoodRef neighborhoodId,
+        HouseNumber houseNumber
     )
     {
         var order = new ValidatedOrder
@@ -102,7 +111,8 @@ public class ValidatedOrder : OrderBase
             Message = outOfBoundsOrder.Message,
             StreetId = streetId,
             StreetSectionId = streetSectionId,
-            NeighborhoodId = neighborhoodId
+            NeighborhoodId = neighborhoodId,
+            HouseNumber = houseNumber
         };
 
         order.Raise(new Events.OrderValidated(order.Id));

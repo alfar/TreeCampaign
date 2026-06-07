@@ -140,7 +140,7 @@ public class OrderValidationWorker : BackgroundService
 
     private async Task<ValidatedOrder?> TryValidateOrderByReferences(WashedOrder order, IAddressValidationService addressValidationService, CancellationToken stoppingToken = default)
     {
-        var validationResult = await addressValidationService.ValidateRefsAsync(order.StreetId, order.StreetSectionId, order.NeighborhoodId, order.CampaignId, stoppingToken);
+        var validationResult = await addressValidationService.ValidateRefsAsync(order.StreetId, order.StreetSectionId, order.NeighborhoodId, order.HouseNumber, order.CampaignId, stoppingToken);
         if (validationResult is ValidationSuccess success)
         {
             _logger.LogInformation("Order {OrderId} validated successfully by references.", order.Id);

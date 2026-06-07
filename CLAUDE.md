@@ -66,7 +66,7 @@ IncomingOrder
 
 UnwashedOrder
   ├─ Accept(ValidationSuccess)       → ValidatedOrder     (bulk retry: street now exists in Territory)
-  └─ Wash(StreetRef, StreetSectionRef, NeighborhoodRef) → WashedOrder
+  └─ Wash(StreetRef, StreetSectionRef, NeighborhoodRef, HouseNumber) → WashedOrder
 
 WashedOrder
   ├─ Accept(ValidationSuccess)       → ValidatedOrder
@@ -78,16 +78,18 @@ OutOfBoundsOrder
 
 `OrderBase` carries: `OrderId`, `CampaignRef`, `Sender` (name + phone), `MoneyAmount`, `OrderDate`, `Message` (original free text).
 
+`ValidatedOrder` additionally carries: `HouseNumber`, `StreetRef`, `StreetSectionRef`, `NeighborhoodId` (resolved address components needed to create stops in TreeCampaign).
+
 **Value objects:**
 - `ParsedAddress(Street, HouseNumber, ZipCode?, City?)` — what the auto-parser extracted from `Message`
 - Cross-context refs in `ExternalReferences/`: `TerritoryRef`, `NeighborhoodRef`, `StreetRef`, `StreetSectionRef`, `CampaignRef`
 
 **Service interfaces (in `Intake.Domain/Orders/Services/`):**
 - `IAddressParser` — `ParsedAddress? TryParse(string message)` — implemented by `RegexAddressParser` in `Intake.Domain` (pure regex, no external dependencies; a domain service)
-- `IAddressValidationService` — `Task<AddressValidationResult> ValidateAsync(ParsedAddress, CampaignRef, CancellationToken)` — implemented in `Intake.Application` (application service: coordinates across Territory and TreeCampaign contexts)
-- `AddressValidationResult` — sealed discriminated union: `ValidationSuccess` | `StreetNotFound` | `HouseNumberOutOfBounds`
+- `IAddressValidationService` — `Task<AddressValidationResult> ValidateAsync(ParsedAddress, CampaignRef, CancellationToken)` and `Task<AddressValidationResult> ValidateRefsAsync(StreetRef, StreetSectionRef, NeighborhoodRef, HouseNumber, CampaignRef, CancellationToken)` — implemented in `Intake.Application` (application service: coordinates across Territory and TreeCampaign contexts)
+- `AddressValidationResult` — sealed discriminated union: `ValidationSuccess(TerritoryRef, NeighborhoodRef, StreetRef, StreetSectionRef, HouseNumber)` | `StreetNotFound` | `HouseNumberOutOfBounds`
 
-**Address washing (manual):** When an order is `UnwashedOrder`, the operator corrects the address. The frontend calls an external Danish address validation API directly (not via the backend) to assist with autocomplete/lookup. The operator submits resolved `StreetRef`, `StreetSectionRef`, and `NeighborhoodRef` via the Intake API — the address is already validated by the external API; the backend records the Territory refs directly on `WashedOrder`. The refs are not to be trusted, but must be validated against the TreeTerritory domain before the WashedOrder can be accepted and go to the ValidatedOrder state.
+**Address washing (manual):** When an order is `UnwashedOrder`, the operator corrects the address. The frontend calls an external Danish address validation API directly (not via the backend) to assist with autocomplete/lookup. The operator submits resolved `StreetRef`, `StreetSectionRef`, `NeighborhoodRef`, and `HouseNumber` via the Intake API — the address is already validated by the external API; the backend records the Territory refs and house number directly on `WashedOrder`. The refs and house number are not to be trusted, but must be validated against the TreeTerritory domain before the WashedOrder can be accepted and go to the ValidatedOrder state.
 
 ## Context Interactions
 
@@ -175,13 +177,20 @@ UnassignedStop → AssignedStop → CollectedStop
 AssignedStop ← CorrectMistakenCollection ← CollectedStop
 ```
 
-Each transition raises an `IDomainEvent` (from `Common.Domain`). Events are persisted to `StoredDomainEvents` via `OutboxDbContext.SaveChangesAsync` — aggregates and their events are saved in one transaction. A background worker (not yet implemented) reads unprocessed events and dispatches to registered `IDomainEventHandler<TEvent>` implementations.
+Each transition raises an `IDomainEvent` (from `Common.Domain`). Events are persisted to `StoredDomainEvents` via `OutboxDbContext.SaveChangesAsync` — aggregates and their events are saved in one transaction.
+
+**Event dispatch architecture:**
+- Events stored in DB include the event type's `FullName` (e.g., `"TreeCampaign.Domain.Events.StopAssigned"`)
+- **`DomainEventHandlerLookup`** (singleton, in `Common.Infrastructure`) uses reflection at startup to scan all `IDomainEventHandler` implementations and build a type registry mapping `FullName` → event type. Keeps handler types cached without instantiating them.
+- **`DomainEventDispatcher`** (transient, in `Common.Infrastructure`) receives unprocessed events from DB, resolves their types via the lookup, and uses `IServiceProvider` to instantiate scoped/transient handlers at dispatch time. This ensures handlers respect their configured lifetime and can access DbContexts.
+- **`Channel<EventDispatchSignal>`** (singleton, registered in `Host.Api`): injected into the abstract `OutboxDbContext` base class. When events are persisted, a signal is written to the channel to wake the background worker (rather than polling).
+- Background worker reads from the channel and calls `DomainEventDispatcher.DispatchDomainEventsAsync()`.
 
 EF Core maps the hierarchy via **Table-Per-Hierarchy (TPH)** with a `StopType` discriminator column. The repository explicitly nulls `AssignedTeamId` when saving an `UnassignedStop` — an invariant EF cannot enforce through TPH alone.
 
 ### Data Access
 
-- **`OutboxDbContext`** (in `Common.Infrastructure`) — abstract base for all write contexts; handles `StoredDomainEvent` persistence atomically with aggregate saves in one `SaveChangesAsync` transaction
+- **`OutboxDbContext`** (in `Common.Infrastructure`) — abstract base for all write contexts; receives `Channel<EventDispatchSignal>` via constructor, handles `StoredDomainEvent` persistence atomically with aggregate saves in one `SaveChangesAsync` transaction, and signals the background worker after persisting events
 - **`StoredDomainEventContext`** (in `Common.Infrastructure`) — owns the `StoredDomainEvents` migration; all other contexts call `ExcludeFromMigrations()` for that table
 - Each bounded context's write DbContext extends `OutboxDbContext` and implements its own `IUnitOfWork` sub-interface
 - Each bounded context has a read-only `ProjectionContext` — `AsNoTracking`, flat DTOs, throws on `SaveChanges`

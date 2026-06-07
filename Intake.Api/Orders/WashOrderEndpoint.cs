@@ -8,7 +8,7 @@ namespace Intake.Api.Orders;
 
 public static class WashOrderEndpoint
 {
-    public record WashOrderRequest(StreetRef StreetId, StreetSectionRef StreetSectionId, NeighborhoodRef NeighborhoodId);
+    public record WashOrderRequest(StreetRef StreetId, StreetSectionRef StreetSectionId, NeighborhoodRef NeighborhoodId, HouseNumber HouseNumber);
 
     public static async Task<IResult> Handle([FromRoute] CampaignRef campaignId, [FromRoute] OrderId orderId, WashOrderRequest request, IIntakeUnitOfWork unitOfWork, CancellationToken cancellationToken)
     {
@@ -18,7 +18,7 @@ public static class WashOrderEndpoint
             return Results.NotFound();
         }
 
-        var newOrder = order.Wash(request.StreetId, request.StreetSectionId, request.NeighborhoodId);
+        var newOrder = order.Wash(request.StreetId, request.StreetSectionId, request.NeighborhoodId, request.HouseNumber);
         unitOfWork.GetRepository<UnwashedOrder, OrderId>().Delete(order);
         unitOfWork.GetRepository<WashedOrder, OrderId>().Add(newOrder);
 
