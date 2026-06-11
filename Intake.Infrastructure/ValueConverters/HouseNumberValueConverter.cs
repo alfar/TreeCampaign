@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Intake.Domain.Orders.ValueObjects;
 
-namespace TreeTerritory.Infrastructure.ValueConverters;
+namespace Intake.Infrastructure.ValueConverters;
 
 internal class HouseNumberValueConverter : ValueConverter<HouseNumber, string>
 {

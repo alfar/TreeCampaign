@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Intake.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Intake.Infrastructure.Migrations
 {
     [DbContext(typeof(IntakeContext))]
-    partial class IntakeContextModelSnapshot : ModelSnapshot
+    [Migration("20260611050339_RefsJoined")]
+    partial class RefsJoined
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
@@ -132,10 +135,10 @@ namespace Intake.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("HouseNumber");
 
-                    b.Property<decimal>("Latitude")
+                    b.Property<decimal?>("Latitude")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Longitude")
+                    b.Property<decimal?>("Longitude")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("NeighborhoodId")

@@ -7,6 +7,7 @@ using Intake.Application.Services;
 using Intake.Domain.Orders.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http;
 
 namespace Intake.Application;
 
@@ -23,6 +24,10 @@ public static class ServiceExtensions
         services.AddScoped<IAddressValidationService, AddressValidationService>();
 
         services.AddScoped<OrderReceivedEventHandler>();
+        services.AddScoped<OrderValidatedEventHandler>();
+        services.AddScoped<OrderWashedEventHandler>();
+
+        services.AddHttpClient<IAddressLookupClient, DawaClient>();
         return services;
     }
 }

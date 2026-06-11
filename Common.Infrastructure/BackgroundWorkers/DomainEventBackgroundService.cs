@@ -21,10 +21,10 @@ public class DomainEventBackgroundService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            using var scope = _serviceProvider.CreateScope();
 
             await foreach (var _ in _channelReader.ReadAllAsync(stoppingToken))
             {
+                using var scope = _serviceProvider.CreateScope();
                 var domainEventDispatcher = scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
                 await domainEventDispatcher.DispatchDomainEventsAsync(stoppingToken);
             }

@@ -23,6 +23,7 @@ public static class EndpointExtensions
             options.SerializerOptions.Converters.Add(new StreetRefJsonConverter());
             options.SerializerOptions.Converters.Add(new OrderIdJsonConverter());
             options.SerializerOptions.Converters.Add(new MoneyAmountJsonConverter());
+            options.SerializerOptions.Converters.Add(new HouseNumberJsonConverter());
         });
 
         return services;

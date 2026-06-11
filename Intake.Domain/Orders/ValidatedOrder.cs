@@ -10,6 +10,9 @@ public class ValidatedOrder : OrderBase
     public required StreetSectionRef StreetSectionId { get; init; }
     public required NeighborhoodRef NeighborhoodId { get; init; }
 
+    public decimal Latitude { get; init; }
+    public decimal Longitude { get; init; }
+
     private ValidatedOrder() { }
 
     public static ValidatedOrder CreateFrom(
@@ -17,7 +20,9 @@ public class ValidatedOrder : OrderBase
         StreetRef streetId,
         StreetSectionRef streetSectionId,
         NeighborhoodRef neighborhoodId,
-        HouseNumber houseNumber
+        HouseNumber houseNumber,
+        decimal latitude,
+        decimal longitude
     )
     {
         var order = new ValidatedOrder
@@ -31,9 +36,11 @@ public class ValidatedOrder : OrderBase
             StreetId = streetId,
             StreetSectionId = streetSectionId,
             NeighborhoodId = neighborhoodId,
-            HouseNumber = houseNumber
+            HouseNumber = houseNumber,
+            Latitude = latitude,
+            Longitude = longitude
         };
-    
+
         order.Raise(new Events.OrderValidated(order.Id));
 
         return order;
@@ -44,7 +51,10 @@ public class ValidatedOrder : OrderBase
         StreetRef streetId,
         StreetSectionRef streetSectionId,
         NeighborhoodRef neighborhoodId,
-        HouseNumber houseNumber
+        HouseNumber houseNumber,
+        decimal latitude,
+        decimal longitude
+
     )
     {
         var order = new ValidatedOrder
@@ -58,7 +68,9 @@ public class ValidatedOrder : OrderBase
             StreetId = streetId,
             StreetSectionId = streetSectionId,
             NeighborhoodId = neighborhoodId,
-            HouseNumber = houseNumber
+            HouseNumber = houseNumber,
+            Latitude = latitude,
+            Longitude = longitude
         };
 
         order.Raise(new Events.OrderValidated(order.Id));
@@ -71,7 +83,10 @@ public class ValidatedOrder : OrderBase
         StreetRef streetId,
         StreetSectionRef streetSectionId,
         NeighborhoodRef neighborhoodId,
-        HouseNumber houseNumber
+        HouseNumber houseNumber,
+        decimal latitude,
+        decimal longitude
+
     )
     {
         var order = new ValidatedOrder
@@ -85,7 +100,9 @@ public class ValidatedOrder : OrderBase
             StreetId = streetId,
             StreetSectionId = streetSectionId,
             NeighborhoodId = neighborhoodId,
-            HouseNumber = houseNumber
+            HouseNumber = houseNumber,
+            Latitude = latitude,
+            Longitude = longitude
         };
 
         order.Raise(new Events.OrderValidated(order.Id));
@@ -98,7 +115,10 @@ public class ValidatedOrder : OrderBase
         StreetRef streetId,
         StreetSectionRef streetSectionId,
         NeighborhoodRef neighborhoodId,
-        HouseNumber houseNumber
+        HouseNumber houseNumber,
+        decimal latitude,
+        decimal longitude
+
     )
     {
         var order = new ValidatedOrder
@@ -112,7 +132,9 @@ public class ValidatedOrder : OrderBase
             StreetId = streetId,
             StreetSectionId = streetSectionId,
             NeighborhoodId = neighborhoodId,
-            HouseNumber = houseNumber
+            HouseNumber = houseNumber,
+            Latitude = latitude,
+            Longitude = longitude
         };
 
         order.Raise(new Events.OrderValidated(order.Id));

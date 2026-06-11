@@ -39,10 +39,10 @@ public class DomainEventDispatcher : IDomainEventDispatcher
 
                         await handler.HandleAsync(@event, cancellationToken);
                     }
-
-                    domainEvent.ProcessedAtUtc = DateTime.UtcNow;
-                    await _context.SaveChangesAsync(cancellationToken);
                 }
+
+                domainEvent.ProcessedAtUtc = DateTime.UtcNow;
+                await _context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
             {

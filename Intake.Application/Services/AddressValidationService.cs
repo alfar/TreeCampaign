@@ -21,7 +21,8 @@ namespace Intake.Application.Services;
 public class AddressValidationService(
     TreeCampaignContext campaignContext,
     TreeTerritoryContext territoryContext,
-    INeighborhoodQueries neighborhoodQueries) : IAddressValidationService
+    INeighborhoodQueries neighborhoodQueries,
+    IAddressLookupClient addressLookupClient) : IAddressValidationService
 {
     public async Task<AddressValidationResult> ValidateAsync(
         ParsedAddress address, CampaignRef campaignId, CancellationToken cancellationToken = default)
@@ -60,12 +61,24 @@ public class AddressValidationService(
                     s.EndHouseNumber.CompareTo(territoryHouseNumber) >= 0);
 
                 if (section is not null)
-                    return new ValidationSuccess(
-                        TerritoryRef.From(territoryId.Value),
-                        NeighborhoodRef.From(neighborhood.Id.Value),
-                        StreetRef.From(street.Id.Value),
-                        StreetSectionRef.From(section.Id.Value),
-                        ToIntake(territoryHouseNumber));
+                {
+
+                    var lookup = await addressLookupClient.GetAddress(address.Street, address.HouseNumber, address.ZipCode ?? "8600");
+
+                    if (lookup is not null)
+                    {
+                        return new ValidationSuccess(
+                            TerritoryRef.From(territoryId.Value),
+                            NeighborhoodRef.From(neighborhood.Id.Value),
+                            StreetRef.From(street.Id.Value),
+                            StreetSectionRef.From(section.Id.Value),
+                            ToIntake(territoryHouseNumber),
+                            lookup.Latitude, 
+                            lookup.Longitude
+                        );
+                    }
+
+                }
             }
         }
 
@@ -111,13 +124,22 @@ public class AddressValidationService(
             return new HouseNumberOutOfBounds(streetId);
         }
 
+        var lookup = await addressLookupClient.GetAddress(street.Name, houseNumber.ToString(), street.ZipCode.Value);
+
+        if (lookup is null)
+        {
+            return new HouseNumberOutOfBounds(streetId);
+        }
+
         return new ValidationSuccess(
-                TerritoryRef.From(territoryId.Value),
-                NeighborhoodRef.From(neighborhood.Id.Value),
-                StreetRef.From(street.Id.Value),
-                StreetSectionRef.From(section.Id.Value),
-                houseNumber
-                );
+            TerritoryRef.From(territoryId.Value),
+            NeighborhoodRef.From(neighborhood.Id.Value),
+            StreetRef.From(street.Id.Value),
+            StreetSectionRef.From(section.Id.Value),
+            houseNumber,
+            lookup.Latitude,
+            lookup.Longitude
+        );
     }
 
     private static HouseNumber ToIntake(TreeTerritoryHouseNumber input) =>

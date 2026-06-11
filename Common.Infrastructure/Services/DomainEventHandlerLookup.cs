@@ -12,7 +12,7 @@ public class DomainEventHandlerLookup : IDomainEventHandlerLookup
         // Scan all IDomainEventHandler implementations (from all assemblies your handlers live in)
         var handlerTypes = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
-            .Where(t => !t.IsAbstract && typeof(IDomainEventHandler).IsAssignableFrom(t))
+            .Where(t => !t.IsAbstract && !t.IsGenericType && typeof(IDomainEventHandler).IsAssignableFrom(t))
             .ToList();
 
         // Map event type → handler types

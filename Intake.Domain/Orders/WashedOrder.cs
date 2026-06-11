@@ -39,7 +39,7 @@ public class WashedOrder : OrderBase
 
     public ValidatedOrder Accept(ValidationSuccess result)
     {
-        return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber);
+        return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber, result.Latitude, result.Longitude);
     }
 
     private WashedOrder() { }

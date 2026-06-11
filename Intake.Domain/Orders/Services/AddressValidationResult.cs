@@ -10,7 +10,9 @@ public sealed record ValidationSuccess(
     NeighborhoodRef NeighborhoodId,
     StreetRef StreetId,
     StreetSectionRef StreetSectionId,
-    HouseNumber HouseNumber) : AddressValidationResult;
+    HouseNumber HouseNumber,
+    decimal Latitude,
+    decimal Longitude) : AddressValidationResult;
 
 public sealed record StreetNotFound() : AddressValidationResult;
 

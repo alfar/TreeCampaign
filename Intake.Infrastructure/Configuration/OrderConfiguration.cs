@@ -1,4 +1,5 @@
 using Intake.Domain.Orders;
+using Intake.Domain.Orders.ValueObjects;
 using Intake.Infrastructure.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,19 +45,39 @@ internal static class OrderConfiguration
 
         modelBuilder.Entity<WashedOrder>()
             .Property(o => o.StreetSectionId)
+            .HasColumnName("StreetSectionId")
             .HasConversion(new StreetSectionRefValueConverter());
 
         modelBuilder.Entity<ValidatedOrder>()
             .Property(o => o.StreetSectionId)
+            .HasColumnName("StreetSectionId")
             .HasConversion(new StreetSectionRefValueConverter());
 
         modelBuilder.Entity<WashedOrder>()
             .Property(o => o.NeighborhoodId)
+            .HasColumnName("NeighborhoodId")
             .HasConversion(new NeighborhoodRefValueConverter());
 
         modelBuilder.Entity<ValidatedOrder>()
             .Property(o => o.NeighborhoodId)
+            .HasColumnName("NeighborhoodId")
             .HasConversion(new NeighborhoodRefValueConverter());
+
+        modelBuilder.Entity<WashedOrder>()
+            .Property(o => o.HouseNumber)
+            .HasColumnName("HouseNumber")
+            .HasConversion(new HouseNumberValueConverter());
+
+        modelBuilder.Entity<ValidatedOrder>()
+            .Property(o => o.HouseNumber)
+            .HasColumnName("HouseNumber")
+            .HasConversion(new HouseNumberValueConverter());
+
+        modelBuilder.Entity<ValidatedOrder>()
+            .Property(o => o.Longitude);
+
+        modelBuilder.Entity<ValidatedOrder>()
+            .Property(o => o.Latitude);
 
         return modelBuilder;
     }
