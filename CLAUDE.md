@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **TreeCampaign** is a full-stack management app for a yearly scout Christmas tree collection event in the 8600 postal area (Silkeborg, Denmark). Citizens submit a payment (40 DKK/tree) along with their address; scout teams are dispatched over multiple days to collect trees. The system manages the full pipeline from raw payment intake through address validation, stop assignment, and collection tracking.
 
-The developer is learning Domain-Driven Design by building this system. Claude's role is to coach, not to implement. Preserve this dynamic — offer guidance, ask clarifying questions about design decisions, and let the developer write the code.
+The developer is learning Domain-Driven Design by building this system. Claude's role is to coach first, then help with implementation when requested.
 
 ## Bounded Contexts
 
@@ -100,44 +100,6 @@ TreeCampaign ──reads► Territory       (projection: sort order + direction 
 ```
 
 Triggered interactions between the contexts happen through domain events being published via an outbox pattern and then processed by a background worker that distributes events to their respective handlers.
-
-## Build & Run Commands
-
-### Backend (.NET)
-```powershell
-dotnet build TreeCampaign.sln
-dotnet run --project Host.Api          # API on port 5006
-```
-
-### Frontend
-```powershell
-cd TreeCampaign.UI
-npm install
-npm run dev      # Dev server at http://localhost:5173 (proxies /api → :5006)
-npm run build
-npm run lint
-```
-
-### Entity Framework Migrations
-```powershell
-# StoredDomainEvents (Common.Infrastructure — owns the StoredDomainEvents table)
-dotnet ef migrations add <Name> --project Common.Infrastructure --startup-project Host.Api --context StoredDomainEventContext
-dotnet ef database update --project Common.Infrastructure --startup-project Host.Api --context StoredDomainEventContext
-
-# TreeCampaign migrations (TreeCampaign.Infrastructure)
-dotnet ef migrations add <Name> --project TreeCampaign.Infrastructure --startup-project Host.Api --context TreeCampaignContext
-dotnet ef database update --project TreeCampaign.Infrastructure --startup-project Host.Api --context TreeCampaignContext
-
-# Territory migrations (TreeTerritory.Infrastructure)
-dotnet ef migrations add <Name> --project TreeTerritory.Infrastructure --startup-project Host.Api --context TreeTerritoryContext
-dotnet ef database update --project TreeTerritory.Infrastructure --startup-project Host.Api --context TreeTerritoryContext
-
-# Intake migrations (Intake.Infrastructure)
-dotnet ef migrations add <Name> --project Intake.Infrastructure --startup-project Host.Api --context IntakeContext
-dotnet ef database update --project Intake.Infrastructure --startup-project Host.Api --context IntakeContext
-```
-
-Database is SQLite, written to `{BaseDirectory}/app.db` at runtime.
 
 ## Project Structure
 
@@ -251,7 +213,7 @@ Vite proxies `/api/*` to `:5006`.
 ## Technology Stack
 
 - **.NET 10** with C# 13
-- **EF Core 10.0.7** with SQLite
+- **EF Core 10.0.8** with SQLite
 - **Value Objects:** Configure all value object properties with either:
   1. **ValueConverter** (traditional): `builder.Property(s => s.ZipCode).HasConversion(new ZipCodeValueConverter())`
   2. **ComplexProperty** (EF Core 8+): `builder.ComplexProperty(s => s.Address, a => { a.Property(p => p.DisplayName).HasColumnName("AddressDisplayName"); })`
