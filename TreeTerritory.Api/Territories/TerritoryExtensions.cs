@@ -7,6 +7,7 @@ public static class TerritoryExtensions
         var group = app.MapGroup("/territories").WithTags("Territories");
 
         group.MapGet("/", GetTerritoriesEndpoint.Handle);
+        group.MapGet("/{territoryId:guid}", GetTerritoryEndpoint.Handle);
 
         group.MapPost("/", CreateTerritoryEndpoint.Handle);
 

@@ -22,10 +22,12 @@ public static class ServiceExtensions
         services.AddHostedService<OrderValidationWorker>();
 
         services.AddScoped<IAddressValidationService, AddressValidationService>();
+        services.AddScoped<ISectionResolutionService, SectionResolutionService>();
 
         services.AddScoped<OrderReceivedEventHandler>();
         services.AddScoped<OrderValidatedEventHandler>();
         services.AddScoped<OrderWashedEventHandler>();
+        services.AddScoped<StreetCreatedEventHandler>();
 
         services.AddHttpClient<IAddressLookupClient, DawaClient>();
         return services;

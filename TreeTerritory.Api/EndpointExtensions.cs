@@ -2,6 +2,7 @@ using TreeTerritory.Infrastructure;
 using TreeTerritory.Api.Streets;
 using TreeTerritory.Api.Territories;
 using TreeTerritory.Api.Neighborhoods;
+using TreeTerritory.Api.StreetSections;
 using TreeTerritory.Api.JsonConverters;
 
 namespace TreeTerritory.Api;
@@ -13,7 +14,8 @@ public static class EndpointExtensions
         app.MapStreetEndpoints();
         app.MapTerritoryEndpoints();
         app.MapGroup("/Territories/{territoryId:guid}")
-            .MapNeighborhoodEndpoints();
+            .MapNeighborhoodEndpoints()
+            .MapStreetSectionEndpoints();
 
         return app;
     }

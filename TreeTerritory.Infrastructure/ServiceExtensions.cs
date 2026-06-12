@@ -20,6 +20,7 @@ public static class ServiceExtensions
         services.AddScoped<INeighborhoodQueries, NeighborhoodQueries>();
         services.AddScoped<ITerritoryQueries, TerritoryQueries>();
         services.AddScoped<IStreetQueries, StreetQueries>();
+        services.AddScoped<IStreetSectionQueries, StreetSectionQueries>();
 
         return services;
     }

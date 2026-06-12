@@ -30,6 +30,7 @@ public static class EndpointExtensions
             options.SerializerOptions.Converters.Add(new CampaignSeasonJsonConverter());
             options.SerializerOptions.Converters.Add(new ReasonTextJsonConverter());
             options.SerializerOptions.Converters.Add(new TeamNameJsonConverter());
+            options.SerializerOptions.Converters.Add(new TerritoryRefJsonConverter());
         });
 
         return services;

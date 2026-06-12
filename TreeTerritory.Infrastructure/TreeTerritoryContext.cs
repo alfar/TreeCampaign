@@ -1,4 +1,6 @@
+using System.Threading.Channels;
 using Common.Infrastructure.Abstractions;
+using Common.Infrastructure.BackgroundWorkers.Signals;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using TreeTerritory.Domain.Neighborhoods;
@@ -13,8 +15,8 @@ using TreeTerritory.Infrastructure.Configuration;
 
 namespace TreeTerritory.Infrastructure;
 
-public class TreeTerritoryContext(DbContextOptions<TreeTerritoryContext> options)
-    : DbContext(options),
+public class TreeTerritoryContext(DbContextOptions<TreeTerritoryContext> options, ChannelWriter<EventDispatchSignal> eventDispatcher)
+    : OutboxDbContext(options, eventDispatcher),
         ITreeTerritoryUnitOfWork,
         IRepository<Territory, TerritoryId>,
         IRepository<Neighborhood, NeighborhoodId>,
@@ -71,6 +73,6 @@ public class TreeTerritoryContextFactory : IDesignTimeDbContextFactory<TreeTerri
         var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
 
-        return new TreeTerritoryContext(optionsBuilder.Options);
+        return new TreeTerritoryContext(optionsBuilder.Options, null!);
     }
 }

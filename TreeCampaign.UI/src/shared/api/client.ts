@@ -1,6 +1,27 @@
 import type { Campaign } from "./models/campagin";
+import type { Order } from "./models/order";
+import type { Street } from "./models/street";
 import type { Stop } from "./models/stop";
 import type { Team } from "./models/team";
+
+export async function getOrders(campaignId: string): Promise<Order[]> {
+  const res = await fetch(`/api/campaigns/${campaignId}/orders`);
+  return res.json();
+}
+
+export async function getStreetsByZipCode(zipCode: string): Promise<Street[]> {
+  const res = await fetch(`/api/streets/${zipCode}`);
+  return res.json();
+}
+
+export async function createStreet(name: string, zipCode: string): Promise<Street> {
+  const res = await fetch('/api/streets/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, zipCode }),
+  });
+  return res.json();
+}
 
 export async function getCampaigns() : Promise<Campaign[]> {
     const res = await fetch('/api/campaigns');

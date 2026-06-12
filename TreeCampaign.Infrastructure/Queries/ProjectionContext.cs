@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
+using TreeCampaign.Domain.ExternalReferences;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.Queries;
@@ -60,6 +61,7 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
     {
         public required CampaignId Id { get; init; }
         public required CampaignSeason Season { get; init; }
+        public TerritoryRef? TerritoryId { get; init; }
     }
 
     public class TeamProjection
@@ -128,6 +130,10 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
             .Entity<CampaignProjection>()
             .Property(c => c.Season)
             .HasConversion(new CampaignSeasonValueConverter());
+        modelBuilder
+            .Entity<CampaignProjection>()
+            .Property(c => c.TerritoryId)
+            .HasConversion(new NullableTerritoryRefValueConverter());            
         modelBuilder.Entity<CampaignProjection>().ToTable("Campaigns");
 
         modelBuilder.Entity<TeamProjection>().HasKey(t => t.Id);

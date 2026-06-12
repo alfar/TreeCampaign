@@ -1,9 +1,24 @@
+using Common.Domain.Abstractions;
+using TreeTerritory.Domain.Streets.Events;
 using TreeTerritory.Domain.Streets.ValueObjects;
 
 namespace TreeTerritory.Domain.Streets;
 
-public class Street
+public class Street : IHasDomainEvents
 {
+    private readonly List<IDomainEvent> _newEvents = new();
+    public IReadOnlyCollection<IDomainEvent> NewEvents => _newEvents.AsReadOnly();
+
+    protected void Raise(IDomainEvent @event)
+    {
+        _newEvents.Add(@event);
+    }
+
+    public void ClearEvents()
+    {
+        _newEvents.Clear();
+    }
+
     public required StreetId Id { get; init; }
     public string Name { get; private set; } = string.Empty;
 
@@ -11,12 +26,16 @@ public class Street
 
     public static Street Create(string name, ZipCode zipCode)
     {
-        return new Street
+        var result = new Street
         {
             Id = StreetId.From(Guid.NewGuid()),
             Name = name,
             ZipCode = zipCode
         };
+
+        result.Raise(new StreetCreated(result.Id));
+
+        return result;
     }
 
     private Street()
