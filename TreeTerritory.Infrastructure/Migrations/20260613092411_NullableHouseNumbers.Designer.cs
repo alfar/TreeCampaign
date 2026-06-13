@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeTerritory.Infrastructure;
 
@@ -10,9 +11,11 @@ using TreeTerritory.Infrastructure;
 namespace TreeTerritory.Infrastructure.Migrations
 {
     [DbContext(typeof(TreeTerritoryContext))]
-    partial class TreeTerritoryContextModelSnapshot : ModelSnapshot
+    [Migration("20260613092411_NullableHouseNumbers")]
+    partial class NullableHouseNumbers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");

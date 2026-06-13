@@ -22,16 +22,24 @@ public static class WashOrderEndpoint
 
         var result = await sectionResolutionService.ResolveSectionAsync(campaignId, request.StreetId, request.HouseNumber, cancellationToken);
 
-        if (result is not null)
-        {            
-            var newOrder = order.Wash(request.StreetId, result.StreetSectionId, result.NeighborhoodId, request.HouseNumber);
-            unitOfWork.Transition<UnwashedOrder, WashedOrder, OrderId>(order, newOrder);
+        switch (result)
+        {
+            case SuccessfulSectionResolutionResult success:
+                var newOrder = order.Wash(request.StreetId, success.StreetSectionId, success.NeighborhoodId, request.HouseNumber);
+                unitOfWork.Transition<UnwashedOrder, WashedOrder, OrderId>(order, newOrder);
 
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Results.Ok(newOrder);
+                return Results.Ok(newOrder);
+            case OutOfBoundsSectionResolutionResult:
+                var oobOrder = order.MarkOutOfBounds(request.StreetId, request.HouseNumber);
+                unitOfWork.Transition<UnwashedOrder, OutOfBoundsOrder, OrderId>(order, oobOrder);
+
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+
+                return Results.Ok(oobOrder);
+            default:
+                return Results.UnprocessableEntity();
         }
-
-        return Results.UnprocessableEntity();
     }
 }

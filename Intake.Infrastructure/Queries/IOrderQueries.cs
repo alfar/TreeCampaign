@@ -25,4 +25,6 @@ public class OrderProjection
     // ValidatedOrder + WashedOrder
     public StreetSectionRef? StreetSectionId { get; init; }
     public NeighborhoodRef? NeighborhoodId { get; init; }
+
+    public HouseNumber? HouseNumber { get; init; }
 }

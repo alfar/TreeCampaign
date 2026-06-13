@@ -58,6 +58,7 @@ public class TreeTerritoryContext(DbContextOptions<TreeTerritoryContext> options
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.AddTerritories().AddNeighborhoods().AddStreets().AddStreetSections();
     }
 

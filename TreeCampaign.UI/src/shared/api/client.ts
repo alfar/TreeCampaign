@@ -1,4 +1,5 @@
 import type { Campaign } from "./models/campagin";
+import type { Neighborhood } from "./models/neighborhood";
 import type { Order } from "./models/order";
 import type { Street } from "./models/street";
 import type { Stop } from "./models/stop";
@@ -7,6 +8,18 @@ import type { Team } from "./models/team";
 export async function getOrders(campaignId: string): Promise<Order[]> {
   const res = await fetch(`/api/campaigns/${campaignId}/orders`);
   return res.json();
+}
+
+export async function washOrder(
+  campaignId: string,
+  orderId: string,
+  data: { streetId: string; houseNumber: string }
+): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/wash`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 }
 
 export async function getStreetsByZipCode(zipCode: string): Promise<Street[]> {
@@ -26,6 +39,32 @@ export async function createStreet(name: string, zipCode: string): Promise<Stree
 export async function getCampaigns() : Promise<Campaign[]> {
     const res = await fetch('/api/campaigns');
     return res.json();
+}
+
+export async function getNeighborhoods(territoryId: string): Promise<Neighborhood[]> {
+  const res = await fetch(`/api/Territories/${territoryId}/neighborhoods`);
+  return res.json();
+}
+
+export async function createNeighborhood(territoryId: string, name: string): Promise<Neighborhood> {
+  const res = await fetch(`/api/Territories/${territoryId}/neighborhoods`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  return res.json();
+}
+
+export async function createStreetSection(
+  territoryId: string,
+  neighborhoodId: string,
+  streetId: string,
+): Promise<Response> {
+  return fetch(`/api/Territories/${territoryId}/neighborhoods/${neighborhoodId}/street-sections`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ streetId, sortOrder: 0, fromHouseNumber: null, toHouseNumber: null, direction: 0 }),
+  });
 }
 
 export async function getStops(campaignId: string) : Promise<Stop[]> {

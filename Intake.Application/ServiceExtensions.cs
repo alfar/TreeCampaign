@@ -28,6 +28,7 @@ public static class ServiceExtensions
         services.AddScoped<OrderValidatedEventHandler>();
         services.AddScoped<OrderWashedEventHandler>();
         services.AddScoped<StreetCreatedEventHandler>();
+        services.AddScoped<StreetSectionCreatedEventHandler>();
 
         services.AddHttpClient<IAddressLookupClient, DawaClient>();
         return services;

@@ -21,8 +21,8 @@ internal static class StreetSectionConfiguration
         builder.Property(c => c.Id).HasConversion(new StreetSectionIdValueConverter());
         builder.Property(c => c.NeighborhoodId).HasConversion(new NeighborhoodIdValueConverter());
         builder.Property(c => c.StreetId).HasConversion(new StreetIdValueConverter());
-        builder.Property(c => c.StartHouseNumber).HasConversion(new HouseNumberValueConverter());
-        builder.Property(c => c.EndHouseNumber).HasConversion(new HouseNumberValueConverter());
+        builder.Property(c => c.StartHouseNumber).HasConversion(new NullableHouseNumberValueConverter());
+        builder.Property(c => c.EndHouseNumber).HasConversion(new NullableHouseNumberValueConverter());
         builder.Property(c => c.Direction).HasConversion<byte>();
         builder.Property(c => c.SortOrder);
         

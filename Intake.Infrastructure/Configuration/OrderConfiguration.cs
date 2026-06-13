@@ -68,6 +68,11 @@ internal static class OrderConfiguration
             .HasColumnName("HouseNumber")
             .HasConversion(new HouseNumberValueConverter());
 
+        modelBuilder.Entity<OutOfBoundsOrder>()
+            .Property(o => o.HouseNumber)
+            .HasColumnName("HouseNumber")
+            .HasConversion(new HouseNumberValueConverter());
+
         modelBuilder.Entity<ValidatedOrder>()
             .Property(o => o.HouseNumber)
             .HasColumnName("HouseNumber")

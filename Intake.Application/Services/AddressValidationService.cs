@@ -57,8 +57,7 @@ public class AddressValidationService(
             {
                 var section = neighborhood.StreetSections.FirstOrDefault(s =>
                     s.StreetId == street.Id &&
-                    s.StartHouseNumber.CompareTo(territoryHouseNumber) <= 0 &&
-                    s.EndHouseNumber.CompareTo(territoryHouseNumber) >= 0);
+                    s.ContainsHouseNumber(territoryHouseNumber));
 
                 if (section is not null)
                 {
@@ -82,7 +81,7 @@ public class AddressValidationService(
             }
         }
 
-        return new HouseNumberOutOfBounds(StreetRef.From(streets[0].Id.Value));
+        return new HouseNumberOutOfBounds(StreetRef.From(streets[0].Id.Value), HouseNumber.Parse(address.HouseNumber));
     }
 
     public async Task<AddressValidationResult> ValidateRefsAsync(
@@ -119,16 +118,16 @@ public class AddressValidationService(
             return new StreetNotFound();
 
         var territoryHouseNumber = ToTerritory(houseNumber);
-        if (section.StartHouseNumber.CompareTo(territoryHouseNumber) > 0 || section.EndHouseNumber.CompareTo(territoryHouseNumber) < 0)
+        if (!section.ContainsHouseNumber(territoryHouseNumber))
         {
-            return new HouseNumberOutOfBounds(streetId);
+            return new HouseNumberOutOfBounds(streetId, houseNumber);
         }
 
         var lookup = await addressLookupClient.GetAddress(street.Name, houseNumber.ToString(), street.ZipCode.Value);
 
         if (lookup is null)
         {
-            return new HouseNumberOutOfBounds(streetId);
+            return new HouseNumberOutOfBounds(streetId, houseNumber);
         }
 
         return new ValidationSuccess(

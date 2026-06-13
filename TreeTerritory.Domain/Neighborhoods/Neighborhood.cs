@@ -27,8 +27,8 @@ public class Neighborhood
 
     public void AddStreetSection(
         StreetId streetId,
-        HouseNumber startHouseNumber,
-        HouseNumber endHouseNumber,
+        HouseNumber? startHouseNumber,
+        HouseNumber? endHouseNumber,
         int sortOrder,
         Direction direction)
     {

@@ -28,6 +28,11 @@ public class UnwashedOrder : OrderBase, IParseableOrder
         return WashedOrder.CreateFrom(this, streetId, streetSectionId, neighborhoodId, houseNumber);
     }
 
+    public OutOfBoundsOrder MarkOutOfBounds(StreetRef streetId, HouseNumber houseNumber)
+    {
+        return OutOfBoundsOrder.CreateFrom(this, streetId, houseNumber);
+    }
+
     public ValidatedOrder Accept(ValidationSuccess result)
     {
         return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber, result.Latitude, result.Longitude);

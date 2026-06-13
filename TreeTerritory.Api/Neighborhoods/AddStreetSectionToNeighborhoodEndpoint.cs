@@ -10,7 +10,7 @@ namespace TreeTerritory.Api.Neighborhoods;
 
 internal class AddStreetSectionToNeighborhoodEndpoint
 {
-    public record AddStreetSectionToNeighborhoodRequest(StreetId StreetId, int SortOrder, HouseNumber FromHouseNumber, HouseNumber ToHouseNumber, Direction Direction);
+    public record AddStreetSectionToNeighborhoodRequest(StreetId StreetId, int SortOrder, HouseNumber? FromHouseNumber, HouseNumber? ToHouseNumber, Direction Direction);
 
     internal static async Task<IResult> Handle(
         TerritoryId territoryId,

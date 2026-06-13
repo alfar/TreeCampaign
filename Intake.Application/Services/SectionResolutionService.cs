@@ -22,7 +22,7 @@ public class SectionResolutionService : ISectionResolutionService
         _streetSectionQueries = streetSectionQueries;
     }
 
-    public async Task<SectionResolutionResult?> ResolveSectionAsync(CampaignRef campaignId, StreetRef streetId, HouseNumber houseNumber, CancellationToken cancellationToken)
+    public async Task<SectionResolutionResultBase?> ResolveSectionAsync(CampaignRef campaignId, StreetRef streetId, HouseNumber houseNumber, CancellationToken cancellationToken)
     {
         var campaign = await _campaignQueries.GetByIdAsync(CampaignId.From(campaignId.Value), cancellationToken);
 
@@ -37,8 +37,10 @@ public class SectionResolutionService : ISectionResolutionService
 
             if (matchingSection is not null)
             {
-                return new(StreetSectionRef.From(matchingSection.Id.Value), NeighborhoodRef.From(matchingSection.NeighborhoodId.Value));
+                return new SuccessfulSectionResolutionResult(StreetSectionRef.From(matchingSection.Id.Value), NeighborhoodRef.From(matchingSection.NeighborhoodId.Value));
             }
+
+            return new OutOfBoundsSectionResolutionResult();
         }
 
         return null;

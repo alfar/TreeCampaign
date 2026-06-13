@@ -24,6 +24,7 @@ public class IntakeProjectionContext(DbContextOptions<IntakeProjectionContext> o
         modelBuilder.Entity<OrderProjection>().Property(o => o.StreetId).HasColumnName("StreetId").HasConversion(new NullableStreetRefValueConverter());
         modelBuilder.Entity<OrderProjection>().Property(o => o.StreetSectionId).HasColumnName("StreetSectionId").HasConversion(new NullableStreetSectionRefValueConverter());
         modelBuilder.Entity<OrderProjection>().Property(o => o.NeighborhoodId).HasColumnName("NeighborhoodId").HasConversion(new NullableNeighborhoodRefValueConverter());
+        modelBuilder.Entity<OrderProjection>().Property(o => o.HouseNumber).HasColumnName("HouseNumber").HasConversion(new NullableHouseNumberValueConverter());
     }
 
     public override int SaveChanges() =>

@@ -36,7 +36,7 @@ public class IncomingOrder : OrderBase, IParseableOrder
 
     public OutOfBoundsOrder MarkOutOfBounds(HouseNumberOutOfBounds result)
     {
-        return OutOfBoundsOrder.CreateFrom(this, result.StreetId);
+        return OutOfBoundsOrder.CreateFrom(this, result.StreetId, result.HouseNumber);
     }
 
     public ValidatedOrder Accept(ValidationSuccess result)

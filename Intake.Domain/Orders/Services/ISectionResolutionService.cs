@@ -5,5 +5,5 @@ namespace Intake.Domain.Orders.Services;
 
 public interface ISectionResolutionService
 {
-    Task<SectionResolutionResult?> ResolveSectionAsync(CampaignRef campaignId, StreetRef streetId, HouseNumber houseNumber, CancellationToken cancellationToken);
+    Task<SectionResolutionResultBase?> ResolveSectionAsync(CampaignRef campaignId, StreetRef streetId, HouseNumber houseNumber, CancellationToken cancellationToken);
 }

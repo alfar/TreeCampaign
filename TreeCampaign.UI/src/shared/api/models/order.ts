@@ -12,4 +12,6 @@ export interface Order {
     displayName: string;
     houseNumber: string;
   };
+  streetId?: string;
+  houseNumber?: string;
 }
