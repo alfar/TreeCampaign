@@ -10,6 +10,17 @@ export async function getOrders(campaignId: string): Promise<Order[]> {
   return res.json();
 }
 
+export async function createOrder(
+  campaignId: string,
+  data: { orderDate: string; senderName: string; senderPhoneNumber: string; amount: number; message: string }
+): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
 export async function washOrder(
   campaignId: string,
   orderId: string,

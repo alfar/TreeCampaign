@@ -131,6 +131,8 @@ public class OrderValidationWorker : BackgroundService
             else
             {
                 _logger.LogWarning("Order {OrderId} failed validation: {Reason}", order.Id, validationResult.GetType().Name);
+
+                return null;
             }
         }
         _logger.LogWarning("Failed to parse order {OrderId}.", order.Id);
