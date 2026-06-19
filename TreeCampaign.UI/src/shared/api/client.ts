@@ -4,6 +4,7 @@ import type { Order } from "./models/order";
 import type { Street } from "./models/street";
 import type { Stop } from "./models/stop";
 import type { Team } from "./models/team";
+import type { Territory } from "./models/territory";
 
 export async function getOrders(campaignId: string): Promise<Order[]> {
   const res = await fetch(`/api/campaigns/${campaignId}/orders`);
@@ -52,6 +53,43 @@ export async function getCampaigns() : Promise<Campaign[]> {
     return res.json();
 }
 
+export async function createCampaign(year: number, territoryId?: string): Promise<Campaign> {
+  const res = await fetch('/api/campaigns', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ season: year, territoryId: territoryId ?? null }),
+  });
+  return res.json();
+}
+
+export async function updateCampaign(campaignId: string, year: number, territoryId?: string): Promise<Campaign> {
+  const res = await fetch(`/api/campaigns/${campaignId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ season: year, territoryId: territoryId ?? null }),
+  });
+  return res.json();
+}
+
+export async function getTerritories(): Promise<Territory[]> {
+  const res = await fetch('/api/Territories');
+  return res.json();
+}
+
+export async function getTerritory(territoryId: string): Promise<Territory> {
+  const res = await fetch(`/api/territories/${territoryId}`);
+  return res.json();
+}
+
+export async function createTerritory(name: string, defaultZipCode: string): Promise<Territory> {
+  const res = await fetch('/api/Territories', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, defaultZipCode }),
+  });
+  return res.json();
+}
+
 export async function getNeighborhoods(territoryId: string): Promise<Neighborhood[]> {
   const res = await fetch(`/api/Territories/${territoryId}/neighborhoods`);
   return res.json();
@@ -90,6 +128,15 @@ export async function getStopsForTeam(campaignId: string,teamId: string) : Promi
 
 export async function getTeams(campaignId: string) : Promise<Team[]> {
   const res = await fetch(`/api/${campaignId}/teams`);
+  return res.json();
+}
+
+export async function createTeam(campaignId: string, name: string): Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
   return res.json();
 }
 

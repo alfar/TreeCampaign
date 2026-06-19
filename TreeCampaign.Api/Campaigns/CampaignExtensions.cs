@@ -10,6 +10,8 @@ public static class CampaignExtensions
 
         group.MapPost("/", CreateCampaignEndpoint.Handle);
 
+        group.MapPut("/{campaignId:guid}", UpdateCampaignEndpoint.Handle);
+
         return app;
     }
 }
