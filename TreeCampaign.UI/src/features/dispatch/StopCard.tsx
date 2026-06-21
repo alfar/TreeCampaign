@@ -3,6 +3,7 @@ import type { Stop } from "../../shared/api/models/stop";
 import {
   CheckIcon,
   ExclamationTriangleIcon,
+  MapPinIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/24/solid";
 
@@ -25,6 +26,8 @@ export default function StopCard({
 }: StopCardProps) {
   const getStopIcon = (stopType: string) => {
     switch (stopType) {
+      case "Unassigned":
+        return <MapPinIcon className="w-10 h-10 text-blue-600" />
       case "Assigned":
         return <QuestionMarkCircleIcon className="w-10 h-10 text-blue-600" />;
       case "Unresolved":

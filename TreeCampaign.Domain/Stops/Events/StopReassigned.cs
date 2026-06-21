@@ -1,4 +1,5 @@
 using Common.Domain.Abstractions;
+using TreeCampaign.Domain.Stops.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
 
 namespace TreeCampaign.Domain.Stops.Events;

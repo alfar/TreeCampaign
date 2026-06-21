@@ -2,6 +2,7 @@ export interface Address {
         displayName: string;
         latitude: number;
         longitude: number;
+        streetSectionId: string;
 }
 
 export interface Stop {

@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using TreeCampaign.Domain.Stops;
+using TreeCampaign.Domain.Stops.ValueObjects;
 
 public class ReasonTextJsonConverter : JsonConverter<ReasonText>
 {

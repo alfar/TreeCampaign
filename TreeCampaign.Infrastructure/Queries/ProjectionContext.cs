@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.ExternalReferences;
 using TreeCampaign.Domain.Stops;
+using TreeCampaign.Domain.Stops.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.Queries;
 using TreeCampaign.Infrastructure.ValueConverters;
@@ -105,6 +106,7 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
                     a.Property(p => p.DisplayName).HasColumnName("AddressDisplayName");
                     a.Property(p => p.Latitude).HasColumnName("AddressLatitude");
                     a.Property(p => p.Longitude).HasColumnName("AddressLongitude");
+                    a.Property(p => p.StreetSectionId).HasColumnName("StreetSectionId").HasConversion(new StreetSectionRefValueConverter());
                 }
             );
         modelBuilder
@@ -133,7 +135,7 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
         modelBuilder
             .Entity<CampaignProjection>()
             .Property(c => c.TerritoryId)
-            .HasConversion(new NullableTerritoryRefValueConverter());            
+            .HasConversion(new NullableTerritoryRefValueConverter());
         modelBuilder.Entity<CampaignProjection>().ToTable("Campaigns");
 
         modelBuilder.Entity<TeamProjection>().HasKey(t => t.Id);

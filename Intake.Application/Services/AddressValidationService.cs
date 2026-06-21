@@ -4,6 +4,7 @@ using Intake.Domain.Orders.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
+using TreeCampaign.Domain.ExternalReferences;
 using TreeCampaign.Infrastructure;
 using TreeTerritory.Domain.Neighborhoods;
 using TreeTerritory.Domain.Neighborhoods.ValueObjects;
@@ -15,6 +16,8 @@ using TreeTerritory.Infrastructure;
 using TreeTerritory.Infrastructure.Queries;
 using HouseNumber = Intake.Domain.Orders.ValueObjects.HouseNumber;
 using TreeTerritoryHouseNumber = TreeTerritory.Domain.StreetSections.ValueObjects.HouseNumber;
+using StreetSectionRef = Intake.Domain.ExternalReferences.StreetSectionRef;
+using TerritoryRef = Intake.Domain.ExternalReferences.TerritoryRef;
 
 namespace Intake.Application.Services;
 

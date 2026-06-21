@@ -6,6 +6,7 @@ using Intake.Domain.Orders.ValueObjects;
 using Intake.Infrastructure;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
+using TreeCampaign.Domain.Stops.ValueObjects;
 using TreeCampaign.Infrastructure;
 using TreeTerritory.Domain.Streets;
 using TreeTerritory.Domain.Streets.ValueObjects;
@@ -27,7 +28,7 @@ public class OrderValidatedEventHandler(IIntakeUnitOfWork intakeUnitOfWork, ITre
 
                 if (street is not null)
                 {
-                    var stop = UnassignedStop.Create(CampaignId.From(order.CampaignId.Value), new Address($"{street.Name} {order.HouseNumber}, {street.ZipCode}", order.Latitude, order.Longitude), TreeCount.From((int)Math.Floor(order.Amount.Value / 40)));
+                    var stop = UnassignedStop.Create(CampaignId.From(order.CampaignId.Value), new Address($"{street.Name} {order.HouseNumber}, {street.ZipCode}", order.Latitude, order.Longitude, TreeCampaign.Domain.ExternalReferences.StreetSectionRef.From(order.StreetSectionId.Value)), TreeCount.From((int)Math.Floor(order.Amount.Value / 40)));
 
                     treeCampaignUnitOfWork.GetRepository<UnassignedStop, StopId>().Add(stop);
 

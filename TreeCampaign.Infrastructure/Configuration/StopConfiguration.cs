@@ -57,6 +57,7 @@ internal static class StopConfiguration
                 a.Property(p => p.DisplayName).HasColumnName("AddressDisplayName");
                 a.Property(p => p.Latitude).HasColumnName("AddressLatitude");
                 a.Property(p => p.Longitude).HasColumnName("AddressLongitude");
+                a.Property(p => p.StreetSectionId).HasColumnName("StreetSectionId").HasConversion(new StreetSectionRefValueConverter());
             }
         );
 

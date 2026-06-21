@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TreeTerritory.Domain.Streets.ValueObjects;
 using TreeTerritory.Domain.StreetSections;
+using TreeTerritory.Domain.StreetSections.ValueObjects;
 using TreeTerritory.Domain.Territories.ValueObjects;
 
 namespace TreeTerritory.Infrastructure.Queries;
@@ -20,5 +21,10 @@ public class StreetSectionQueries(TreeTerritoryContext dbContext) : IStreetSecti
             .Where(ss => ss.StreetId == streetId
                 && dbContext.Neighborhoods.Any(n => n.Id == ss.NeighborhoodId && n.TerritoryId == territoryId))
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<StreetSection>> GetByIdsAsync(IEnumerable<StreetSectionId> ids, CancellationToken cancellationToken)
+    {
+        return await dbContext.StreetSections.Where(ss => ids.Contains(ss.Id)).ToListAsync(cancellationToken);
     }
 }

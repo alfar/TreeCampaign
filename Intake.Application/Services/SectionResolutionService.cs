@@ -4,10 +4,12 @@ using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders.Services;
 using Intake.Domain.Orders.ValueObjects;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
+using TreeCampaign.Domain.ExternalReferences;
 using TreeTerritory.Domain.Streets.ValueObjects;
 using TreeTerritory.Domain.Territories.ValueObjects;
 using TreeTerritory.Infrastructure.Queries;
 using TerritoryHouseNumber = TreeTerritory.Domain.StreetSections.ValueObjects.HouseNumber;
+using StreetSectionRef = Intake.Domain.ExternalReferences.StreetSectionRef;
 
 namespace Intake.Application.Services;
 

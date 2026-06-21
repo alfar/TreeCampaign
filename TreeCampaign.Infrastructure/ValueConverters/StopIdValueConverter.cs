@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TreeCampaign.Domain.Stops;
+using TreeCampaign.Domain.Stops.ValueObjects;
 
 namespace TreeCampaign.Infrastructure.ValueConverters;
 

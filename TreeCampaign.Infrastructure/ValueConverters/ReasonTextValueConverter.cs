@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TreeCampaign.Domain.Stops;
+using TreeCampaign.Domain.Stops.ValueObjects;
 
 internal class ReasonTextValueConverter : ValueConverter<ReasonText, string>
 {

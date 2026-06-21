@@ -25,4 +25,6 @@ public record ZipCode(string Value)
 
         return new ZipCode(value);
     }
+
+    public override string ToString() => Value;
 }

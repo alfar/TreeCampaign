@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
+using TreeCampaign.Domain.Stops.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 

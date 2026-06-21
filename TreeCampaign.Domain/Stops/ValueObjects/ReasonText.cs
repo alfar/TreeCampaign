@@ -1,4 +1,4 @@
-namespace TreeCampaign.Domain.Stops;
+namespace TreeCampaign.Domain.Stops.ValueObjects;
 
 public sealed record ReasonText(string Text)
 {

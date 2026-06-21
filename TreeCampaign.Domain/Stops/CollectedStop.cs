@@ -1,4 +1,3 @@
-using System;
 using TreeCampaign.Domain.Stops.Events;
 using TreeCampaign.Domain.Teams.ValueObjects;
 

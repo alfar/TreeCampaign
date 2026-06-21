@@ -31,6 +31,7 @@ public static class EndpointExtensions
             options.SerializerOptions.Converters.Add(new ReasonTextJsonConverter());
             options.SerializerOptions.Converters.Add(new TeamNameJsonConverter());
             options.SerializerOptions.Converters.Add(new TerritoryRefJsonConverter());
+            options.SerializerOptions.Converters.Add(new StreetSectionRefJsonConverter());
         });
 
         return services;

@@ -53,6 +53,11 @@ export async function getCampaigns() : Promise<Campaign[]> {
     return res.json();
 }
 
+export async function getCampaign(campaignId: string): Promise<Campaign> {
+  const res = await fetch(`/api/campaigns/${campaignId}`);
+  return res.json();
+}
+
 export async function createCampaign(year: number, territoryId?: string): Promise<Campaign> {
   const res = await fetch('/api/campaigns', {
     method: 'POST',

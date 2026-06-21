@@ -7,6 +7,7 @@ public static class CampaignExtensions
         var group = app.MapGroup("/campaigns").WithTags("Campaigns");
 
         group.MapGet("/", GetCampaignsEndpoint.Handle);
+        group.MapGet("/{campaignId:guid}", GetCampaignEndpoint.Handle);
 
         group.MapPost("/", CreateCampaignEndpoint.Handle);
 

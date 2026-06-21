@@ -1,5 +1,6 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops.Events;
+using TreeCampaign.Domain.Stops.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
 
 namespace TreeCampaign.Domain.Stops;
