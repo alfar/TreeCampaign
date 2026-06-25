@@ -13,6 +13,10 @@ import type { Stop } from "../../shared/api/models/stop";
 import TeamCard from "./TeamCard";
 import StopCard from "./StopCard";
 import CreateTeamForm from "../teams/CreateTeamForm";
+import NeighborhoodSection from "./NeighborhoodSection";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import NavigationPage from "../../shared/components/NavigationPage";
+import Button from "../../components/Button";
 
 function parseHouseNumber(displayName: string): number {
   const lastToken = displayName.split(",")[0].split(" ").pop() ?? "";
@@ -29,6 +33,8 @@ export default function DispatchScreen() {
     new Set(),
   );
   const [showCreateTeam, setShowCreateTeam] = useState(false);
+  const [onlyUnassigned, setOnlyUnassigned] = useState(true);
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     if (campaignId) {
@@ -45,24 +51,33 @@ export default function DispatchScreen() {
   const streetSections = neighborhoods.flatMap((n) => n.streetSections);
   const sectionById = new Map(streetSections.map((s) => [s.id, s]));
 
-  const sortedUnassignedStops = stops
-    .filter((stop) => stop.stopType === "Unassigned")
-    .sort((a, b) => {
-      const sA = sectionById.get(a.address.streetSectionId);
-      const sB = sectionById.get(b.address.streetSectionId);
-      if (!sA && !sB) return 0;
-      if (!sA) return 1;
-      if (!sB) return -1;
-      if (sA.sortOrder !== sB.sortOrder) return sA.sortOrder - sB.sortOrder;
-      const hA = parseHouseNumber(a.address.displayName);
-      const hB = parseHouseNumber(b.address.displayName);
-      return sA.direction === 0 ? hA - hB : hB - hA;
-    });
+  const filteredStops =
+    onlyUnassigned || filter !== ""
+      ? stops.filter(
+          (s) =>
+            (!onlyUnassigned || s.stopType === "Unassigned") &&
+            s.address.displayName
+              .toLocaleLowerCase()
+              .startsWith(filter.toLocaleLowerCase()),
+        )
+      : stops;
+
+  const sortedStops = filteredStops.sort((a, b) => {
+    const sA = sectionById.get(a.address.streetSectionId);
+    const sB = sectionById.get(b.address.streetSectionId);
+    if (!sA && !sB) return 0;
+    if (!sA) return 1;
+    if (!sB) return -1;
+    if (sA.sortOrder !== sB.sortOrder) return sA.sortOrder - sB.sortOrder;
+    const hA = parseHouseNumber(a.address.displayName);
+    const hB = parseHouseNumber(b.address.displayName);
+    return sA.direction === 0 ? hA - hB : hB - hA;
+  });
 
   const stopsByNeighborhood = neighborhoods
     .map((n) => ({
       neighborhood: n,
-      stops: sortedUnassignedStops.filter(
+      stops: sortedStops.filter(
         (stop) =>
           sectionById.get(stop.address.streetSectionId)?.neighborhoodId ===
           n.id,
@@ -70,7 +85,7 @@ export default function DispatchScreen() {
     }))
     .filter((group) => group.stops.length > 0);
 
-  const ungroupedStops = sortedUnassignedStops.filter(
+  const ungroupedStops = sortedStops.filter(
     (stop) => !sectionById.has(stop.address.streetSectionId),
   );
 
@@ -100,73 +115,110 @@ export default function DispatchScreen() {
   };
 
   return (
-    <div className="p-4 text-lg">
-      <h1 className="text-xl font-bold">Dispatch</h1>
-      <div className="flex gap-2">
-        <div className="w-9/12">
-          {stopsByNeighborhood.map(({ neighborhood, stops: nStops }) => (
-            <div key={neighborhood.id}>
-              <h2 className="text-base font-semibold mb-2">
-                {neighborhood.name}
-              </h2>
-              <div className="space-y-2">
-                {nStops.map((stop) => (
-                  <StopCard
-                    key={stop.id}
-                    campaignId={campaignId}
-                    stop={stop}
-                    assignMode={true}
-                    selected={selectedStopIds.has(stop.id)}
-                    onToggleSelect={toggleStop}
-                  />
-                ))}
+    <NavigationPage>
+      <div>
+        <h1 className="text-xl font-bold">Dispatch</h1>
+        <div className="flex gap-2 mt-4">
+          <div className="w-9/12 flex flex-col gap-2">
+            <div className="flex gap-2">
+              <div className="flex border rounded-sm p-2 border-gray-200 w-6/12 items-center">
+                <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
+                <input
+                  type="text"
+                  value={filter}
+                  className="w-full text-gray-500 focus:outline-0"
+                  placeholder="Søg efter stop"
+                  onChange={(e) => setFilter(e.target.value)}
+                />
               </div>
+              <label htmlFor="onlyUnassigned" className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="onlyUnassigned"
+                  className="w-4 h-4 mr-2"
+                  checked={onlyUnassigned}
+                  onChange={(e) => setOnlyUnassigned(e.target.checked)}
+                />
+                Vis kun frie stop
+              </label>
             </div>
-          ))}
-          {ungroupedStops.map((stop) => (
-            <StopCard
-              key={stop.id}
-              campaignId={campaignId}
-              stop={stop}
-              assignMode={true}
-              selected={selectedStopIds.has(stop.id)}
-              onToggleSelect={toggleStop}
-            />
-          ))}
-        </div>
-        <div className="w-3/12 flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold">Hold</h2>
-            <button
-              onClick={() => setShowCreateTeam((v) => !v)}
-              className="text-sm bg-blue-600 text-white py-1 px-3 rounded"
-            >
-              {showCreateTeam ? "Annuller" : "Nyt hold"}
-            </button>
+            <h2 className="text-base font-semibold">
+              {(onlyUnassigned ? "Frie" : "Alle") +
+                (filter.length > 0
+                  ? ` stop, der starter med '${filter}' `
+                  : " stop ")}
+              - {sortedStops.length} stop
+            </h2>
+            {stopsByNeighborhood.map(({ neighborhood, stops: nStops }) => (
+              <NeighborhoodSection
+                key={neighborhood.id}
+                name={neighborhood.name}
+              >
+                <div className="space-y-2">
+                  {nStops.map((stop) => (
+                    <StopCard
+                      key={stop.id}
+                      campaignId={campaignId}
+                      stop={stop}
+                      assignMode={true}
+                      selected={selectedStopIds.has(stop.id)}
+                      onToggleSelect={toggleStop}
+                    />
+                  ))}
+                </div>
+              </NeighborhoodSection>
+            ))}
+            {ungroupedStops.map((stop) => (
+              <StopCard
+                key={stop.id}
+                campaignId={campaignId}
+                stop={stop}
+                assignMode={true}
+                selected={selectedStopIds.has(stop.id)}
+                onToggleSelect={toggleStop}
+              />
+            ))}
+            {stopsByNeighborhood.length === 0 &&
+              ungroupedStops.length === 0 && (
+                <div className="w-full bg-gray-50 rounded-sm p-4 text-center text-sm text-gray-600">
+                  Ingen stop
+                </div>
+              )}
           </div>
-          {showCreateTeam && (
-            <CreateTeamForm
-              campaignId={campaignId}
-              onCreated={(team) => {
-                setTeams((prev) => [...prev, team]);
-                setShowCreateTeam(false);
-              }}
-              onCancel={() => setShowCreateTeam(false)}
-            />
-          )}
-          {teams.map((team: Team) => (
-            <TeamCard
-              key={team.id}
-              campaignId={campaignId}
-              team={team}
-              stops={stops.filter((stop) => stop.assignedTeamId === team.id)}
-              assignMode={selectedStopIds.size > 0}
-              onClick={clickTeam}
-              onUpdateStop={updateStop}
-            />
-          ))}
+          <div className="w-3/12 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold">Hold</h2>
+              <Button
+                onClick={() => setShowCreateTeam((v) => !v)}
+                className="bg-blue-600"
+              >
+                {showCreateTeam ? "Annuller" : "Nyt hold"}
+              </Button>
+            </div>
+            {showCreateTeam && (
+              <CreateTeamForm
+                campaignId={campaignId}
+                onCreated={(team) => {
+                  setTeams((prev) => [...prev, team]);
+                  setShowCreateTeam(false);
+                }}
+                onCancel={() => setShowCreateTeam(false)}
+              />
+            )}
+            {teams.map((team: Team) => (
+              <TeamCard
+                key={team.id}
+                campaignId={campaignId}
+                team={team}
+                stops={stops.filter((stop) => stop.assignedTeamId === team.id)}
+                assignMode={selectedStopIds.size > 0}
+                onClick={clickTeam}
+                onUpdateStop={updateStop}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </NavigationPage>
   );
 }

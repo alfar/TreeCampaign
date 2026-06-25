@@ -1,5 +1,8 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import TeamScreen from "../features/teams/TeamScreen";
+import TeamStopsTab from "../features/teams/TeamStopsTab";
+import TeamMapTab from "../features/teams/TeamMapTab";
+import TeamInfoTab from "../features/teams/TeamInfoTab";
 import DispatchScreen from "../features/dispatch/DispatchScreen";
 import CampaignListScreen from "../features/campaigns/CampaignListScreen";
 import IntakeScreen from "../features/intake/IntakeScreen";
@@ -13,7 +16,13 @@ export const router = createBrowserRouter([
   },
   {
     path: "/campaigns/:campaignId/teams/:teamId",
-    element: <TeamScreen />
+    element: <TeamScreen />,
+    children: [
+      { index: true, element: <Navigate to="stops" replace /> },
+      { path: "stops", element: <TeamStopsTab /> },
+      { path: "map", element: <TeamMapTab /> },
+      { path: "info", element: <TeamInfoTab /> },
+    ],
   },
   {
     path: "/campaigns/:campaignId/dispatch",

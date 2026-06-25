@@ -145,6 +145,15 @@ export async function createTeam(campaignId: string, name: string): Promise<Team
   return res.json();
 }
 
+export async function updateTeam(campaignId: string, teamId: string, name: string): Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams/${teamId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  return res.json();
+}
+
 export async function assignStopToTeam(campaignId: string, stopId: string, teamId: string) : Promise<Stop> {
   return await fetch(`/api/${campaignId}/stops/${stopId}/assign`, {
     method: 'POST',

@@ -1,141 +1,34 @@
-import { useParams } from "react-router-dom";
-import {
-  collectStop,
-  correctStop,
-  getStopsForTeam,
-  markStopUnresolved,
-  retryStop,
-} from "../../shared/api/client";
-import { useEffect, useState } from "react";
-import type { Stop } from "../../shared/api/models/stop";
+import { NavLink, Outlet, useParams } from "react-router-dom";
 
 export default function TeamScreen() {
-  const params = useParams();
-  const campaignId = params.campaignId!;
-  const teamId = params.teamId!;
+  const { campaignId, teamId } = useParams();
+  const base = `/campaigns/${campaignId}/teams/${teamId}`;
 
-  const [stops, setStops] = useState<Stop[]>([]);
-  const [activeStop, setActiveStop] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (campaignId) {
-      getStopsForTeam(campaignId, teamId).then(setStops);
-    }
-  }, [campaignId, teamId]);
-
-  function updateStop(stop: Stop) {
-    setStops((prevStops) =>
-      prevStops.map((s) => (s.id === stop.id ? stop : s)),
-    );
-  }
-
-  function getStopButtons(stop: Stop) {
-    if (activeStop === stop.id) {
-      if (stop.stopType === "Assigned") {
-        return (
-          <div className="flex gap-2 mt-4">
-            <button
-              className="flex-1 bg-green-600 text-white py-3 rounded-xl"
-              onClick={() =>
-                collectStop(campaignId, stop.id).then((newStop) =>
-                  updateStop(newStop),
-                )
-              }
-            >
-              Hentet
-            </button>
-            <button
-              className="flex-1 bg-red-600 text-white py-3 rounded-xl"
-              onClick={() =>
-                markStopUnresolved(campaignId, stop.id).then((newStop) =>
-                  updateStop(newStop),
-                )
-              }
-            >
-              Ikke fundet
-            </button>
-          </div>
-        );
-      } else if (stop.stopType === "Unresolved") {
-        return (
-          <div className="flex gap-2 mt-4">
-            <button
-              className="flex-1 bg-green-600 text-white py-3 rounded-xl"
-              onClick={() =>
-                retryStop(campaignId, stop.id).then((newStop) =>
-                  updateStop(newStop),
-                )
-              }
-            >
-              Genoptag
-            </button>
-          </div>
-        );
-      } else if (stop.stopType === "Collected") {
-        return (
-          <div className="flex gap-2 mt-4">
-            <button
-              className="flex-1 bg-red-600 text-white py-3 rounded-xl"
-              onClick={() =>
-                correctStop(campaignId, stop.id).then((newStop) =>
-                  updateStop(newStop),
-                )
-              }
-            >
-              Fortryd
-            </button>
-          </div>
-        );
-      }
-    }
-    return null;
-  }
+  const navLink = ({ isActive }: { isActive: boolean }) =>
+    `flex-1 text-center py-2 text-sm font-medium ${
+      isActive
+        ? "border-b-2 border-blue-600 text-blue-600"
+        : "text-gray-500 border-b-2 border-transparent"
+    }`;
 
   return (
     <div>
-      <h1 className="text-xl font-bold fixed p-4 top-0 bg-white w-full">
-        Rute
-      </h1>
-      <ol className="flex flex-col gap-2 m-4 mt-16">
-        {stops
-          .filter((stop) => stop.stopType === "Assigned")
-          .map((stop) => (
-            <li
-              key={stop.id}
-              className={
-                activeStop === stop.id
-                  ? "p-4 border rounded bg-blue-100"
-                  : "p-4 border rounded"
-              }
-              onClick={() => setActiveStop(stop.id)}
-            >
-              <h2 className="text-lg font-semibold">
-                {stop.address.displayName}
-              </h2>
-              <p>{stop.amount}</p>
-              {getStopButtons(stop)}
-            </li>
-          ))}
-        {stops
-          .filter((stop) => stop.stopType !== "Assigned")
-          .map((stop) => (
-            <li
-              key={stop.id}
-              className={
-                activeStop === stop.id
-                  ? "p-4 border rounded bg-blue-100"
-                  : "p-4 border border-gray-200 text-gray-300 rounded"
-              }
-              onClick={() => setActiveStop(stop.id)}
-            >
-              <h2 className="text-lg font-semibold">
-                {stop.address.displayName}
-              </h2>
-              <p>{stop.amount}</p>
-              {getStopButtons(stop)}
-            </li>
-          ))}
-      </ol>
+      <div className="fixed top-0 w-full bg-white z-10">
+        <nav className="flex">
+          <NavLink to={`${base}/stops`} className={navLink}>
+            Stop
+          </NavLink>
+          <NavLink to={`${base}/map`} className={navLink}>
+            Kort
+          </NavLink>
+          <NavLink to={`${base}/info`} className={navLink}>
+            Info
+          </NavLink>
+        </nav>
+      </div>
+      <div className="mt-16">
+        <Outlet />
+      </div>
     </div>
   );
 }

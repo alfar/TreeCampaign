@@ -49,10 +49,11 @@ export default function WashOrderForm({ order, campaignId, defaultZipCode, onStr
     setIsAdding(true);
     try {
       await createStreet(streetInput.trim(), zipCode);
+      getStreetsByZipCode(zipCode).then(setStreets);
       onStreetAdded?.();
     } finally {
       setIsAdding(false);
-    }
+    } 
   };
 
   const handleStreetInputChange = (value: string) => {
