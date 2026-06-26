@@ -79,7 +79,7 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, 
     public void Delete(Team aggregate) => Teams.Remove(aggregate);
 
     async Task<Team?> IRepository<Team, TeamId>.TryFindAsync(TeamId key, CancellationToken cancellationToken) =>
-        await Teams.FirstOrDefaultAsync(t => t.Id == key, cancellationToken);
+        await Teams.Include(t => t.Members).FirstOrDefaultAsync(t => t.Id == key, cancellationToken);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

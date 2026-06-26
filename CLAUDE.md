@@ -87,9 +87,10 @@ OutOfBoundsOrder
 **Service interfaces (in `Intake.Domain/Orders/Services/`):**
 - `IAddressParser` — `ParsedAddress? TryParse(string message)` — implemented by `RegexAddressParser` in `Intake.Domain` (pure regex, no external dependencies; a domain service)
 - `IAddressValidationService` — `Task<AddressValidationResult> ValidateAsync(ParsedAddress, CampaignRef, CancellationToken)` and `Task<AddressValidationResult> ValidateRefsAsync(StreetRef, StreetSectionRef, NeighborhoodRef, HouseNumber, CampaignRef, CancellationToken)` — implemented in `Intake.Application` (application service: coordinates across Territory and TreeCampaign contexts)
-- `AddressValidationResult` — sealed discriminated union: `ValidationSuccess(TerritoryRef, NeighborhoodRef, StreetRef, StreetSectionRef, HouseNumber)` | `StreetNotFound` | `HouseNumberOutOfBounds`
+- `AddressValidationResult` — sealed discriminated union: `ValidationSuccess(TerritoryRef, NeighborhoodRef, StreetRef, StreetSectionRef, HouseNumber, decimal Latitude, decimal Longitude)` | `StreetNotFound` | `HouseNumberOutOfBounds`
+- `IAddressLookupClient` — `Task<AddressResult?> GetAddress(string street, string houseNumber, string zipCode)` — implemented by `DawaClient` in `Intake.Application` (typed `HttpClient` registered via `AddHttpClient<IAddressLookupClient, DawaClient>()`); calls the Danish DAWA address API to resolve coordinates. Injected into `AddressValidationService`.
 
-**Address washing (manual):** When an order is `UnwashedOrder`, the operator corrects the address. The frontend calls an external Danish address validation API directly (not via the backend) to assist with autocomplete/lookup. The operator submits resolved `StreetRef`, `StreetSectionRef`, `NeighborhoodRef`, and `HouseNumber` via the Intake API — the address is already validated by the external API; the backend records the Territory refs and house number directly on `WashedOrder`. The refs and house number are not to be trusted, but must be validated against the TreeTerritory domain before the WashedOrder can be accepted and go to the ValidatedOrder state.
+**Address washing (manual):** When an order is `UnwashedOrder`, the operator corrects the address. The operator submits resolved `StreetRef`, `StreetSectionRef`, `NeighborhoodRef`, and `HouseNumber` via the Intake API — the backend validates these refs against the TreeTerritory domain and calls DAWA (via `IAddressLookupClient`) to fetch coordinates before the `WashedOrder` can be accepted and transition to `ValidatedOrder`.
 
 ## Context Interactions
 
@@ -208,7 +209,7 @@ Vite proxies `/api/*` to `:5006`.
 
 **Dispatch UI principle**: fast decisions under mild pressure. Stops grouped by street/area; dispatcher selects group, selects team. No map required.
 
-**Manual washing UI**: when displaying `UnwashedOrder` records, the frontend calls an external Danish address validation API directly to assist the operator with address autocomplete. It also calls the TreeTerritory.Api to select the correct StreetId, StreetSectionId and NeighborhoodId. The ids are submitted to the backend via `POST /api/intake/orders/{id}/wash`.
+**Manual washing UI**: when displaying `UnwashedOrder` records, the frontend calls the TreeTerritory.Api to let the operator select the correct StreetId, StreetSectionId and NeighborhoodId. The operator submits those refs and a house number to the backend via `POST /api/intake/orders/{id}/wash`; the backend then validates the refs against Territory and fetches coordinates from DAWA.
 
 ## Technology Stack
 

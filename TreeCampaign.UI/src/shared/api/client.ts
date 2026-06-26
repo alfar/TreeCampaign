@@ -203,3 +203,29 @@ export async function reopenStop(campaignId: string, stopId: string) : Promise<S
     method: 'POST'
   }).then(res => res.json());
 }
+
+export async function addTeamMember(
+  campaignId: string,
+  teamId: string,
+  name: string,
+  phoneNumber: string,
+  scoutRelativeName?: string,
+): Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams/${teamId}/members`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, scoutRelativeName, phoneNumber }),
+  });
+  return res.json();
+}
+
+export async function removeTeamMember(
+  campaignId: string,
+  teamId: string,
+  memberId: string,
+): Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams/${teamId}/members/${memberId}`, {
+    method: 'DELETE',
+  });
+  return res.json();
+}

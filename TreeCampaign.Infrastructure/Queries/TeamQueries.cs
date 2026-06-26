@@ -11,7 +11,9 @@ public class TeamQueries(ProjectionContext context) : ITeamQueries
     )
     {
         return await context
-            .Teams.Where(t => EF.Property<CampaignId>(t, "CampaignId") == campaignId)
+            .Teams
+            .Include(t => t.Members)
+            .Where(t => EF.Property<CampaignId>(t, "CampaignId") == campaignId)
             .ToListAsync();
     }
 }

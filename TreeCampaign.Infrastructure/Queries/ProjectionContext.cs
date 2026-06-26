@@ -6,6 +6,7 @@ using TreeCampaign.Domain.Stops.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.Queries;
 using TreeCampaign.Infrastructure.ValueConverters;
+using TeamMember = TreeCampaign.Domain.Teams.ValueObjects.TeamMember;
 
 public class ProjectionContext(DbContextOptions<ProjectionContext> options) : DbContext(options)
 {
@@ -69,6 +70,7 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
     {
         public required TeamId Id { get; init; }
         public required TeamName Name { get; init; }
+        public IReadOnlyCollection<TeamMember> Members { get; init; } = [];
     }
 
     private DbSet<CampaignProjection> CampaignProjections { get; set; }
@@ -153,6 +155,13 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
             .Property<CampaignId>("CampaignId")
             .HasConversion(new CampaignIdValueConverter());
         modelBuilder.Entity<TeamProjection>().ToTable("Teams");
+
+        modelBuilder.Entity<TeamProjection>().OwnsMany(t => t.Members, m =>
+        {
+            m.ToTable("TeamMembers");
+            m.HasKey(x => x.Id);
+            m.WithOwner().HasForeignKey("TeamId");
+        });
     }
 
     public override int SaveChanges() =>
