@@ -107,6 +107,10 @@ export default function DispatchScreen() {
     );
   };
 
+  const updateTeam = (updatedTeam: Team) => {
+    setTeams((prev) => prev.map((t) => (t.id === updatedTeam.id ? updatedTeam : t)));
+  };
+
   const clickTeam = (team: Team) => {
     selectedStopIds.forEach((stopId) => {
       assignStopToTeam(campaignId!, stopId, team.id).then(updateStop);
@@ -214,6 +218,7 @@ export default function DispatchScreen() {
                 assignMode={selectedStopIds.size > 0}
                 onClick={clickTeam}
                 onUpdateStop={updateStop}
+                onUpdateTeam={updateTeam}
               />
             ))}
           </div>

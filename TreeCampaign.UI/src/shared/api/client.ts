@@ -204,6 +204,16 @@ export async function reopenStop(campaignId: string, stopId: string) : Promise<S
   }).then(res => res.json());
 }
 
+export async function sendTeamOnBreak(campaignId: string, teamId: string): Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams/${teamId}/break`, { method: 'POST' });
+  return res.json();
+}
+
+export async function reportTrailerFull(campaignId: string, teamId: string): Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams/${teamId}/trailer-full`, { method: 'POST' });
+  return res.json();
+}
+
 export async function addTeamMember(
   campaignId: string,
   teamId: string,

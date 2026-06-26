@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.ValueConverters;
+using TeamStatus = TreeCampaign.Domain.Teams.TeamStatus;
 
 internal static class TeamConfiguration
 {
@@ -19,6 +20,9 @@ internal static class TeamConfiguration
         builder.Property(t => t.Id).HasConversion(new TeamIdValueConverter());
         builder.Property(t => t.CampaignId).HasConversion(new CampaignIdValueConverter());
         builder.Property(t => t.Name).HasConversion(new TeamNameValueConverter());
+        builder.Property(t => t.Status)
+            .HasConversion<byte>()
+            .HasDefaultValue(TeamStatus.Active);
 
         builder.OwnsMany(t => t.Members, m =>
         {

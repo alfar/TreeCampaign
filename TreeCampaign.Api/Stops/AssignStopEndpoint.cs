@@ -1,6 +1,7 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Stops.ValueObjects;
+using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure;
 
@@ -29,6 +30,12 @@ public class AssignStopEndpoint
 
         unitOfWork.GetRepository<UnassignedStop, StopId>().Delete(stop);
         unitOfWork.GetRepository<AssignedStop, StopId>().Add(assignedStop);
+
+        var team = await unitOfWork.GetRepository<Team, TeamId>().TryFindAsync(command.TeamId, cancellationToken);
+        if (team?.Status == TeamStatus.OnBreak)
+        {
+            team.ResumeFromBreak();
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

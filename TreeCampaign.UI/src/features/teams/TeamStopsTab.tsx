@@ -4,6 +4,7 @@ import {
   correctStop,
   getStopsForTeam,
   markStopUnresolved,
+  reportTrailerFull,
   retryStop,
 } from "../../shared/api/client";
 import { useEffect, useState } from "react";
@@ -92,7 +93,14 @@ export default function TeamStopsTab() {
   }
 
   return (
-    <ol className="flex flex-col gap-2 m-4">
+    <div className="m-4 flex flex-col gap-4">
+      <button
+        className="w-full bg-orange-500 text-white py-3 rounded-xl font-medium"
+        onClick={() => reportTrailerFull(campaignId, teamId)}
+      >
+        Trailer fuld
+      </button>
+    <ol className="flex flex-col gap-2">
       {stops
         .filter((stop) => stop.stopType === "Assigned")
         .map((stop) => (
@@ -132,5 +140,6 @@ export default function TeamStopsTab() {
           </li>
         ))}
     </ol>
+    </div>
   );
 }

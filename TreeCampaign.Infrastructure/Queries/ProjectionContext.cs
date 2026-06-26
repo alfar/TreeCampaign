@@ -7,6 +7,7 @@ using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.Queries;
 using TreeCampaign.Infrastructure.ValueConverters;
 using TeamMember = TreeCampaign.Domain.Teams.ValueObjects.TeamMember;
+using TeamStatus = TreeCampaign.Domain.Teams.TeamStatus;
 
 public class ProjectionContext(DbContextOptions<ProjectionContext> options) : DbContext(options)
 {
@@ -70,6 +71,7 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
     {
         public required TeamId Id { get; init; }
         public required TeamName Name { get; init; }
+        public TeamStatus Status { get; init; } = TeamStatus.Active;
         public IReadOnlyCollection<TeamMember> Members { get; init; } = [];
     }
 
@@ -155,6 +157,11 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
             .Property<CampaignId>("CampaignId")
             .HasConversion(new CampaignIdValueConverter());
         modelBuilder.Entity<TeamProjection>().ToTable("Teams");
+        modelBuilder
+            .Entity<TeamProjection>()
+            .Property(t => t.Status)
+            .HasConversion<byte>()
+            .HasDefaultValue(TeamStatus.Active);
 
         modelBuilder.Entity<TeamProjection>().OwnsMany(t => t.Members, m =>
         {

@@ -12,6 +12,9 @@ public static class TeamExtensions
         group.MapPost("/{teamId:guid}/members", AddTeamMemberEndpoint.Handle);
         group.MapDelete("/{teamId:guid}/members/{memberId:guid}", RemoveTeamMemberEndpoint.Handle);
 
+        group.MapPost("/{teamId:guid}/break", GoOnBreakEndpoint.Handle);
+        group.MapPost("/{teamId:guid}/trailer-full", ReportTrailerFullEndpoint.Handle);
+
         return app;
     }
 }
