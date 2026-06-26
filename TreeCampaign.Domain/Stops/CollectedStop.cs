@@ -14,6 +14,11 @@ public class CollectedStop : ReopenableStop
         return AssignedStop.CreateFrom(this);
     }
 
+    public DeliveredStop Deliver()
+    {
+        return DeliveredStop.CreateFrom(this);
+    }
+
     internal static CollectedStop CreateFrom(AssignedStop assignedStop)
     {
         var result = new CollectedStop

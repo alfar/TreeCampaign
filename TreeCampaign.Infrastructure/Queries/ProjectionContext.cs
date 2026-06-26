@@ -48,6 +48,16 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
                 StopType = IStopQueries.State.Collected.ToString(),
             };
 
+        public static StopProjection From(DeliveredStop stop) =>
+            new()
+            {
+                Id = stop.Id,
+                Address = stop.Address,
+                Amount = stop.Amount,
+                StopType = IStopQueries.State.Delivered.ToString(),
+                AssignedTeamId = stop.DeliveredByTeamId,
+            };
+
         public static StopProjection From(UnresolvedStop stop) =>
             new()
             {

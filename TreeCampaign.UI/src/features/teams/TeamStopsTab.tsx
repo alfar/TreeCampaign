@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import {
   collectStop,
   correctStop,
+  deliverLoad,
   getStopsForTeam,
   markStopUnresolved,
   reportTrailerFull,
@@ -92,54 +93,71 @@ export default function TeamStopsTab() {
     return null;
   }
 
+  const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
+  const hasCollected = stops.some((s) => s.stopType === "Collected");
+
   return (
     <div className="m-4 flex flex-col gap-4">
-      <button
-        className="w-full bg-orange-500 text-white py-3 rounded-xl font-medium"
-        onClick={() => reportTrailerFull(campaignId, teamId)}
-      >
-        Trailer fuld
-      </button>
-    <ol className="flex flex-col gap-2">
-      {stops
-        .filter((stop) => stop.stopType === "Assigned")
-        .map((stop) => (
-          <li
-            key={stop.id}
-            className={
-              activeStop === stop.id
-                ? "p-4 border rounded bg-blue-100"
-                : "p-4 border rounded"
+      <div className="flex gap-2">
+        <button
+          className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium"
+          onClick={() => reportTrailerFull(campaignId, teamId)}
+        >
+          Trailer fuld
+        </button>
+        {hasCollected && (
+          <button
+            className="flex-1 bg-green-700 text-white py-3 rounded-xl font-medium"
+            onClick={() =>
+              deliverLoad(campaignId, teamId).then(() =>
+                getStopsForTeam(campaignId, teamId).then(setStops),
+              )
             }
-            onClick={() => setActiveStop(stop.id)}
           >
-            <h2 className="text-lg font-semibold">
-              {stop.address.displayName}
-            </h2>
-            <p>{stop.amount}</p>
-            {getStopButtons(stop)}
-          </li>
-        ))}
-      {stops
-        .filter((stop) => stop.stopType !== "Assigned")
-        .map((stop) => (
-          <li
-            key={stop.id}
-            className={
-              activeStop === stop.id
-                ? "p-4 border rounded bg-blue-100"
-                : "p-4 border border-gray-200 text-gray-300 rounded"
-            }
-            onClick={() => setActiveStop(stop.id)}
-          >
-            <h2 className="text-lg font-semibold">
-              {stop.address.displayName}
-            </h2>
-            <p>{stop.amount}</p>
-            {getStopButtons(stop)}
-          </li>
-        ))}
-    </ol>
+            Lever last
+          </button>
+        )}
+      </div>
+      <ol className="flex flex-col gap-2">
+        {visibleStops
+          .filter((stop) => stop.stopType === "Assigned")
+          .map((stop) => (
+            <li
+              key={stop.id}
+              className={
+                activeStop === stop.id
+                  ? "p-4 border rounded bg-blue-100"
+                  : "p-4 border rounded"
+              }
+              onClick={() => setActiveStop(stop.id)}
+            >
+              <h2 className="text-lg font-semibold">
+                {stop.address.displayName}
+              </h2>
+              <p>{stop.amount}</p>
+              {getStopButtons(stop)}
+            </li>
+          ))}
+        {visibleStops
+          .filter((stop) => stop.stopType !== "Assigned")
+          .map((stop) => (
+            <li
+              key={stop.id}
+              className={
+                activeStop === stop.id
+                  ? "p-4 border rounded bg-blue-100"
+                  : "p-4 border border-gray-200 text-gray-300 rounded"
+              }
+              onClick={() => setActiveStop(stop.id)}
+            >
+              <h2 className="text-lg font-semibold">
+                {stop.address.displayName}
+              </h2>
+              <p>{stop.amount}</p>
+              {getStopButtons(stop)}
+            </li>
+          ))}
+      </ol>
     </div>
   );
 }

@@ -14,6 +14,7 @@ public static class TeamExtensions
 
         group.MapPost("/{teamId:guid}/break", GoOnBreakEndpoint.Handle);
         group.MapPost("/{teamId:guid}/trailer-full", ReportTrailerFullEndpoint.Handle);
+        group.MapPost("/{teamId:guid}/deliver-load", DeliverLoadEndpoint.Handle);
 
         return app;
     }

@@ -40,6 +40,12 @@ internal static class StopConfiguration
             .HasConversion(new ReasonTextValueConverter())
             .HasColumnName("UnresolvedReason");
 
+        modelBuilder
+            .Entity<DeliveredStop>()
+            .Property(s => s.DeliveredByTeamId)
+            .HasConversion(new TeamIdValueConverter())
+            .HasColumnName("AssignedTeamId");
+
         return modelBuilder;
     }
 
@@ -69,7 +75,8 @@ internal static class StopConfiguration
             .HasValue<UnassignedStop>("Unassigned")
             .HasValue<AssignedStop>("Assigned")
             .HasValue<CollectedStop>("Collected")
-            .HasValue<UnresolvedStop>("Unresolved");
+            .HasValue<UnresolvedStop>("Unresolved")
+            .HasValue<DeliveredStop>("Delivered");
 
         return builder;
     }
