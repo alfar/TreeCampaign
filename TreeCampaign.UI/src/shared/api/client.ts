@@ -244,3 +244,17 @@ export async function removeTeamMember(
   });
   return res.json();
 }
+
+export async function requestPickup(
+  campaignId: string,
+  streetId: string,
+  houseNumber: string,
+  treeCount: number,
+): Promise<Stop> {
+  const res = await fetch(`/api/${campaignId}/stops/pickup-request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ streetId, houseNumber, treeCount }),
+  });
+  return res.json();
+}

@@ -6,7 +6,7 @@ using TreeCampaign.Domain.Stops.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.Queries;
 using TreeCampaign.Infrastructure.ValueConverters;
-using TeamMember = TreeCampaign.Domain.Teams.ValueObjects.TeamMember;
+using TeamMember = TreeCampaign.Domain.TeamMembers.TeamMember;
 using TeamStatus = TreeCampaign.Domain.Teams.TeamStatus;
 
 public class ProjectionContext(DbContextOptions<ProjectionContext> options) : DbContext(options)
@@ -82,7 +82,9 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
         public required TeamId Id { get; init; }
         public required TeamName Name { get; init; }
         public TeamStatus Status { get; init; } = TeamStatus.Active;
-        public IReadOnlyCollection<TeamMember> Members { get; init; } = [];
+        
+        private List<TeamMember> _members = [];
+        public IReadOnlyCollection<TeamMember> Members => _members;
     }
 
     private DbSet<CampaignProjection> CampaignProjections { get; set; }
@@ -173,12 +175,26 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
             .HasConversion<byte>()
             .HasDefaultValue(TeamStatus.Active);
 
-        modelBuilder.Entity<TeamProjection>().OwnsMany(t => t.Members, m =>
+        modelBuilder.Entity<TeamMember>(m =>
         {
             m.ToTable("TeamMembers");
             m.HasKey(x => x.Id);
-            m.WithOwner().HasForeignKey("TeamId");
+            m.Property(x => x.Id).HasConversion(new TeamMemberIdValueConverter());
+            m.Property(x => x.Name);
+            m.Property(x => x.ScoutRelativeName);
+            m.Property(x => x.PhoneNumber);
+            m.Property(x => x.TeamId).HasConversion(new TeamIdValueConverter());
         });
+
+        modelBuilder.Entity<TeamProjection>()
+            .HasMany(t => t.Members)
+            .WithOne()
+            .HasForeignKey(m => m.TeamId);
+
+        modelBuilder.Entity<TeamProjection>()
+            .Navigation(t => t.Members)
+            .HasField("_members")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 
     public override int SaveChanges() =>

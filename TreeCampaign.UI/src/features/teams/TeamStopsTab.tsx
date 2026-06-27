@@ -4,12 +4,15 @@ import {
   correctStop,
   deliverLoad,
   getStopsForTeam,
+  getStreetsByZipCode,
   markStopUnresolved,
   reportTrailerFull,
+  requestPickup,
   retryStop,
 } from "../../shared/api/client";
 import { useEffect, useState } from "react";
 import type { Stop } from "../../shared/api/models/stop";
+import type { Street } from "../../shared/api/models/street";
 
 export default function TeamStopsTab() {
   const params = useParams();
@@ -18,6 +21,7 @@ export default function TeamStopsTab() {
 
   const [stops, setStops] = useState<Stop[]>([]);
   const [activeStop, setActiveStop] = useState<string | null>(null);
+  const [showPickupForm, setShowPickupForm] = useState(false);
 
   useEffect(() => {
     if (campaignId) {
@@ -118,6 +122,24 @@ export default function TeamStopsTab() {
           </button>
         )}
       </div>
+
+      <button
+        className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium"
+        onClick={() => setShowPickupForm((v) => !v)}
+      >
+        {showPickupForm ? "Annuller afhentning" : "Anmod om afhentning"}
+      </button>
+
+      {showPickupForm && (
+        <PickupForm
+          campaignId={campaignId}
+          onCreated={(stop) => {
+            setStops((prev) => [...prev, stop]);
+            setShowPickupForm(false);
+          }}
+        />
+      )}
+
       <ol className="flex flex-col gap-2">
         {visibleStops
           .filter((stop) => stop.stopType === "Assigned")
@@ -159,5 +181,121 @@ export default function TeamStopsTab() {
           ))}
       </ol>
     </div>
+  );
+}
+
+function PickupForm({
+  campaignId,
+  onCreated,
+}: {
+  campaignId: string;
+  onCreated: (stop: Stop) => void;
+}) {
+  const [streets, setStreets] = useState<Street[]>([]);
+  const [streetSearch, setStreetSearch] = useState("");
+  const [selectedStreet, setSelectedStreet] = useState<Street | null>(null);
+  const [houseNumber, setHouseNumber] = useState("");
+  const [treeCount, setTreeCount] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (streetSearch.length >= 2) {
+      getStreetsByZipCode("8600").then(setStreets);
+    } else {
+      setStreets([]);
+    }
+  }, [streetSearch]);
+
+  const filteredStreets = streets.filter((s) =>
+    s.name.toLowerCase().includes(streetSearch.toLowerCase()),
+  );
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedStreet || !houseNumber) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const stop = await requestPickup(
+        campaignId,
+        selectedStreet.id,
+        houseNumber,
+        treeCount,
+      );
+      onCreated(stop);
+    } catch {
+      setError("Adressen kunne ikke valideres. Prøv igen.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="border rounded-xl p-4 flex flex-col gap-3 bg-gray-50"
+    >
+      <h3 className="font-semibold text-base">Anmod om afhentning</h3>
+
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Søg gade..."
+          value={selectedStreet ? selectedStreet.name : streetSearch}
+          onChange={(e) => {
+            setStreetSearch(e.target.value);
+            setSelectedStreet(null);
+          }}
+          className="w-full border rounded-lg px-3 py-2"
+        />
+        {filteredStreets.length > 0 && !selectedStreet && (
+          <ul className="absolute z-10 w-full bg-white border rounded-lg mt-1 max-h-48 overflow-y-auto shadow">
+            {filteredStreets.map((s) => (
+              <li
+                key={s.id}
+                className="px-3 py-2 cursor-pointer hover:bg-blue-50"
+                onClick={() => {
+                  setSelectedStreet(s);
+                  setStreetSearch(s.name);
+                  setStreets([]);
+                }}
+              >
+                {s.name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <input
+        type="text"
+        placeholder="Husnummer (fx 12A)"
+        value={houseNumber}
+        onChange={(e) => setHouseNumber(e.target.value)}
+        className="border rounded-lg px-3 py-2"
+      />
+
+      <div className="flex items-center gap-3">
+        <label className="text-sm">Antal træer</label>
+        <input
+          type="number"
+          min={1}
+          value={treeCount}
+          onChange={(e) => setTreeCount(Number(e.target.value))}
+          className="border rounded-lg px-3 py-2 w-20"
+        />
+      </div>
+
+      {error && <p className="text-red-600 text-sm">{error}</p>}
+
+      <button
+        type="submit"
+        disabled={!selectedStreet || !houseNumber || submitting}
+        className="bg-blue-600 text-white py-2 rounded-xl disabled:opacity-50"
+      >
+        {submitting ? "Sender..." : "Send afhentningsanmodning"}
+      </button>
+    </form>
   );
 }

@@ -1,4 +1,5 @@
 using System.Threading.Channels;
+using Common.Infrastructure.Services;
 using Common.InfraStructure.Abstractions;
 using Intake.Application.BackgroundWorkers;
 using Intake.Application.BackgroundWorkers.Signals;
@@ -7,7 +8,6 @@ using Intake.Application.Services;
 using Intake.Domain.Orders.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Http;
 
 namespace Intake.Application;
 

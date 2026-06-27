@@ -93,7 +93,7 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.AddCampaigns().AddTeams().AddStops();
+        modelBuilder.AddCampaigns().AddTeams().AddTeamMembers().AddStops();
     }
 
     public IRepository<TAggregate, TKey> GetRepository<TAggregate, TKey>() =>

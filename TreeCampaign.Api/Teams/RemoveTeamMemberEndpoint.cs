@@ -1,4 +1,5 @@
 using TreeCampaign.Domain.Campaigns.ValueObjects;
+using TreeCampaign.Domain.TeamMembers.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure;
@@ -9,7 +10,7 @@ internal class RemoveTeamMemberEndpoint
         ITreeCampaignUnitOfWork unitOfWork,
         CampaignId campaignId,
         TeamId teamId,
-        Guid memberId,
+        TeamMemberId memberId,
         CancellationToken cancellationToken
     )
     {

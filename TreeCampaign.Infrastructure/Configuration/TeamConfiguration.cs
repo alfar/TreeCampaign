@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TreeCampaign.Domain.TeamMembers;
 using TreeCampaign.Domain.Teams;
-using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.ValueConverters;
 using TeamStatus = TreeCampaign.Domain.Teams.TeamStatus;
 
@@ -24,16 +24,8 @@ internal static class TeamConfiguration
             .HasConversion<byte>()
             .HasDefaultValue(TeamStatus.Active);
 
-        builder.OwnsMany(t => t.Members, m =>
-        {
-            m.ToTable("TeamMembers");
-            m.HasKey(x => x.Id);
-            m.Property(x => x.Id);
-            m.Property(x => x.Name);
-            m.Property(x => x.ScoutRelativeName);
-            m.Property(x => x.PhoneNumber);
-            m.WithOwner().HasForeignKey("TeamId");
-        });
+        builder.HasMany<TeamMember>().WithOne().HasForeignKey(s => s.TeamId);
+
         builder.Navigation(t => t.Members)
             .HasField("_members")
             .UsePropertyAccessMode(PropertyAccessMode.Field);

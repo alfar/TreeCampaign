@@ -1,21 +1,12 @@
 using System.Net.Http.Json;
 
-namespace Intake.Application.Services;
-
-public record AddressResult(string Street, string HouseNumber, string ZipCode, decimal Latitude, decimal Longitude);
-
-public interface IAddressLookupClient
-{
-    Task<AddressResult?> GetAddress(string street, string houseNumber, string zipCode);
-}
+namespace Common.Infrastructure.Services;
 
 public class DawaClient : IAddressLookupClient
 {
     public record DataWashResult(string Kategori, IEnumerable<DataWashMatch> Resultater);
-
     public record DataWashMatch(DataWashAddress AktuelAdresse);
     public record DataWashAddress(string Vejnavn, string Husnr, string Postnr, string Href);
-
     public record DataWashAddressInfo(DataWashAccessPoint Adgangspunkt);
     public record DataWashAccessPoint(decimal[] Koordinater);
 
@@ -47,7 +38,12 @@ public class DawaClient : IAddressLookupClient
 
                     if (idResult is not null)
                     {
-                        return new AddressResult(bestResult.AktuelAdresse.Vejnavn, bestResult.AktuelAdresse.Husnr, bestResult.AktuelAdresse.Postnr, idResult.Adgangspunkt.Koordinater[0], idResult.Adgangspunkt.Koordinater[1]);
+                        return new AddressResult(
+                            bestResult.AktuelAdresse.Vejnavn,
+                            bestResult.AktuelAdresse.Husnr,
+                            bestResult.AktuelAdresse.Postnr,
+                            idResult.Adgangspunkt.Koordinater[0],
+                            idResult.Adgangspunkt.Koordinater[1]);
                     }
                 }
             }

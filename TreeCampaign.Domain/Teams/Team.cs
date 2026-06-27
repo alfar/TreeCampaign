@@ -1,5 +1,7 @@
 using Common.Domain.Abstractions;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
+using TreeCampaign.Domain.TeamMembers;
+using TreeCampaign.Domain.TeamMembers.ValueObjects;
 using TreeCampaign.Domain.Teams.Events;
 using TreeCampaign.Domain.Teams.ValueObjects;
 
@@ -37,10 +39,10 @@ public class Team : IHasDomainEvents
 
     public void AddMember(string name, string? scoutRelativeName, string phoneNumber)
     {
-        _members.Add(new TeamMember(Guid.NewGuid(), name, scoutRelativeName, phoneNumber));
+        _members.Add(new TeamMember { Id = new TeamMemberId(Guid.NewGuid()), Name = name, ScoutRelativeName = scoutRelativeName, PhoneNumber = phoneNumber, TeamId = Id });
     }
 
-    public void RemoveMember(Guid memberId)
+    public void RemoveMember(TeamMemberId memberId)
     {
         var member = _members.FirstOrDefault(m => m.Id == memberId);
         if (member is not null)

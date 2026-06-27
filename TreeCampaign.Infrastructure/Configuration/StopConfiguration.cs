@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TreeCampaign.Domain.Stops;
-using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.ValueConverters;
 
 internal static class StopConfiguration
