@@ -1,3 +1,4 @@
+using Common.Domain.Abstractions;
 using Common.InfraStructure.Abstractions;
 
 namespace Common.Infrastructure.Services;
@@ -24,8 +25,13 @@ public class DomainEventHandlerLookup : IDomainEventHandlerLookup
                     .Select(i => (eventType: i.GetGenericArguments()[0], handlerType)))
             .ToLookup(x => x.eventType, x => x.handlerType);
 
+        var eventTypes = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(a => a.GetTypes())
+            .Where(t => !t.IsAbstract && !t.IsGenericType && typeof(IDomainEvent).IsAssignableFrom(t))
+            .ToList();
+
         // Map event type FullName → event type (for deserialization)
-        _typeRegistry = _handlerTypes.Select(g => g.Key)
+        _typeRegistry = eventTypes
             .DistinctBy(t => t.FullName)
             .ToDictionary(t => t.FullName!, t => t);
     }

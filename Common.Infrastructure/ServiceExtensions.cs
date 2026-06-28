@@ -20,7 +20,9 @@ public static class ServiceExtensions
         services.AddSingleton(sp => sp.GetRequiredService<Channel<EventDispatchSignal>>().Reader);
         services.AddSingleton(sp => sp.GetRequiredService<Channel<EventDispatchSignal>>().Writer);
         services.AddSingleton<IDomainEventHandlerLookup, DomainEventHandlerLookup>();
-        
+        services.AddOptions<SseJsonOptions>();
+        services.AddSingleton<ISseService, SseService>();
+
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         services.AddHostedService<DomainEventBackgroundService>();

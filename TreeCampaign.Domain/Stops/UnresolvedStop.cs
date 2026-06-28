@@ -33,7 +33,7 @@ public class UnresolvedStop : ReopenableStop
             UnresolvedReason = reason,
             UnresolvedByTeamId = assignedStop.AssignedTeamId,
         };
-        result.Raise(new StopMarkedUnresolved(result.Id, reason));
+        result.Raise(new StopMarkedUnresolved(result.Id, reason, result.CampaignId.Value));
         return result;
     }
 }

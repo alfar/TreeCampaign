@@ -18,7 +18,7 @@ public class DeliveredStop : StopBase
             Amount = collectedStop.Amount,
             DeliveredByTeamId = collectedStop.CollectedByTeamId,
         };
-        result.Raise(new Events.StopDelivered(result.Id));
+        result.Raise(new Events.StopDelivered(result.Id, result.CampaignId.Value));
         return result;
     }
 }

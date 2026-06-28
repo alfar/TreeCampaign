@@ -3,7 +3,7 @@ using TreeCampaign.Domain.Teams.ValueObjects;
 
 namespace TreeCampaign.Domain.Teams.Events;
 
-public sealed record TeamTrailerCleared(TeamId Id) : IDomainEvent
+public sealed record TeamTrailerCleared(TeamId Id, Guid CampaignId) : IDomainEvent, ICampaignScoped
 {
     public DateTimeOffset OccurredOn { get; } = DateTimeOffset.UtcNow;
     public Guid AggregateId => Id.Value;

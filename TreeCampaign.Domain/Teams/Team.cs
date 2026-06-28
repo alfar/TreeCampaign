@@ -52,27 +52,27 @@ public class Team : IHasDomainEvents
     public void GoOnBreak()
     {
         Status = TeamStatus.OnBreak;
-        _newEvents.Add(new TeamWentOnBreak(Id));
+        _newEvents.Add(new TeamWentOnBreak(Id, CampaignId.Value));
     }
 
     public void ResumeFromBreak()
     {
         if (Status != TeamStatus.OnBreak) return;
         Status = TeamStatus.Active;
-        _newEvents.Add(new TeamResumedFromBreak(Id));
+        _newEvents.Add(new TeamResumedFromBreak(Id, CampaignId.Value));
     }
 
     public void ReportTrailerFull()
     {
         Status = TeamStatus.TrailerFull;
-        _newEvents.Add(new TeamReportedTrailerFull(Id));
+        _newEvents.Add(new TeamReportedTrailerFull(Id, CampaignId.Value));
     }
 
     public void ClearTrailerFull()
     {
         if (Status != TeamStatus.TrailerFull) return;
         Status = TeamStatus.Active;
-        _newEvents.Add(new TeamTrailerCleared(Id));
+        _newEvents.Add(new TeamTrailerCleared(Id, CampaignId.Value));
     }
 
     public void ClearEvents() => _newEvents.Clear();

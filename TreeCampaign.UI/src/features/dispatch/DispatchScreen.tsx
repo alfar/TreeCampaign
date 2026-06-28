@@ -48,6 +48,33 @@ export default function DispatchScreen() {
     }
   }, [campaignId]);
 
+  useEffect(() => {
+    if (!campaignId) return;
+
+    const es = new EventSource(`/api/${campaignId}/events`);
+
+    es.addEventListener("campaign-update", (e: MessageEvent) => {
+      const { type, data } = JSON.parse(e.data) as { type: string; data: Record<string, unknown> };
+
+      const teamStatusByEvent: Partial<Record<string, Team["status"]>> = {
+        TeamWentOnBreak: "OnBreak",
+        TeamResumedFromBreak: "Active",
+        TeamReportedTrailerFull: "TrailerFull",
+        TeamTrailerCleared: "Active",
+      };
+
+      const newStatus = teamStatusByEvent[type];
+      if (newStatus !== undefined) {
+        const teamId = data.id as string;
+        setTeams((prev) =>
+          prev.map((t) => (t.id === teamId ? { ...t, status: newStatus } : t)),
+        );
+      }
+    });
+
+    return () => es.close();
+  }, [campaignId]);
+
   const streetSections = neighborhoods.flatMap((n) => n.streetSections);
   const sectionById = new Map(streetSections.map((s) => [s.id, s]));
 
