@@ -12,7 +12,7 @@ internal class GoOnBreakEndpoint
         CancellationToken cancellationToken
     )
     {
-        var team = await unitOfWork.GetRepository<Team, TeamId>().TryFindAsync(teamId, cancellationToken);
+        var team = await unitOfWork.GetRepository<TeamBase, TeamId>().TryFindAsync(teamId, cancellationToken);
         if (team == null || team.CampaignId != campaignId)
             return TypedResults.NotFound();
 

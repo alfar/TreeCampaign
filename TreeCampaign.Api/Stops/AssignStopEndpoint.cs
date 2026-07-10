@@ -31,7 +31,7 @@ public class AssignStopEndpoint
         unitOfWork.GetRepository<UnassignedStop, StopId>().Delete(stop);
         unitOfWork.GetRepository<AssignedStop, StopId>().Add(assignedStop);
 
-        var team = await unitOfWork.GetRepository<Team, TeamId>().TryFindAsync(command.TeamId, cancellationToken);
+        var team = await unitOfWork.GetRepository<TeamBase, TeamId>().TryFindAsync(command.TeamId, cancellationToken);
         if (team?.Status == TeamStatus.OnBreak)
         {
             team.ResumeFromBreak();

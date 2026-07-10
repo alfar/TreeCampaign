@@ -48,7 +48,7 @@ export default function TeamCard({
 
   const statusBadge = team.status === 'OnBreak'
     ? <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Pause</span>
-    : team.status === 'TrailerFull'
+    : team.kind === 'Trailer' && team.isTrailerFull
     ? <span className="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">Trailer fuld</span>
     : null;
 

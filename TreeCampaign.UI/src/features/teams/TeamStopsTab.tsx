@@ -5,6 +5,7 @@ import {
   deliverLoad,
   getStopsForTeam,
   getStreetsByZipCode,
+  getTeams,
   markStopUnresolved,
   reportTrailerFull,
   requestPickup,
@@ -13,6 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import type { Stop } from "../../shared/api/models/stop";
 import type { Street } from "../../shared/api/models/street";
+import type { Team } from "../../shared/api/models/team";
 
 export default function TeamStopsTab() {
   const params = useParams();
@@ -20,12 +22,16 @@ export default function TeamStopsTab() {
   const teamId = params.teamId!;
 
   const [stops, setStops] = useState<Stop[]>([]);
+  const [team, setTeam] = useState<Team | null>(null);
   const [activeStop, setActiveStop] = useState<string | null>(null);
   const [showPickupForm, setShowPickupForm] = useState(false);
 
   useEffect(() => {
     if (campaignId) {
       getStopsForTeam(campaignId, teamId).then(setStops);
+      getTeams(campaignId).then((teams) =>
+        setTeam(teams.find((t) => t.id === teamId) ?? null),
+      );
     }
   }, [campaignId, teamId]);
 
@@ -102,33 +108,37 @@ export default function TeamStopsTab() {
 
   return (
     <div className="m-4 flex flex-col gap-4">
-      <div className="flex gap-2">
-        <button
-          className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium"
-          onClick={() => reportTrailerFull(campaignId, teamId)}
-        >
-          Trailer fuld
-        </button>
-        {hasCollected && (
+      {team?.kind === "Trailer" && (
+        <div className="flex gap-2">
           <button
-            className="flex-1 bg-green-700 text-white py-3 rounded-xl font-medium"
-            onClick={() =>
-              deliverLoad(campaignId, teamId).then(() =>
-                getStopsForTeam(campaignId, teamId).then(setStops),
-              )
-            }
+            className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium"
+            onClick={() => reportTrailerFull(campaignId, teamId)}
           >
-            Lever last
+            Trailer fuld
           </button>
-        )}
-      </div>
+          {hasCollected && (
+            <button
+              className="flex-1 bg-green-700 text-white py-3 rounded-xl font-medium"
+              onClick={() =>
+                deliverLoad(campaignId, teamId).then(() =>
+                  getStopsForTeam(campaignId, teamId).then(setStops),
+                )
+              }
+            >
+              Lever last
+            </button>
+          )}
+        </div>
+      )}
 
-      <button
-        className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium"
-        onClick={() => setShowPickupForm((v) => !v)}
-      >
-        {showPickupForm ? "Annuller afhentning" : "Anmod om afhentning"}
-      </button>
+      {team?.kind === "Walking" && (
+        <button
+          className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium"
+          onClick={() => setShowPickupForm((v) => !v)}
+        >
+          {showPickupForm ? "Annuller afhentning" : "Anmod om afhentning"}
+        </button>
+      )}
 
       {showPickupForm && (
         <PickupForm

@@ -9,11 +9,16 @@ internal static class TeamConfiguration
 {
     public static ModelBuilder AddTeams(this ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Team>().ToTable("Teams").Configure();
+        modelBuilder.Entity<TeamBase>().ToTable("Teams").Configure();
+
+        modelBuilder.Entity<TrailerTeam>()
+            .Property(t => t.IsTrailerFull)
+            .HasDefaultValue(false);
+
         return modelBuilder;
     }
 
-    public static EntityTypeBuilder<Team> Configure(this EntityTypeBuilder<Team> builder)
+    public static EntityTypeBuilder<TeamBase> Configure(this EntityTypeBuilder<TeamBase> builder)
     {
         builder.HasKey(t => t.Id);
 
@@ -29,6 +34,11 @@ internal static class TeamConfiguration
         builder.Navigation(t => t.Members)
             .HasField("_members")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder
+            .HasDiscriminator<string>("TeamKind")
+            .HasValue<WalkingTeam>("Walking")
+            .HasValue<TrailerTeam>("Trailer");
 
         return builder;
     }

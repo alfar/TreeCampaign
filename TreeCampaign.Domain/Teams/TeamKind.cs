@@ -3,8 +3,8 @@ using System.Text.Json.Serialization;
 namespace TreeCampaign.Domain.Teams;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum TeamStatus : byte
+public enum TeamKind
 {
-    Active = 0,
-    OnBreak = 1,
+    Walking,
+    Trailer,
 }

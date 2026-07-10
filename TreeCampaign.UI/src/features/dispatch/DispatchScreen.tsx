@@ -56,18 +56,18 @@ export default function DispatchScreen() {
     es.addEventListener("campaign-update", (e: MessageEvent) => {
       const { type, data } = JSON.parse(e.data) as { type: string; data: Record<string, unknown> };
 
-      const teamStatusByEvent: Partial<Record<string, Team["status"]>> = {
-        TeamWentOnBreak: "OnBreak",
-        TeamResumedFromBreak: "Active",
-        TeamReportedTrailerFull: "TrailerFull",
-        TeamTrailerCleared: "Active",
+      const teamPatchByEvent: Partial<Record<string, Partial<Team>>> = {
+        TeamWentOnBreak: { status: "OnBreak" },
+        TeamResumedFromBreak: { status: "Active" },
+        TeamReportedTrailerFull: { isTrailerFull: true },
+        TeamTrailerCleared: { isTrailerFull: false },
       };
 
-      const newStatus = teamStatusByEvent[type];
-      if (newStatus !== undefined) {
+      const patch = teamPatchByEvent[type];
+      if (patch !== undefined) {
         const teamId = data.id as string;
         setTeams((prev) =>
-          prev.map((t) => (t.id === teamId ? { ...t, status: newStatus } : t)),
+          prev.map((t) => (t.id === teamId ? { ...t, ...patch } : t)),
         );
       }
     });

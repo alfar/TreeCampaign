@@ -22,7 +22,9 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, 
         IRepository<CollectedStop, StopId>,
         IRepository<UnresolvedStop, StopId>,
         IRepository<DeliveredStop, StopId>,
-        IRepository<Team, TeamId>
+        IRepository<TeamBase, TeamId>,
+        IRepository<WalkingTeam, TeamId>,
+        IRepository<TrailerTeam, TeamId>
 {
     public DbSet<Campaign> CollectionCampaigns { get; set; }
     internal DbSet<StopBase> Stops { get; set; }
@@ -32,7 +34,9 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, 
     public DbSet<CollectedStop> CollectedStops { get; set; }
     public DbSet<UnresolvedStop> UnresolvedStops { get; set; }
     public DbSet<DeliveredStop> DeliveredStops { get; set; }
-    public DbSet<Team> Teams { get; set; }
+    public DbSet<TeamBase> Teams { get; set; }
+    public DbSet<WalkingTeam> WalkingTeams { get; set; }
+    public DbSet<TrailerTeam> TrailerTeams { get; set; }
 
     public void Add(Campaign aggregate) => CollectionCampaigns.Add(aggregate);
 
@@ -83,12 +87,26 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, 
     async Task<DeliveredStop?> IRepository<DeliveredStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken) =>
         await DeliveredStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
-    public void Add(Team aggregate) => Teams.Add(aggregate);
+    public void Add(TeamBase aggregate) => Teams.Add(aggregate);
 
-    public void Delete(Team aggregate) => Teams.Remove(aggregate);
+    public void Delete(TeamBase aggregate) => Teams.Remove(aggregate);
 
-    async Task<Team?> IRepository<Team, TeamId>.TryFindAsync(TeamId key, CancellationToken cancellationToken) =>
+    async Task<TeamBase?> IRepository<TeamBase, TeamId>.TryFindAsync(TeamId key, CancellationToken cancellationToken) =>
         await Teams.Include(t => t.Members).FirstOrDefaultAsync(t => t.Id == key, cancellationToken);
+
+    public void Add(WalkingTeam aggregate) => WalkingTeams.Add(aggregate);
+
+    public void Delete(WalkingTeam aggregate) => WalkingTeams.Remove(aggregate);
+
+    async Task<WalkingTeam?> IRepository<WalkingTeam, TeamId>.TryFindAsync(TeamId key, CancellationToken cancellationToken) =>
+        await WalkingTeams.Include(t => t.Members).FirstOrDefaultAsync(t => t.Id == key, cancellationToken);
+
+    public void Add(TrailerTeam aggregate) => TrailerTeams.Add(aggregate);
+
+    public void Delete(TrailerTeam aggregate) => TrailerTeams.Remove(aggregate);
+
+    async Task<TrailerTeam?> IRepository<TrailerTeam, TeamId>.TryFindAsync(TeamId key, CancellationToken cancellationToken) =>
+        await TrailerTeams.Include(t => t.Members).FirstOrDefaultAsync(t => t.Id == key, cancellationToken);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

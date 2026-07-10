@@ -5,7 +5,7 @@ using TreeCampaign.Infrastructure;
 
 internal class CreateTeamEndpoint
 {
-    public record CreateTeamCommand(TeamName Name);
+    public record CreateTeamCommand(TeamName Name, TeamKind Kind);
 
     internal static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,
@@ -14,9 +14,14 @@ internal class CreateTeamEndpoint
         CancellationToken cancellationToken
     )
     {
-        var team = Team.Create(campaignId, command.Name);
+        TeamBase team = command.Kind switch
+        {
+            TeamKind.Walking => WalkingTeam.Create(campaignId, command.Name),
+            TeamKind.Trailer => TrailerTeam.Create(campaignId, command.Name),
+            _ => throw new ArgumentOutOfRangeException(nameof(command.Kind)),
+        };
 
-        unitOfWork.GetRepository<Team, TeamId>().Add(team);
+        unitOfWork.GetRepository<TeamBase, TeamId>().Add(team);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(team);

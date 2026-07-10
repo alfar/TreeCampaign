@@ -22,7 +22,7 @@ internal static class TeamMemberConfiguration
         builder.Property(x => x.PhoneNumber);
         builder.Property(x => x.TeamId).HasConversion(new TeamIdValueConverter());
 
-        builder.HasOne<Team>().WithMany(n => n.Members).HasForeignKey(s => s.TeamId);
+        builder.HasOne<TeamBase>().WithMany(n => n.Members).HasForeignKey(s => s.TeamId);
 
         return builder;
     }

@@ -7,10 +7,10 @@ using TreeCampaign.Domain.Teams.ValueObjects;
 
 namespace TreeCampaign.Domain.Teams;
 
-public class Team : IHasDomainEvents
+public abstract class TeamBase : IHasDomainEvents
 {
     public required TeamId Id { get; init; }
-    public TeamName Name { get; private set; } = TeamName.Empty;
+    public TeamName Name { get; protected set; } = TeamName.Empty;
     public required CampaignId CampaignId { get; init; }
     public TeamStatus Status { get; private set; } = TeamStatus.Active;
 
@@ -20,17 +20,9 @@ public class Team : IHasDomainEvents
     private readonly List<IDomainEvent> _newEvents = [];
     public IReadOnlyCollection<IDomainEvent> NewEvents => _newEvents.AsReadOnly();
 
-    private Team() { }
+    protected TeamBase() { }
 
-    public static Team Create(CampaignId campaignId, TeamName name)
-    {
-        return new Team
-        {
-            Id = new TeamId(Guid.NewGuid()),
-            Name = name,
-            CampaignId = campaignId,
-        };
-    }
+    protected void Raise(IDomainEvent domainEvent) => _newEvents.Add(domainEvent);
 
     public void UpdateName(TeamName name)
     {
@@ -57,22 +49,8 @@ public class Team : IHasDomainEvents
 
     public void ResumeFromBreak()
     {
-        if (Status != TeamStatus.OnBreak) return;
         Status = TeamStatus.Active;
         _newEvents.Add(new TeamResumedFromBreak(Id, CampaignId.Value));
-    }
-
-    public void ReportTrailerFull()
-    {
-        Status = TeamStatus.TrailerFull;
-        _newEvents.Add(new TeamReportedTrailerFull(Id, CampaignId.Value));
-    }
-
-    public void ClearTrailerFull()
-    {
-        if (Status != TeamStatus.TrailerFull) return;
-        Status = TeamStatus.Active;
-        _newEvents.Add(new TeamTrailerCleared(Id, CampaignId.Value));
     }
 
     public void ClearEvents() => _newEvents.Clear();

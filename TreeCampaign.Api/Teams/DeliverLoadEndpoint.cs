@@ -15,7 +15,7 @@ internal class DeliverLoadEndpoint
         CancellationToken cancellationToken
     )
     {
-        var team = await context.GetRepository<Team, TeamId>().TryFindAsync(teamId, cancellationToken);
+        var team = await context.GetRepository<TrailerTeam, TeamId>().TryFindAsync(teamId, cancellationToken);
         if (team == null || team.CampaignId != campaignId)
             return TypedResults.NotFound();
 
