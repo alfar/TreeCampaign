@@ -27,30 +27,35 @@ public abstract class TeamBase : IHasDomainEvents
     public void UpdateName(TeamName name)
     {
         Name = name;
+        Raise(new TeamNameUpdated(Id, CampaignId.Value, name));
     }
 
     public void AddMember(string name, string? scoutRelativeName, string phoneNumber)
     {
         _members.Add(new TeamMember { Id = new TeamMemberId(Guid.NewGuid()), Name = name, ScoutRelativeName = scoutRelativeName, PhoneNumber = phoneNumber, TeamId = Id });
+        Raise(new TeamMemberAdded(Id, CampaignId.Value, name, scoutRelativeName, phoneNumber));
     }
 
     public void RemoveMember(TeamMemberId memberId)
     {
         var member = _members.FirstOrDefault(m => m.Id == memberId);
         if (member is not null)
+        {
             _members.Remove(member);
+            Raise(new TeamMemberRemoved(Id, CampaignId.Value, memberId));
+        }
     }
 
     public void GoOnBreak()
     {
         Status = TeamStatus.OnBreak;
-        _newEvents.Add(new TeamWentOnBreak(Id, CampaignId.Value));
+        Raise(new TeamWentOnBreak(Id, CampaignId.Value));
     }
 
     public void ResumeFromBreak()
     {
         Status = TeamStatus.Active;
-        _newEvents.Add(new TeamResumedFromBreak(Id, CampaignId.Value));
+        Raise(new TeamResumedFromBreak(Id, CampaignId.Value));
     }
 
     public void ClearEvents() => _newEvents.Clear();

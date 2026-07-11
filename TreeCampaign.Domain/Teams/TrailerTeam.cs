@@ -8,16 +8,21 @@ public sealed class TrailerTeam : TeamBase
 {
     public bool IsTrailerFull { get; private set; }
 
-    private TrailerTeam() { }
+    private TrailerTeam()
+    {
+    }
 
     public static TrailerTeam Create(CampaignId campaignId, TeamName name)
     {
-        return new TrailerTeam
+        var team = new TrailerTeam
         {
             Id = new TeamId(Guid.NewGuid()),
             Name = name,
             CampaignId = campaignId,
         };
+        team.Raise(new TeamCreated(team.Id, team.CampaignId.Value, team.Name, TeamKind.Trailer));
+
+        return team;
     }
 
     public void ReportTrailerFull()
