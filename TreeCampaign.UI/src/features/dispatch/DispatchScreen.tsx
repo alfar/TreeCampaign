@@ -64,11 +64,19 @@ export default function DispatchScreen() {
         }
       }
 
+      const patchStopFunc = (stopId: string, patch: Partial<Stop>) => {
+        return () => {
+          setStops((prev) =>
+            prev.map((s) => (s.id === stopId ? { ...s, ...patch } : s)),
+          );
+        }
+      }
+
       const actionByEvent: Record<string, () => void> = {
         TeamCreated: () => {
-          setTeams((prev) => [...prev, { 
-            id: data.id as string, 
-            name: data.name as string, 
+          setTeams((prev) => [...prev, {
+            id: data.id as string,
+            name: data.name as string,
             kind: data.kind as TeamKind,
             status: "Active" as TeamStatus,
             isTrailerFull: false,
@@ -80,6 +88,36 @@ export default function DispatchScreen() {
         TeamResumedFromBreak: patchTeamFunc(data.id as string, { status: "Active" }),
         TeamReportedTrailerFull: patchTeamFunc(data.id as string, { isTrailerFull: true }),
         TeamTrailerCleared: patchTeamFunc(data.id as string, { isTrailerFull: false }),
+        StopCreated: () => {
+          setStops((prev) => [...prev, {
+            id: data.id as string,
+            address: data.address as Stop["address"],
+            amount: data.amount as number,
+            stopType: "Unassigned",
+            assignedTeamId: undefined,
+          }]);
+        },
+        StopAssigned: patchStopFunc(data.id as string, {
+          stopType: "Assigned",
+          assignedTeamId: data.assignedTeamId as string,
+        }),
+        StopUnassigned: patchStopFunc(data.id as string, {
+          stopType: "Unassigned",
+          assignedTeamId: undefined,
+        }),
+        StopCollected: patchStopFunc(data.id as string, { stopType: "Collected" }),
+        StopCollectionCorrected: patchStopFunc(data.id as string, { stopType: "Assigned" }),
+        StopDelivered: patchStopFunc(data.id as string, { stopType: "Delivered" }),
+        StopMarkedUnresolved: patchStopFunc(data.id as string, { stopType: "Unresolved" }),
+        StopReassigned: patchStopFunc(data.id as string, {
+          stopType: "Assigned",
+          assignedTeamId: data.assignedTeamId as string,
+        }),
+        StopReopened: patchStopFunc(data.id as string, {
+          stopType: "Unassigned",
+          assignedTeamId: undefined,
+        }),
+        StopRetried: patchStopFunc(data.id as string, { stopType: "Assigned" }),
       };
 
       const action = actionByEvent[type];
