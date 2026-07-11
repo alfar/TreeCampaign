@@ -8,7 +8,7 @@ import {
 } from "../../shared/api/client";
 import { useEffect, useState } from "react";
 import type { Neighborhood } from "../../shared/api/models/neighborhood";
-import type { Team } from "../../shared/api/models/team";
+import type { Team, TeamKind, TeamStatus } from "../../shared/api/models/team";
 import type { Stop } from "../../shared/api/models/stop";
 import TeamCard from "./TeamCard";
 import StopCard from "./StopCard";
@@ -65,6 +65,16 @@ export default function DispatchScreen() {
       }
 
       const actionByEvent: Record<string, () => void> = {
+        TeamCreated: () => {
+          setTeams((prev) => [...prev, { 
+            id: data.id as string, 
+            name: data.name as string, 
+            kind: data.kind as TeamKind,
+            status: "Active" as TeamStatus,
+            isTrailerFull: false,
+            members: []
+          }]);
+        },
         TeamNameUpdated: patchTeamFunc(data.id as string, { name: data.name as string }),
         TeamWentOnBreak: patchTeamFunc(data.id as string, { status: "OnBreak" }),
         TeamResumedFromBreak: patchTeamFunc(data.id as string, { status: "Active" }),
@@ -235,10 +245,7 @@ export default function DispatchScreen() {
             {showCreateTeam && (
               <CreateTeamForm
                 campaignId={campaignId}
-                onCreated={(team) => {
-                  setTeams((prev) => [...prev, team]);
-                  setShowCreateTeam(false);
-                }}
+                onCreated={() => setShowCreateTeam(false)}
                 onCancel={() => setShowCreateTeam(false)}
               />
             )}
