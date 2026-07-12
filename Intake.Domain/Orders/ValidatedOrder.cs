@@ -41,7 +41,7 @@ public class ValidatedOrder : OrderBase
             Longitude = longitude
         };
 
-        order.Raise(new Events.OrderValidated(order.Id));
+        order.Raise(new Events.OrderValidated(order.Id, order.CampaignId));
 
         return order;
     }
@@ -73,7 +73,7 @@ public class ValidatedOrder : OrderBase
             Longitude = longitude
         };
 
-        order.Raise(new Events.OrderValidated(order.Id));
+        order.Raise(new Events.OrderValidated(order.Id, order.CampaignId));
 
         return order;
     }
@@ -105,7 +105,7 @@ public class ValidatedOrder : OrderBase
             Longitude = longitude
         };
 
-        order.Raise(new Events.OrderValidated(order.Id));
+        order.Raise(new Events.OrderValidated(order.Id, order.CampaignId));
 
         return order;
     }
@@ -137,7 +137,7 @@ public class ValidatedOrder : OrderBase
             Longitude = longitude
         };
 
-        order.Raise(new Events.OrderValidated(order.Id));
+        order.Raise(new Events.OrderValidated(order.Id, order.CampaignId));
 
         return order;
     }

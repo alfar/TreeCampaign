@@ -24,7 +24,7 @@ public class IncomingOrder : OrderBase, IParseableOrder
             Message = message
         };
 
-        order.Raise(new Events.OrderReceived(order.Id));
+        order.Raise(new Events.OrderReceived(order.Id, campaignId));
 
         return order;
     }

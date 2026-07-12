@@ -27,7 +27,7 @@ public class WashedOrder : OrderBase
             HouseNumber = houseNumber
         };
 
-        order.Raise(new Events.OrderWashed(unwashedOrder.Id));
+        order.Raise(new Events.OrderWashed(unwashedOrder.Id, unwashedOrder.CampaignId));
 
         return order;
     }

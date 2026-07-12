@@ -23,7 +23,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             HouseNumber = houseNumber
         };
 
-        order.Raise(new Events.OrderMarkedOutOfBounds(incomingOrder.Id));
+        order.Raise(new Events.OrderMarkedOutOfBounds(incomingOrder.Id, incomingOrder.CampaignId));
 
         return order;
     }
@@ -42,7 +42,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             HouseNumber = washedOrder.HouseNumber
         };
 
-        order.Raise(new Events.OrderMarkedOutOfBounds(washedOrder.Id));
+        order.Raise(new Events.OrderMarkedOutOfBounds(washedOrder.Id, washedOrder.CampaignId));
 
         return order;
     }
@@ -61,7 +61,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             HouseNumber = houseNumber
         };
 
-        order.Raise(new Events.OrderMarkedOutOfBounds(unwashedOrder.Id));
+        order.Raise(new Events.OrderMarkedOutOfBounds(unwashedOrder.Id, unwashedOrder.CampaignId));
 
         return order;
     }

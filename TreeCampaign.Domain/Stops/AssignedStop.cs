@@ -37,7 +37,7 @@ public class AssignedStop : StopBase
             AssignedTeamId = teamId,
         };
 
-        result.Raise(new StopAssigned(result.Id, teamId, result.CampaignId.Value));
+        result.Raise(new StopAssigned(result.Id, teamId, result.CampaignId));
 
         return result;
     }
@@ -53,7 +53,7 @@ public class AssignedStop : StopBase
             AssignedTeamId = collectedStop.CollectedByTeamId,
         };
 
-        result.Raise(new StopCollectionCorrected(result.Id, result.CampaignId.Value));
+        result.Raise(new StopCollectionCorrected(result.Id, result.CampaignId));
 
         return result;
     }
@@ -69,7 +69,7 @@ public class AssignedStop : StopBase
             AssignedTeamId = teamId,
         };
 
-        result.Raise(new StopReassigned(result.Id, teamId, result.CampaignId.Value));
+        result.Raise(new StopReassigned(result.Id, teamId, result.CampaignId));
 
         return result;
     }
@@ -85,7 +85,7 @@ public class AssignedStop : StopBase
             AssignedTeamId = unresolvedStop.UnresolvedByTeamId,
         };
 
-        result.Raise(new StopRetried(result.Id, result.CampaignId.Value));
+        result.Raise(new StopRetried(result.Id, result.CampaignId));
 
         return result;
     }

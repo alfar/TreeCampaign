@@ -18,7 +18,7 @@ public class UnwashedOrder : OrderBase, IParseableOrder
             Message = incomingOrder.Message,
         };
 
-        order.Raise(new Events.OrderMarkedUnwashed(incomingOrder.Id));
+        order.Raise(new Events.OrderMarkedUnwashed(incomingOrder.Id, incomingOrder.CampaignId));
 
         return order;
     }

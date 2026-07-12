@@ -34,6 +34,19 @@ export default function IntakeScreen() {
     }
   }, [campaignId]);
 
+  useEffect(() => {
+    if (!campaignId) return;
+
+    const es = new EventSource(`/api/campaigns/${campaignId}/events`);
+
+    es.addEventListener("intake-update", () => {
+      loadOrders();
+    });
+
+    return () => es.close();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaignId]);
+
   const selectedOrder = orders.find((o) => o.id === selectedOrderId) ?? null;
   const showSidePanel =
     showCreateForm ||

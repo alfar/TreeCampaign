@@ -20,7 +20,7 @@ public sealed class TrailerTeam : TeamBase
             Name = name,
             CampaignId = campaignId,
         };
-        team.Raise(new TeamCreated(team.Id, team.CampaignId.Value, team.Name, TeamKind.Trailer));
+        team.Raise(new TeamCreated(team.Id, team.CampaignId, team.Name, TeamKind.Trailer));
 
         return team;
     }
@@ -28,13 +28,13 @@ public sealed class TrailerTeam : TeamBase
     public void ReportTrailerFull()
     {
         IsTrailerFull = true;
-        Raise(new TeamReportedTrailerFull(Id, CampaignId.Value));
+        Raise(new TeamReportedTrailerFull(Id, CampaignId));
     }
 
     public void ClearTrailerFull()
     {
         if (!IsTrailerFull) return;
         IsTrailerFull = false;
-        Raise(new TeamTrailerCleared(Id, CampaignId.Value));
+        Raise(new TeamTrailerCleared(Id, CampaignId));
     }
 }

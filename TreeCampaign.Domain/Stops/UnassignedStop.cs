@@ -17,7 +17,7 @@ public class UnassignedStop : StopBase
             Amount = amount,
         };
 
-        result.Raise(new StopCreated(result.Id, address, amount, campaignId.Value));
+        result.Raise(new StopCreated(result.Id, address, amount, campaignId));
 
         return result;
     }
@@ -39,7 +39,7 @@ public class UnassignedStop : StopBase
             Amount = assignedStop.Amount,
         };
 
-        result.Raise(new StopUnassigned(result.Id, result.CampaignId.Value));
+        result.Raise(new StopUnassigned(result.Id, result.CampaignId));
 
         return result;
     }
@@ -54,7 +54,7 @@ public class UnassignedStop : StopBase
             Amount = reopenableStop.Amount,
         };
 
-        result.Raise(new StopReopened(result.Id, result.CampaignId.Value));
+        result.Raise(new StopReopened(result.Id, result.CampaignId));
 
         return result;
     }

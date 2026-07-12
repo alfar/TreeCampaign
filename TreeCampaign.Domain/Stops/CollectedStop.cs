@@ -29,7 +29,7 @@ public class CollectedStop : ReopenableStop
             Amount = assignedStop.Amount,
             CollectedByTeamId = assignedStop.AssignedTeamId,
         };
-        result.Raise(new StopCollected(result.Id, result.CampaignId.Value));
+        result.Raise(new StopCollected(result.Id, result.CampaignId));
         return result;
     }
 }

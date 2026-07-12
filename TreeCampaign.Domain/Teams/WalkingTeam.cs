@@ -17,7 +17,7 @@ public sealed class WalkingTeam : TeamBase
             CampaignId = campaignId,
         };
 
-        team.Raise(new TeamCreated(team.Id, team.CampaignId.Value, team.Name, TeamKind.Walking));
+        team.Raise(new TeamCreated(team.Id, team.CampaignId, team.Name, TeamKind.Walking));
 
         return team;
     }
