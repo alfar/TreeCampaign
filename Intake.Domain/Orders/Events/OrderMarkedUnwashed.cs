@@ -5,7 +5,7 @@ using Intake.Domain.Orders.ValueObjects;
 
 namespace Intake.Domain.Orders.Events;
 
-public sealed record OrderMarkedUnwashed(OrderId Id, CampaignRef CampaignId) : IDomainEvent, IIntakeEvent
+public sealed record OrderMarkedUnwashed(OrderId Id, CampaignRef CampaignId, string? ErrorMessage = null) : IDomainEvent, IIntakeEvent
 {
     public DateTimeOffset OccurredOn { get; } = DateTimeOffset.UtcNow;
     public Guid AggregateId => Id.Value;

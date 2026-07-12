@@ -6,7 +6,9 @@ namespace Intake.Domain.Orders;
 
 public class UnwashedOrder : OrderBase, IParseableOrder
 {
-    public static UnwashedOrder CreateFrom(IncomingOrder incomingOrder)
+    public string? ErrorMessage { get; private set; }
+
+    public static UnwashedOrder CreateFrom(IncomingOrder incomingOrder, string? errorMessage = null)
     {
         var order = new UnwashedOrder
         {
@@ -16,9 +18,46 @@ public class UnwashedOrder : OrderBase, IParseableOrder
             Amount = incomingOrder.Amount,
             OrderDate = incomingOrder.OrderDate,
             Message = incomingOrder.Message,
+            ErrorMessage = errorMessage,
         };
 
-        order.Raise(new Events.OrderMarkedUnwashed(incomingOrder.Id, incomingOrder.CampaignId));
+        order.Raise(new Events.OrderMarkedUnwashed(incomingOrder.Id, incomingOrder.CampaignId, errorMessage));
+
+        return order;
+    }
+
+    public static UnwashedOrder CreateFrom(WashedOrder washedOrder, string errorMessage)
+    {
+        var order = new UnwashedOrder
+        {
+            Id = washedOrder.Id,
+            CampaignId = washedOrder.CampaignId,
+            Sender = washedOrder.Sender,
+            Amount = washedOrder.Amount,
+            OrderDate = washedOrder.OrderDate,
+            Message = washedOrder.Message,
+            ErrorMessage = errorMessage,
+        };
+
+        order.Raise(new Events.OrderMarkedUnwashed(washedOrder.Id, washedOrder.CampaignId, errorMessage));
+
+        return order;
+    }
+
+    public static UnwashedOrder CreateFrom(OutOfBoundsOrder outOfBoundsOrder, string errorMessage)
+    {
+        var order = new UnwashedOrder
+        {
+            Id = outOfBoundsOrder.Id,
+            CampaignId = outOfBoundsOrder.CampaignId,
+            Sender = outOfBoundsOrder.Sender,
+            Amount = outOfBoundsOrder.Amount,
+            OrderDate = outOfBoundsOrder.OrderDate,
+            Message = outOfBoundsOrder.Message,
+            ErrorMessage = errorMessage,
+        };
+
+        order.Raise(new Events.OrderMarkedUnwashed(outOfBoundsOrder.Id, outOfBoundsOrder.CampaignId, errorMessage));
 
         return order;
     }
@@ -36,6 +75,11 @@ public class UnwashedOrder : OrderBase, IParseableOrder
     public ValidatedOrder Accept(ValidationSuccess result)
     {
         return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber, result.Latitude, result.Longitude);
+    }
+
+    public void UpdateErrorMessage(string errorMessage)
+    {
+        ErrorMessage = errorMessage;
     }
 
     private UnwashedOrder() { }

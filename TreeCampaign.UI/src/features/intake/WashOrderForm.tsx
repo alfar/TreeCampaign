@@ -4,7 +4,7 @@ import type { Order } from "../../shared/api/models/order";
 import type { Street } from "../../shared/api/models/street";
 
 interface WashOrderFormProps {
-  order: Pick<Order, "id" | "message">;
+  order: Pick<Order, "id" | "message" | "errorMessage">;
   campaignId: string;
   defaultZipCode: string;
   onStreetAdded?: () => void;
@@ -48,7 +48,9 @@ export default function WashOrderForm({ order, campaignId, defaultZipCode, onStr
   const handleAddStreet = async () => {
     setIsAdding(true);
     try {
-      await createStreet(streetInput.trim(), zipCode);
+      await createStreet(streetInput.trim(), zipCode).then((newStreet) => {
+        setSelectedStreet(newStreet);
+      });
       getStreetsByZipCode(zipCode).then(setStreets);
       onStreetAdded?.();
     } finally {
@@ -96,6 +98,12 @@ export default function WashOrderForm({ order, campaignId, defaultZipCode, onStr
         <p className="text-xs text-gray-500 mb-1">Original besked</p>
         <p className="text-sm text-gray-800 bg-gray-50 p-3 rounded border">{order.message}</p>
       </div>
+
+      {order.errorMessage && (
+        <p className="text-sm text-red-600 bg-red-50 p-3 rounded border border-red-200">
+          {order.errorMessage}
+        </p>
+      )}
 
       <div>
         <label className="text-sm font-medium text-gray-700 block mb-1">Postnummer</label>

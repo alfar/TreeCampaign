@@ -27,4 +27,7 @@ public class OrderProjection
     public NeighborhoodRef? NeighborhoodId { get; init; }
 
     public HouseNumber? HouseNumber { get; init; }
+
+    // UnwashedOrder
+    public string? ErrorMessage { get; init; }
 }

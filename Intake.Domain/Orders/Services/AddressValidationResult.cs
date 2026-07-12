@@ -17,3 +17,5 @@ public sealed record ValidationSuccess(
 public sealed record StreetNotFound() : AddressValidationResult;
 
 public sealed record HouseNumberOutOfBounds(StreetRef StreetId, HouseNumber HouseNumber) : AddressValidationResult;
+
+public sealed record AddressLookupFailed(string Reason) : AddressValidationResult;

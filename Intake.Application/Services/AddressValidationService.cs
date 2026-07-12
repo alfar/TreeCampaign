@@ -63,25 +63,26 @@ public class AddressValidationService(
                     s.StreetId == street.Id &&
                     s.ContainsHouseNumber(territoryHouseNumber));
 
-                if (section is not null)
+                if (section is null)
+                    continue;
+
+                var lookup = await addressLookupClient.GetAddress(address.Street, address.HouseNumber, address.ZipCode ?? "8600");
+
+                if (lookup is null)
                 {
-
-                    var lookup = await addressLookupClient.GetAddress(address.Street, address.HouseNumber, address.ZipCode ?? "8600");
-
-                    if (lookup is not null)
-                    {
-                        return new ValidationSuccess(
-                            TerritoryRef.From(territoryId.Value),
-                            NeighborhoodRef.From(neighborhood.Id.Value),
-                            StreetRef.From(street.Id.Value),
-                            StreetSectionRef.From(section.Id.Value),
-                            ToIntake(territoryHouseNumber),
-                            lookup.Latitude, 
-                            lookup.Longitude
-                        );
-                    }
-
+                    return new AddressLookupFailed(
+                        $"Adressen {street.Name} {address.HouseNumber} blev genkendt, men koordinater kunne ikke slås op via DAWA.");
                 }
+
+                return new ValidationSuccess(
+                    TerritoryRef.From(territoryId.Value),
+                    NeighborhoodRef.From(neighborhood.Id.Value),
+                    StreetRef.From(street.Id.Value),
+                    StreetSectionRef.From(section.Id.Value),
+                    ToIntake(territoryHouseNumber),
+                    lookup.Latitude,
+                    lookup.Longitude
+                );
             }
         }
 
@@ -131,7 +132,8 @@ public class AddressValidationService(
 
         if (lookup is null)
         {
-            return new HouseNumberOutOfBounds(streetId, houseNumber);
+            return new AddressLookupFailed(
+                $"Koordinater for {street.Name} {houseNumber} kunne ikke slås op via DAWA.");
         }
 
         return new ValidationSuccess(

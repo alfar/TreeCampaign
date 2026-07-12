@@ -24,7 +24,7 @@ public class IncomingOrder : OrderBase, IParseableOrder
             Message = message
         };
 
-        order.Raise(new Events.OrderReceived(order.Id, campaignId));
+        order.Raise(new Events.OrderReceived(order.Id, campaignId, sender, amount, orderDate, message));
 
         return order;
     }
@@ -32,6 +32,11 @@ public class IncomingOrder : OrderBase, IParseableOrder
     public UnwashedOrder MarkUnwashed()
     {
         return UnwashedOrder.CreateFrom(this);
+    }
+
+    public UnwashedOrder MarkUnwashed(string errorMessage)
+    {
+        return UnwashedOrder.CreateFrom(this, errorMessage);
     }
 
     public OutOfBoundsOrder MarkOutOfBounds(HouseNumberOutOfBounds result)

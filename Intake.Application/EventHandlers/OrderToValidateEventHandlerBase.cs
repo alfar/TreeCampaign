@@ -16,7 +16,5 @@ public class OrderToValidateEventHandlerBase<T>(ChannelWriter<ValidationSignalBa
 
             await writer.WriteAsync(signal, cancellationToken);
         }
-
-        throw new ArgumentException("Invalid event type", nameof(domainEvent));
     }
 }

@@ -14,4 +14,5 @@ export interface Order {
   };
   streetId?: string;
   houseNumber?: string;
+  errorMessage?: string;
 }

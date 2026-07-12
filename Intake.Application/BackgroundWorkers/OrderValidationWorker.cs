@@ -89,68 +89,85 @@ public class OrderValidationWorker : BackgroundService
         switch (order)
         {
             case IncomingOrder incomingOrder:
-                var incomingToValidated = await TryValidateOrderByParsing(incomingOrder, parser, addressValidationService, stoppingToken);
-                if (incomingToValidated is not null)
-                    uow.Transition<IncomingOrder, ValidatedOrder, OrderId>(incomingOrder, incomingToValidated);
-                else
-                    uow.Transition<IncomingOrder, UnwashedOrder, OrderId>(incomingOrder, incomingOrder.MarkUnwashed());
+                switch (await TryValidateOrderByParsing(incomingOrder, parser, addressValidationService, stoppingToken))
+                {
+                    case ValidationSuccess success:
+                        uow.Transition<IncomingOrder, ValidatedOrder, OrderId>(incomingOrder, incomingOrder.Accept(success));
+                        break;
+                    case AddressLookupFailed lookupFailed:
+                        uow.Transition<IncomingOrder, UnwashedOrder, OrderId>(incomingOrder, incomingOrder.MarkUnwashed(lookupFailed.Reason));
+                        break;
+                    default:
+                        uow.Transition<IncomingOrder, UnwashedOrder, OrderId>(incomingOrder, incomingOrder.MarkUnwashed());
+                        break;
+                }
                 break;
             case UnwashedOrder unwashed:
-                var unwashedToValidated = await TryValidateOrderByParsing(unwashed, parser, addressValidationService, stoppingToken);
-                if (unwashedToValidated is not null)
-                    uow.Transition<UnwashedOrder, ValidatedOrder, OrderId>(unwashed, unwashedToValidated);
+                switch (await TryValidateOrderByParsing(unwashed, parser, addressValidationService, stoppingToken))
+                {
+                    case ValidationSuccess success:
+                        uow.Transition<UnwashedOrder, ValidatedOrder, OrderId>(unwashed, unwashed.Accept(success));
+                        break;
+                    case AddressLookupFailed lookupFailed:
+                        unwashed.UpdateErrorMessage(lookupFailed.Reason);
+                        break;
+                }
                 break;
             case WashedOrder washed:
-                var washedToValidated = await TryValidateOrderByReferences(washed, addressValidationService, stoppingToken);
-                if (washedToValidated is not null)
-                    uow.Transition<WashedOrder, ValidatedOrder, OrderId>(washed, washedToValidated);
-                else
-                    uow.Transition<WashedOrder, OutOfBoundsOrder, OrderId>(washed, washed.MarkOutOfBounds());
+                switch (await TryValidateOrderByReferences(washed, addressValidationService, stoppingToken))
+                {
+                    case ValidationSuccess success:
+                        uow.Transition<WashedOrder, ValidatedOrder, OrderId>(washed, washed.Accept(success));
+                        break;
+                    case AddressLookupFailed lookupFailed:
+                        uow.Transition<WashedOrder, UnwashedOrder, OrderId>(washed, washed.MarkUnwashed(lookupFailed.Reason));
+                        break;
+                    default:
+                        uow.Transition<WashedOrder, OutOfBoundsOrder, OrderId>(washed, washed.MarkOutOfBounds());
+                        break;
+                }
                 break;
             case OutOfBoundsOrder outOfBounds:
-                var outOfBoundsToValidated = await TryValidateOrderByParsing(outOfBounds, parser, addressValidationService, stoppingToken);
-                if (outOfBoundsToValidated is not null)
-                    uow.Transition<OutOfBoundsOrder, ValidatedOrder, OrderId>(outOfBounds, outOfBoundsToValidated);
+                switch (await TryValidateOrderByParsing(outOfBounds, parser, addressValidationService, stoppingToken))
+                {
+                    case ValidationSuccess success:
+                        uow.Transition<OutOfBoundsOrder, ValidatedOrder, OrderId>(outOfBounds, outOfBounds.Accept(success));
+                        break;
+                    case AddressLookupFailed lookupFailed:
+                        uow.Transition<OutOfBoundsOrder, UnwashedOrder, OrderId>(outOfBounds, outOfBounds.MarkUnwashed(lookupFailed.Reason));
+                        break;
+                }
                 break;
         }
     }
 
-    private async Task<ValidatedOrder?> TryValidateOrderByParsing(IParseableOrder order, IAddressParser parser, IAddressValidationService addressValidationService, CancellationToken stoppingToken = default)
+    private async Task<AddressValidationResult?> TryValidateOrderByParsing(IParseableOrder order, IAddressParser parser, IAddressValidationService addressValidationService, CancellationToken stoppingToken = default)
     {
         var parsed = parser.TryParse(order.Message);
 
-        if (parsed is not null)
+        if (parsed is null)
         {
-            var validationResult = await addressValidationService.ValidateAsync(parsed, order.CampaignId, stoppingToken);
-            if (validationResult is ValidationSuccess success)
-            {
-                _logger.LogInformation("Order {OrderId} validated successfully.", order.Id);
-                var validatedOrder = order.Accept(success);
-                return validatedOrder;
-            }
-            else
-            {
-                _logger.LogWarning("Order {OrderId} failed validation: {Reason}", order.Id, validationResult.GetType().Name);
-
-                return null;
-            }
+            _logger.LogWarning("Failed to parse order {OrderId}.", order.Id);
+            return null;
         }
-        _logger.LogWarning("Failed to parse order {OrderId}.", order.Id);
 
-        return null;
+        var validationResult = await addressValidationService.ValidateAsync(parsed, order.CampaignId, stoppingToken);
+        if (validationResult is ValidationSuccess)
+            _logger.LogInformation("Order {OrderId} validated successfully.", order.Id);
+        else
+            _logger.LogWarning("Order {OrderId} failed validation: {Reason}", order.Id, validationResult.GetType().Name);
+
+        return validationResult;
     }
 
-    private async Task<ValidatedOrder?> TryValidateOrderByReferences(WashedOrder order, IAddressValidationService addressValidationService, CancellationToken stoppingToken = default)
+    private async Task<AddressValidationResult> TryValidateOrderByReferences(WashedOrder order, IAddressValidationService addressValidationService, CancellationToken stoppingToken = default)
     {
         var validationResult = await addressValidationService.ValidateRefsAsync(order.StreetId, order.StreetSectionId, order.NeighborhoodId, order.HouseNumber, order.CampaignId, stoppingToken);
-        if (validationResult is ValidationSuccess success)
-        {
+        if (validationResult is ValidationSuccess)
             _logger.LogInformation("Order {OrderId} validated successfully by references.", order.Id);
-            var validatedOrder = order.Accept(success);
-            return validatedOrder;
-        }
+        else
+            _logger.LogWarning("Order {OrderId} failed reference validation: {Reason}", order.Id, validationResult.GetType().Name);
 
-        _logger.LogWarning("Order {OrderId} failed reference validation: {Reason}", order.Id, validationResult.GetType().Name);
-        return null;
+        return validationResult;
     }
 }

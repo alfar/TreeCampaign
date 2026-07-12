@@ -23,7 +23,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             HouseNumber = houseNumber
         };
 
-        order.Raise(new Events.OrderMarkedOutOfBounds(incomingOrder.Id, incomingOrder.CampaignId));
+        order.Raise(new Events.OrderMarkedOutOfBounds(incomingOrder.Id, incomingOrder.CampaignId, streetId, houseNumber));
 
         return order;
     }
@@ -42,7 +42,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             HouseNumber = washedOrder.HouseNumber
         };
 
-        order.Raise(new Events.OrderMarkedOutOfBounds(washedOrder.Id, washedOrder.CampaignId));
+        order.Raise(new Events.OrderMarkedOutOfBounds(washedOrder.Id, washedOrder.CampaignId, streetId, washedOrder.HouseNumber));
 
         return order;
     }
@@ -61,7 +61,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             HouseNumber = houseNumber
         };
 
-        order.Raise(new Events.OrderMarkedOutOfBounds(unwashedOrder.Id, unwashedOrder.CampaignId));
+        order.Raise(new Events.OrderMarkedOutOfBounds(unwashedOrder.Id, unwashedOrder.CampaignId, streetId, houseNumber));
 
         return order;
     }
@@ -69,6 +69,11 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
     public ValidatedOrder Accept(ValidationSuccess result)
     {
         return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber, result.Latitude, result.Longitude);
+    }
+
+    public UnwashedOrder MarkUnwashed(string errorMessage)
+    {
+        return UnwashedOrder.CreateFrom(this, errorMessage);
     }
 
     private OutOfBoundsOrder() { }

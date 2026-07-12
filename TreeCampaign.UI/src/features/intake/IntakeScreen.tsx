@@ -39,8 +39,55 @@ export default function IntakeScreen() {
 
     const es = new EventSource(`/api/campaigns/${campaignId}/events`);
 
-    es.addEventListener("intake-update", () => {
-      loadOrders();
+    es.addEventListener("intake-update", (e: MessageEvent) => {
+      const { type, data } = JSON.parse(e.data) as {
+        type: string;
+        data: Record<string, unknown>;
+      };
+
+      const patchOrderFunc = (orderId: string, patch: Partial<Order>) => {
+        return () => {
+          setOrders((prev) =>
+            prev.map((o) => (o.id === orderId ? { ...o, ...patch } : o)),
+          );
+        };
+      };
+
+      const actionByEvent: Record<string, () => void> = {
+        OrderReceived: () => {
+          const sender = data.sender as { name: string; phoneNumber: string };
+          setOrders((prev) => [
+            ...prev.filter((o) => o.id !== (data.id as string)),
+            {
+              id: data.id as string,
+              orderType: "Incoming",
+              senderName: sender.name,
+              senderPhoneNumber: sender.phoneNumber,
+              amount: data.amount as number,
+              orderDate: data.orderDate as string,
+              message: data.message as string,
+            },
+          ]);
+        },
+        OrderMarkedUnwashed: patchOrderFunc(data.id as string, {
+          orderType: "Unwashed",
+          errorMessage: data.errorMessage as string | undefined,
+        }),
+        OrderValidated: patchOrderFunc(data.id as string, {
+          orderType: "Validated",
+        }),
+        OrderWashed: patchOrderFunc(data.id as string, { orderType: "Washed" }),
+        OrderMarkedOutOfBounds: patchOrderFunc(data.id as string, {
+          orderType: "OutOfBounds",
+          streetId: data.streetId as string,
+          houseNumber: data.houseNumber as string,
+        }),
+      };
+
+      const action = actionByEvent[type];
+      if (action !== undefined) {
+        action();
+      }
     });
 
     return () => es.close();
@@ -63,27 +110,16 @@ export default function IntakeScreen() {
     setShowCreateForm(true);
   };
 
-  const handleStreetAdded = () => {
-    loadOrders();
-  };
-
   const handleWashed = () => {
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === selectedOrderId ? { ...o, orderType: "Washed" as const } : o,
-      ),
-    );
     setSelectedOrderId(null);
   };
 
   const handleSectionCreated = () => {
-    setOrders((prev) => prev.filter((o) => o.id !== selectedOrderId));
     setSelectedOrderId(null);
   };
 
   const handleOrderCreated = () => {
     setShowCreateForm(false);
-    loadOrders();
   };
 
   return (
@@ -132,7 +168,6 @@ export default function IntakeScreen() {
                 order={selectedOrder}
                 campaignId={campaignId!}
                 defaultZipCode={DEFAULT_ZIP_CODE}
-                onStreetAdded={handleStreetAdded}
                 onWashed={handleWashed}
               />
             </div>

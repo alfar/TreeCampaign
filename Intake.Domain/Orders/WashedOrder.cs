@@ -37,6 +37,11 @@ public class WashedOrder : OrderBase
         return OutOfBoundsOrder.CreateFrom(this, StreetId);
     }
 
+    public UnwashedOrder MarkUnwashed(string errorMessage)
+    {
+        return UnwashedOrder.CreateFrom(this, errorMessage);
+    }
+
     public ValidatedOrder Accept(ValidationSuccess result)
     {
         return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber, result.Latitude, result.Longitude);
