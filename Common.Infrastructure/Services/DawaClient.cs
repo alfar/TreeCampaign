@@ -42,8 +42,8 @@ public class DawaClient : IAddressLookupClient
                             bestResult.AktuelAdresse.Vejnavn,
                             bestResult.AktuelAdresse.Husnr,
                             bestResult.AktuelAdresse.Postnr,
-                            idResult.Adgangspunkt.Koordinater[0],
-                            idResult.Adgangspunkt.Koordinater[1]);
+                            idResult.Adgangspunkt.Koordinater[1],
+                            idResult.Adgangspunkt.Koordinater[0]);
                     }
                 }
             }
