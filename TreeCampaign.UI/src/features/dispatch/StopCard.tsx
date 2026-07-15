@@ -35,6 +35,8 @@ export default function StopCard({
         return <ExclamationTriangleIcon className="w-8 h-8 text-red-600" />;
       case "Collected":
         return <CheckIcon className="w-8 h-8 text-green-600" />;
+      case "Delivered":
+        return <CheckIcon className="w-8 h-8 text-gray-200" />;
       default:
         return null;
     }
@@ -73,8 +75,7 @@ export default function StopCard({
 
   return (
     <label
-      key={stop.id}
-      htmlFor={stop.id}
+      htmlFor={assignMode ? stop.id : undefined}
       className={"p-2 border rounded flex flex-row items-center gap-2 " + (selected ? "border-blue-200 bg-blue-100" : "border-gray-200")}
     >
       {assignMode && (

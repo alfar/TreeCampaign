@@ -40,10 +40,13 @@ export default function TeamCard({
         case "Collected":
           acc.collected += stop.amount;
           break;
+        case "Delivered":
+          acc.delivered += stop.amount;
+          break;
       }
       return acc;
     },
-    { assigned: 0, unresolved: 0, collected: 0, total: 0 },
+    { assigned: 0, unresolved: 0, collected: 0, delivered: 0, total: 0 },
   );
 
   const statusBadge = team.status === 'OnBreak'
@@ -94,7 +97,7 @@ export default function TeamCard({
           { title: "Opsamlet", amount: counts.collected, color: "#006600" },
           { title: "Fejlet", amount: counts.unresolved, color: "#ff0000" },
         ]}
-        total={counts.total}
+        total={counts.total - counts.delivered}
         onClick={() => setExpanded(!expanded)}
       />
       {expanded && (

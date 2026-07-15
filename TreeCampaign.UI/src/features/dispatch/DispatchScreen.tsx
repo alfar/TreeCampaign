@@ -238,20 +238,11 @@ export default function DispatchScreen() {
               <NeighborhoodSection
                 key={neighborhood.id}
                 name={neighborhood.name}
-              >
-                <div className="space-y-2">
-                  {nStops.map((stop) => (
-                    <StopCard
-                      key={stop.id}
-                      campaignId={campaignId}
-                      stop={stop}
-                      assignMode={true}
-                      selected={selectedStopIds.has(stop.id)}
-                      onToggleSelect={toggleStop}
-                    />
-                  ))}
-                </div>
-              </NeighborhoodSection>
+                stops={nStops}
+                campaignId={campaignId}
+                selectedStopIds={selectedStopIds}
+                toggleStop={toggleStop}
+              />
             ))}
             {ungroupedStops.map((stop) => (
               <StopCard
