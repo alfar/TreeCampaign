@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createOrder } from "../../shared/api/client";
+import { AddressPicker, type Address } from "../../shared/components/AddressPicker";
 
 interface CreateOrderFormProps {
   campaignId: string;
@@ -16,21 +17,18 @@ export default function CreateOrderForm({ campaignId, defaultZipCode, onOrderCre
   const [senderPhoneNumber, setSenderPhoneNumber] = useState("");
   const [amount, setAmount] = useState("40");
   const [orderDate, setOrderDate] = useState(todayIso);
-  const [streetName, setStreetName] = useState("");
-  const [houseNumber, setHouseNumber] = useState("");
-  const [zipCode, setZipCode] = useState(defaultZipCode);
+  const [address, setAddress] = useState<Address>({ zipCode: defaultZipCode, street: null, streetName: "", houseNumber: "", isValid: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const message = `${streetName.trim()} ${houseNumber.trim()}, ${zipCode.trim()}`;
+  const message = `${address.streetName.trim()} ${address.houseNumber.trim()}, ${address.zipCode.trim()}`;
   const canSubmit =
     senderName.trim().length > 0 &&
-    senderPhoneNumber.trim().length > 0 &&
     Number(amount) > 0 &&
     orderDate.length > 0 &&
-    streetName.trim().length > 0 &&
-    houseNumber.trim().length > 0 &&
-    zipCode.trim().length > 0 &&
+    address.streetName.trim().length > 0 &&
+    address.houseNumber.trim().length > 0 &&
+    address.zipCode.trim().length > 0 &&
     !isSubmitting;
 
   const handleSubmit = async (e: { preventDefault(): void }) => {
@@ -43,7 +41,7 @@ export default function CreateOrderForm({ campaignId, defaultZipCode, onOrderCre
       const res = await createOrder(campaignId, {
         orderDate: new Date(orderDate).toISOString(),
         senderName: senderName.trim(),
-        senderPhoneNumber: senderPhoneNumber.trim(),
+        senderPhoneNumber: senderPhoneNumber.trim() || undefined,
         amount: Number(amount),
         message,
       });
@@ -71,7 +69,7 @@ export default function CreateOrderForm({ campaignId, defaultZipCode, onOrderCre
           />
         </div>
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-1">Telefon</label>
+          <label className="text-sm font-medium text-gray-700 block mb-1">Telefon (valgfri)</label>
           <input
             type="tel"
             value={senderPhoneNumber}
@@ -105,41 +103,9 @@ export default function CreateOrderForm({ campaignId, defaultZipCode, onOrderCre
       </div>
 
       <div className="border-t pt-4 flex flex-col gap-3">
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <label className="text-sm font-medium text-gray-700 block mb-1">Gadenavn</label>
-            <input
-              type="text"
-              value={streetName}
-              onChange={(e) => setStreetName(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm"
-              placeholder="Søndergade"
-            />
-          </div>
-          <div className="w-28">
-            <label className="text-sm font-medium text-gray-700 block mb-1">Husnummer</label>
-            <input
-              type="text"
-              value={houseNumber}
-              onChange={(e) => setHouseNumber(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm"
-              placeholder="42B"
-            />
-          </div>
-          <div className="w-24">
-            <label className="text-sm font-medium text-gray-700 block mb-1">Postnr.</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm"
-            />
-          </div>
-        </div>
+        <AddressPicker defaultZipCode={defaultZipCode} onChange={setAddress} />
 
-        {streetName.trim() && houseNumber.trim() && zipCode.trim() && (
+        {address.streetName.trim() && address.houseNumber.trim() && address.zipCode.trim() && (
           <div>
             <p className="text-xs text-gray-500 mb-1">Besked der gemmes</p>
             <p className="text-sm font-mono bg-gray-50 border rounded px-3 py-2">{message}</p>

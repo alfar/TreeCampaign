@@ -30,7 +30,7 @@ public static class ServiceExtensions
         services.AddScoped<StreetCreatedEventHandler>();
         services.AddScoped<StreetSectionCreatedEventHandler>();
 
-        services.AddHttpClient<IAddressLookupClient, DawaClient>();
+        services.AddHttpClient<IAddressLookupClient, AdressevaelgerClient>();
         return services;
     }
 }

@@ -7,7 +7,7 @@ namespace Intake.Api.Orders;
 
 internal class CreateOrderEndpoint
 {
-    public record CreateOrderRequest(DateTimeOffset OrderDate, string SenderName, string SenderPhoneNumber, MoneyAmount Amount, string Message);
+    public record CreateOrderRequest(DateTimeOffset OrderDate, string SenderName, string? SenderPhoneNumber, MoneyAmount Amount, string Message);
 
     public static async Task<IResult> Handle(IIntakeUnitOfWork unitOfWork, CampaignRef campaignId, CreateOrderRequest request, CancellationToken cancellationToken)
     {

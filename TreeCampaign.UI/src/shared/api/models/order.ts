@@ -4,7 +4,7 @@ export interface Order {
   id: string;
   orderType: OrderType;
   senderName: string;
-  senderPhoneNumber: string;
+  senderPhoneNumber?: string;
   amount: number;
   orderDate: string;
   message: string;

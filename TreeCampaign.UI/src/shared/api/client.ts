@@ -13,7 +13,7 @@ export async function getOrders(campaignId: string): Promise<Order[]> {
 
 export async function createOrder(
   campaignId: string,
-  data: { orderDate: string; senderName: string; senderPhoneNumber: string; amount: number; message: string }
+  data: { orderDate: string; senderName: string; senderPhoneNumber?: string; amount: number; message: string }
 ): Promise<Response> {
   return fetch(`/api/campaigns/${campaignId}/orders`, {
     method: 'POST',

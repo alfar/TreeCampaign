@@ -3,7 +3,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@heroicons/react/24/outline";
-import { useState, type PropsWithChildren } from "react";
+import { useState } from "react";
 import type { Stop } from "../../shared/api/models/stop";
 import StopCard from "./StopCard";
 

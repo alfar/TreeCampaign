@@ -8,7 +8,7 @@ public static class ServiceExtensions
     public static IServiceCollection AddTreeCampaignApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<PickupRequestService>();
-        services.AddHttpClient<IAddressLookupClient, DawaClient>();
+        services.AddHttpClient<IAddressLookupClient, AdressevaelgerClient>();
         return services;
     }
 }
