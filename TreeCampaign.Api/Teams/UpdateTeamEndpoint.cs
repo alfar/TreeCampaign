@@ -5,7 +5,7 @@ using TreeCampaign.Infrastructure;
 
 internal class UpdateTeamEndpoint
 {
-    public record UpdateTeamCommand(TeamName Name);
+    public record UpdateTeamCommand(TeamName Name, TrailerSize? TrailerSize);
 
     internal static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,
@@ -22,6 +22,12 @@ internal class UpdateTeamEndpoint
         }
 
         team.UpdateName(command.Name);
+
+        if (team is TrailerTeam trailerTeam && command.TrailerSize is not null)
+        {
+            trailerTeam.SetTrailerSize(command.TrailerSize.Value);
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(team);

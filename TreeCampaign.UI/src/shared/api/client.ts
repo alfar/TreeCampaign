@@ -3,7 +3,7 @@ import type { Neighborhood } from "./models/neighborhood";
 import type { Order } from "./models/order";
 import type { Street } from "./models/street";
 import type { Stop } from "./models/stop";
-import type { Team, TeamKind } from "./models/team";
+import type { Team, TeamKind, TrailerSize } from "./models/team";
 import type { Territory } from "./models/territory";
 
 export async function getOrders(campaignId: string): Promise<Order[]> {
@@ -136,20 +136,20 @@ export async function getTeams(campaignId: string) : Promise<Team[]> {
   return res.json();
 }
 
-export async function createTeam(campaignId: string, name: string, kind: TeamKind): Promise<Team> {
+export async function createTeam(campaignId: string, name: string, kind: TeamKind, trailerSize?: TrailerSize): Promise<Team> {
   const res = await fetch(`/api/${campaignId}/teams`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, kind }),
+    body: JSON.stringify({ name, kind, trailerSize }),
   });
   return res.json();
 }
 
-export async function updateTeam(campaignId: string, teamId: string, name: string): Promise<Team> {
+export async function updateTeam(campaignId: string, teamId: string, name: string, trailerSize?: TrailerSize): Promise<Team> {
   const res = await fetch(`/api/${campaignId}/teams/${teamId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, trailerSize }),
   });
   return res.json();
 }

@@ -1,5 +1,5 @@
 import type { Stop } from "../../shared/api/models/stop";
-import type { Team } from "../../shared/api/models/team";
+import { trailerSizeLabels, type Team } from "../../shared/api/models/team";
 import { useState } from "react";
 import StopCard from "./StopCard";
 import ProgressBar from "../../components/ProgressBar";
@@ -72,7 +72,13 @@ export default function TeamCard({
       onClick={() => onClick(team)}
     >
       <h2 className="text-lg font-semibold flex justify-between gap-2 flex-wrap">
-        <span className="flex items-center gap-2">{team.name}{statusBadge}</span>
+        <span className="flex items-center gap-2">
+          {team.name}
+          {team.kind === "Trailer" && team.trailerSize && (
+            <span className="text-xs font-normal text-gray-500">{trailerSizeLabels[team.trailerSize]}</span>
+          )}
+          {statusBadge}
+        </span>
         <span className="flex items-center gap-2">
           {team.status === 'Active' && (
             <button

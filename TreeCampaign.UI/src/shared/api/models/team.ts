@@ -7,6 +7,13 @@ export interface TeamMember {
 
 export type TeamStatus = 'Active' | 'OnBreak';
 export type TeamKind = 'Walking' | 'Trailer';
+export type TrailerSize = 'Small' | 'Large' | 'Boogie';
+
+export const trailerSizeLabels: Record<TrailerSize, string> = {
+    Small: 'Lille havetrailer',
+    Large: 'Stor havetrailer',
+    Boogie: 'Boogietrailer',
+};
 
 export interface Team {
     id: string;
@@ -14,5 +21,6 @@ export interface Team {
     status: TeamStatus;
     kind: TeamKind;
     isTrailerFull: boolean | null;
+    trailerSize: TrailerSize | null;
     members: TeamMember[];
 }

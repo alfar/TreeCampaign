@@ -80,6 +80,7 @@ export default function DispatchScreen() {
             kind: data.kind as TeamKind,
             status: "Active" as TeamStatus,
             isTrailerFull: false,
+            trailerSize: null,
             members: []
           }]);
         },

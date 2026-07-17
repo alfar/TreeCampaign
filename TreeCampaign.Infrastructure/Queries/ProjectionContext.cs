@@ -9,6 +9,7 @@ using TreeCampaign.Infrastructure.ValueConverters;
 using TeamMember = TreeCampaign.Domain.TeamMembers.TeamMember;
 using TeamStatus = TreeCampaign.Domain.Teams.TeamStatus;
 using TeamKind = TreeCampaign.Domain.Teams.TeamKind;
+using TrailerSize = TreeCampaign.Domain.Teams.TrailerSize;
 
 public class ProjectionContext(DbContextOptions<ProjectionContext> options) : DbContext(options)
 {
@@ -85,6 +86,7 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
         public TeamStatus Status { get; init; } = TeamStatus.Active;
         public required TeamKind Kind { get; init; }
         public bool? IsTrailerFull { get; init; }
+        public TrailerSize? TrailerSize { get; init; }
 
         private List<TeamMember> _members = [];
         public IReadOnlyCollection<TeamMember> Members => _members;
@@ -185,6 +187,10 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
         modelBuilder
             .Entity<TeamProjection>()
             .Property(t => t.IsTrailerFull);
+        modelBuilder
+            .Entity<TeamProjection>()
+            .Property(t => t.TrailerSize)
+            .HasConversion<byte?>();
 
         modelBuilder.Entity<TeamMember>(m =>
         {

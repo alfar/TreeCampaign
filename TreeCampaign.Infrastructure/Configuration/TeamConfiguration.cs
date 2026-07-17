@@ -15,6 +15,10 @@ internal static class TeamConfiguration
             .Property(t => t.IsTrailerFull)
             .HasDefaultValue(false);
 
+        modelBuilder.Entity<TrailerTeam>()
+            .Property(t => t.TrailerSize)
+            .HasConversion<byte>();
+
         return modelBuilder;
     }
 

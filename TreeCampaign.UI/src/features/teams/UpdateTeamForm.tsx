@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { updateTeam } from "../../shared/api/client";
-import type { Team } from "../../shared/api/models/team";
+import { trailerSizeLabels, type Team, type TrailerSize } from "../../shared/api/models/team";
 
 interface UpdateTeamFormProps {
   campaignId: string;
@@ -10,10 +10,14 @@ interface UpdateTeamFormProps {
 
 export default function UpdateTeamForm({ campaignId, team, onUpdated }: UpdateTeamFormProps) {
   const [name, setName] = useState(team.name);
+  const [trailerSize, setTrailerSize] = useState<TrailerSize>(team.trailerSize ?? "Small");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = name.trim().length > 0 && name !== team.name && !isSubmitting;
+  const canSubmit =
+    name.trim().length > 0 &&
+    (name !== team.name || trailerSize !== team.trailerSize) &&
+    !isSubmitting;
 
   const handleSubmit = async (e: { preventDefault(): void }) => {
     e.preventDefault();
@@ -22,7 +26,12 @@ export default function UpdateTeamForm({ campaignId, team, onUpdated }: UpdateTe
     setIsSubmitting(true);
     setError(null);
     try {
-      const updated = await updateTeam(campaignId, team.id, name.trim());
+      const updated = await updateTeam(
+        campaignId,
+        team.id,
+        name.trim(),
+        team.kind === "Trailer" ? trailerSize : undefined,
+      );
       onUpdated(updated);
     } catch {
       setError("Noget gik galt. Prøv igen.");
@@ -43,6 +52,23 @@ export default function UpdateTeamForm({ campaignId, team, onUpdated }: UpdateTe
           className="w-full border rounded px-3 py-2 text-sm"
         />
       </div>
+      {team.kind === "Trailer" && (
+        <div>
+          <label className="text-sm font-medium text-gray-700 block mb-1">Trailerstørrelse</label>
+          <div className="flex gap-2">
+            {(Object.keys(trailerSizeLabels) as TrailerSize[]).map((size) => (
+              <button
+                key={size}
+                type="button"
+                onClick={() => setTrailerSize(size)}
+                className={`flex-1 py-2 rounded text-sm border ${trailerSize === size ? "bg-blue-600 text-white border-blue-600" : "border-gray-300"}`}
+              >
+                {trailerSizeLabels[size]}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"

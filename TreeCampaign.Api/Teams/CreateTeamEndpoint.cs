@@ -5,7 +5,7 @@ using TreeCampaign.Infrastructure;
 
 internal class CreateTeamEndpoint
 {
-    public record CreateTeamCommand(TeamName Name, TeamKind Kind);
+    public record CreateTeamCommand(TeamName Name, TeamKind Kind, TrailerSize? TrailerSize);
 
     internal static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,
@@ -14,10 +14,15 @@ internal class CreateTeamEndpoint
         CancellationToken cancellationToken
     )
     {
+        if (command.Kind == TeamKind.Trailer && command.TrailerSize is null)
+        {
+            return TypedResults.BadRequest("TrailerSize is required for trailer teams.");
+        }
+
         TeamBase team = command.Kind switch
         {
             TeamKind.Walking => WalkingTeam.Create(campaignId, command.Name),
-            TeamKind.Trailer => TrailerTeam.Create(campaignId, command.Name),
+            TeamKind.Trailer => TrailerTeam.Create(campaignId, command.Name, command.TrailerSize!.Value),
             _ => throw new ArgumentOutOfRangeException(nameof(command.Kind)),
         };
 
