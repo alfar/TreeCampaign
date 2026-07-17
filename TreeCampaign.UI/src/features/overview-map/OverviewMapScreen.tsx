@@ -22,6 +22,19 @@ const STOP_COLORS: Record<string, string> = {
   Unresolved: "#dc2626",
 };
 
+function MapResizeHandler() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map]);
+
+  return null;
+}
+
 function FitBoundsToStops({ stops }: { stops: Stop[] }) {
   const map = useMap();
   const [hasFitted, setHasFitted] = useState(false);
@@ -114,6 +127,8 @@ export default function OverviewMapScreen() {
       acc.total += stop.amount;
       switch (stop.stopType) {
         case "Unassigned":
+          acc.unassigned += stop.amount;
+          break;
         case "Assigned":
           acc.pending += stop.amount;
           break;
@@ -127,7 +142,7 @@ export default function OverviewMapScreen() {
       }
       return acc;
     },
-    { pending: 0, unresolved: 0, collected: 0, total: 0 },
+    { unassigned: 0,pending: 0, unresolved: 0, collected: 0, total: 0 },
   );
 
   return (
@@ -137,7 +152,8 @@ export default function OverviewMapScreen() {
           parts={[
             { title: "Opsamlet", amount: counts.collected, color: "#16a34a" },
             { title: "Fejlet", amount: counts.unresolved, color: "#dc2626" },
-            { title: "Mangler", amount: counts.pending, color: "#2563eb" },
+            { title: "Tildelt", amount: counts.pending, color: "#2563eb" },
+            { title: "Mangler", amount: counts.unassigned, color: "#ffffff" },
           ]}
           total={counts.total}
         />
@@ -151,12 +167,13 @@ export default function OverviewMapScreen() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            <MapResizeHandler />
             <FitBoundsToStops stops={stops} />
             {stops.map((stop) => (
               <CircleMarker
                 key={stop.id}
                 center={[stop.address.latitude, stop.address.longitude]}
-                radius={10}
+                radius={5}
                 pathOptions={{
                   color: STOP_COLORS[stop.stopType] ?? "#6b7280",
                   fillColor: STOP_COLORS[stop.stopType] ?? "#6b7280",
