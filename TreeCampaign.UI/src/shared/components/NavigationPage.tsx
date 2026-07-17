@@ -13,6 +13,7 @@ export default function NavigationPage({ children } : PropsWithChildren) {
           <Link className="text-white hover:text-blue-200" to="/territories">Territorier</Link>
           {campaignId && <Link className="text-white hover:text-blue-200" to={`/campaigns/${campaignId}/intake`}>Ordrer</Link>}
           {campaignId && <Link className="text-white hover:text-blue-200" to={`/campaigns/${campaignId}/dispatch`}>Dispatch</Link>}
+          {campaignId && <Link className="text-white hover:text-blue-200" to={`/campaigns/${campaignId}/overview-map`}>Kort</Link>}
         </nav>
       </div>
       <div className="w-10/12 bg-white rounded-tl-2xl p-4">{children}</div>

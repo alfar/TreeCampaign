@@ -21,7 +21,7 @@ export default ({ parts, total, onClick }: ProgressBarProps) => {
             key={part.title}
             className="block h-full text-white text-xs text-center p-0.5 first:rounded-l last:rounded-r"
             style={{
-              width: Math.round((part.amount * 100) / totalCalc) + "%",
+              width: `calc(${part.amount} / ${totalCalc} * 100%)`,
               backgroundColor: part.color,
             }}
           >{part.amount}</div>

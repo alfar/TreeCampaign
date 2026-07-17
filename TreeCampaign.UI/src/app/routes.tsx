@@ -4,6 +4,7 @@ import TeamStopsTab from "../features/teams/TeamStopsTab";
 import TeamMapTab from "../features/teams/TeamMapTab";
 import TeamInfoTab from "../features/teams/TeamInfoTab";
 import DispatchScreen from "../features/dispatch/DispatchScreen";
+import OverviewMapScreen from "../features/overview-map/OverviewMapScreen";
 import CampaignListScreen from "../features/campaigns/CampaignListScreen";
 import IntakeScreen from "../features/intake/IntakeScreen";
 import TerritoriesScreen from "../features/territories/TerritoriesScreen";
@@ -27,6 +28,10 @@ export const router = createBrowserRouter([
   {
     path: "/campaigns/:campaignId/dispatch",
     element: <DispatchScreen />
+  },
+  {
+    path: "/campaigns/:campaignId/overview-map",
+    element: <OverviewMapScreen />
   },
   {
     path: "/campaigns/:campaignId/intake",
