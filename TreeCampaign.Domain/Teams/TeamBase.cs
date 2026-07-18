@@ -30,7 +30,7 @@ public abstract class TeamBase : IHasDomainEvents
         Raise(new TeamNameUpdated(Id, CampaignId, name));
     }
 
-    public void AddMember(string name, string? scoutRelativeName, string phoneNumber)
+    public void AddMember(string name, string? scoutRelativeName, string? phoneNumber)
     {
         _members.Add(new TeamMember { Id = new TeamMemberId(Guid.NewGuid()), Name = name, ScoutRelativeName = scoutRelativeName, PhoneNumber = phoneNumber, TeamId = Id });
         Raise(new TeamMemberAdded(Id, CampaignId, name, scoutRelativeName, phoneNumber));

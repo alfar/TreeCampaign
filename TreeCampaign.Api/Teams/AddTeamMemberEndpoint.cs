@@ -6,7 +6,7 @@ using static ProjectionContext;
 
 internal class AddTeamMemberEndpoint
 {
-    public record AddTeamMemberCommand(string Name, string? ScoutRelativeName, string PhoneNumber);
+    public record AddTeamMemberCommand(string Name, string? ScoutRelativeName, string? PhoneNumber);
 
     internal static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,

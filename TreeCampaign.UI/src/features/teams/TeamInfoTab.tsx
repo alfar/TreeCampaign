@@ -21,7 +21,7 @@ export default function TeamInfoTab() {
 
   if (!team) return null;
 
-  const handleAddMember = async (name: string, phoneNumber: string, scoutRelativeName?: string) => {
+  const handleAddMember = async (name: string, phoneNumber?: string, scoutRelativeName?: string) => {
     const updated = await addTeamMember(campaignId!, teamId!, name, phoneNumber, scoutRelativeName);
     setTeam(updated);
   };

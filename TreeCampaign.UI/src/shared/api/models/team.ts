@@ -2,7 +2,7 @@ export interface TeamMember {
     id: string;
     name: string;
     scoutRelativeName?: string;
-    phoneNumber: string;
+    phoneNumber?: string;
 }
 
 export type TeamStatus = 'Active' | 'OnBreak';

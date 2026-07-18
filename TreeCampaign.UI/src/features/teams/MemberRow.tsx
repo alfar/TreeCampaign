@@ -8,7 +8,9 @@ export function MemberRow({ member, onRemove }: { member: TeamMember; onRemove: 
         {member.scoutRelativeName && (
           <span className="text-gray-500 ml-1">({member.scoutRelativeName})</span>
         )}
-        <span className="text-gray-600 ml-2">{member.phoneNumber}</span>
+        {member.phoneNumber && (
+          <span className="text-gray-600 ml-2">{member.phoneNumber}</span>
+        )}
       </div>
       <button
         onClick={onRemove}

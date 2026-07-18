@@ -223,7 +223,7 @@ export async function addTeamMember(
   campaignId: string,
   teamId: string,
   name: string,
-  phoneNumber: string,
+  phoneNumber?: string,
   scoutRelativeName?: string,
 ): Promise<Team> {
   const res = await fetch(`/api/${campaignId}/teams/${teamId}/members`, {

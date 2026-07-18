@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function AddMemberForm({ onAdd }: { onAdd: (name: string, phoneNumber: string, scoutRelativeName?: string) => Promise<void>; }) {
+export function AddMemberForm({ onAdd }: { onAdd: (name: string, phoneNumber?: string, scoutRelativeName?: string) => Promise<void>; }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [scout, setScout] = useState("");
@@ -8,9 +8,9 @@ export function AddMemberForm({ onAdd }: { onAdd: (name: string, phoneNumber: st
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !phone.trim()) return;
+    if (!name.trim()) return;
     setLoading(true);
-    await onAdd(name.trim(), phone.trim(), scout.trim() || undefined);
+    await onAdd(name.trim(), phone.trim() || undefined, scout.trim() || undefined);
     setName("");
     setPhone("");
     setScout("");
@@ -28,10 +28,9 @@ export function AddMemberForm({ onAdd }: { onAdd: (name: string, phoneNumber: st
         required />
       <input
         className="border rounded px-2 py-1 text-sm"
-        placeholder="Telefon"
+        placeholder="Telefon (valgfrit)"
         value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        required />
+        onChange={(e) => setPhone(e.target.value)} />
       <input
         className="border rounded px-2 py-1 text-sm"
         placeholder="Spejderslægtning (valgfrit)"
@@ -39,7 +38,7 @@ export function AddMemberForm({ onAdd }: { onAdd: (name: string, phoneNumber: st
         onChange={(e) => setScout(e.target.value)} />
       <button
         type="submit"
-        disabled={loading || !name.trim() || !phone.trim()}
+        disabled={loading || !name.trim()}
         className="bg-blue-600 text-white rounded px-3 py-1 text-sm disabled:opacity-50"
       >
         {loading ? "Tilføjer…" : "Tilføj"}
