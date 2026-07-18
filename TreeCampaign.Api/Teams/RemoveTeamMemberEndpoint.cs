@@ -3,6 +3,7 @@ using TreeCampaign.Domain.TeamMembers.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure;
+using static ProjectionContext;
 
 internal class RemoveTeamMemberEndpoint
 {
@@ -21,6 +22,6 @@ internal class RemoveTeamMemberEndpoint
         team.RemoveMember(memberId);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(team);
+        return TypedResults.Ok(TeamProjection.FromTeam(team));
     }
 }

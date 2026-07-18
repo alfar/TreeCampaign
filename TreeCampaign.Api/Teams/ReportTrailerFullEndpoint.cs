@@ -2,6 +2,7 @@ using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure;
+using static ProjectionContext;
 
 internal class ReportTrailerFullEndpoint
 {
@@ -19,6 +20,6 @@ internal class ReportTrailerFullEndpoint
         team.ReportTrailerFull();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(team);
+        return TypedResults.Ok(TeamProjection.FromTeam(team));
     }
 }

@@ -2,6 +2,7 @@ using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure;
+using static ProjectionContext;
 
 internal class UpdateTeamEndpoint
 {
@@ -30,6 +31,6 @@ internal class UpdateTeamEndpoint
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(team);
+        return TypedResults.Ok(TeamProjection.FromTeam(team));
     }
 }

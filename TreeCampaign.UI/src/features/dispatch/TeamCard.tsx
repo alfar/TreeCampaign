@@ -4,7 +4,7 @@ import { useState } from "react";
 import StopCard from "./StopCard";
 import ProgressBar from "../../components/ProgressBar";
 import { Link } from "react-router-dom";
-import { QrCodeIcon } from "@heroicons/react/24/outline";
+import { QrCodeIcon, Bars2Icon, Bars3Icon, Bars4Icon, UsersIcon } from "@heroicons/react/24/outline";
 import { sendTeamOnBreak } from "../../shared/api/client";
 
 interface TeamCardProps {
@@ -49,6 +49,14 @@ export default function TeamCard({
     { assigned: 0, unresolved: 0, collected: 0, delivered: 0, total: 0 },
   );
 
+  const trailerSizeIcon: Record<NonNullable<Team["trailerSize"]>, typeof Bars2Icon> = {
+    Small: Bars2Icon,
+    Large: Bars3Icon,
+    Boogie: Bars4Icon,
+  };
+  const TeamKindIcon =
+    team.kind === "Trailer" && team.trailerSize ? trailerSizeIcon[team.trailerSize] : UsersIcon;
+
   const statusBadge = team.status === 'OnBreak'
     ? <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Pause</span>
     : team.kind === 'Trailer' && team.isTrailerFull
@@ -73,6 +81,7 @@ export default function TeamCard({
     >
       <h2 className="text-lg font-semibold flex justify-between gap-2 flex-wrap">
         <span className="flex items-center gap-2">
+          <TeamKindIcon className="w-5 h-5 text-gray-500 shrink-0" />
           {team.name}
           {team.kind === "Trailer" && team.trailerSize && (
             <span className="text-xs font-normal text-gray-500">{trailerSizeLabels[team.trailerSize]}</span>

@@ -1,6 +1,5 @@
 import { useState, type PropsWithChildren } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 export default function NavigationPage({ children }: PropsWithChildren) {
   const params = useParams();

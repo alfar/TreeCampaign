@@ -2,6 +2,7 @@ using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure;
+using static ProjectionContext;
 
 internal class CreateTeamEndpoint
 {
@@ -29,6 +30,6 @@ internal class CreateTeamEndpoint
         unitOfWork.GetRepository<TeamBase, TeamId>().Add(team);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(team);
+        return TypedResults.Ok(TeamProjection.FromTeam(team));
     }
 }

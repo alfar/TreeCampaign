@@ -10,6 +10,7 @@ using TeamMember = TreeCampaign.Domain.TeamMembers.TeamMember;
 using TeamStatus = TreeCampaign.Domain.Teams.TeamStatus;
 using TeamKind = TreeCampaign.Domain.Teams.TeamKind;
 using TrailerSize = TreeCampaign.Domain.Teams.TrailerSize;
+using TreeCampaign.Domain.Teams;
 
 public class ProjectionContext(DbContextOptions<ProjectionContext> options) : DbContext(options)
 {
@@ -90,6 +91,22 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
 
         private List<TeamMember> _members = [];
         public IReadOnlyCollection<TeamMember> Members => _members;
+
+        public static TeamProjection FromTeam(TeamBase team)
+        {
+            var trailerTeam = team as TrailerTeam;
+
+            return new TeamProjection
+            {
+                Id = team.Id,
+                Name = team.Name,
+                Status = team.Status,
+                Kind = trailerTeam != null ? TeamKind.Trailer : TeamKind.Walking,
+                IsTrailerFull = trailerTeam?.IsTrailerFull,
+                TrailerSize = trailerTeam?.TrailerSize,
+                _members = team.Members.ToList(),
+            };
+        }
     }
 
     private DbSet<CampaignProjection> CampaignProjections { get; set; }

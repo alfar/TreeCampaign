@@ -85,6 +85,7 @@ export default function DispatchScreen() {
           }]);
         },
         TeamNameUpdated: patchTeamFunc(data.id as string, { name: data.name as string }),
+        TeamTrailerSizeUpdated: patchTeamFunc(data.id as string, { trailerSize: data.trailerSize as string | null }),
         TeamWentOnBreak: patchTeamFunc(data.id as string, { status: "OnBreak" }),
         TeamResumedFromBreak: patchTeamFunc(data.id as string, { status: "Active" }),
         TeamReportedTrailerFull: patchTeamFunc(data.id as string, { isTrailerFull: true }),
