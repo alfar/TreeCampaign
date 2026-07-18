@@ -172,6 +172,18 @@ export default function DispatchScreen() {
     (stop) => !sectionById.has(stop.address.streetSectionId),
   );
 
+  const teamRank = (team: Team) => {
+    if (team.kind === "Trailer" && team.isTrailerFull) return 0;
+    if (team.kind === "Walking") return 3;
+    if (team.status === "OnBreak") return 4;
+    const hasAssignedStops = stops.some(
+      (s) => s.assignedTeamId === team.id && s.stopType === "Assigned",
+    );
+    return hasAssignedStops ? 2 : 1;
+  };
+
+  const sortedTeams = [...teams].sort((a, b) => teamRank(a) - teamRank(b));
+
   const toggleStop = (stopId: string) => {
     setSelectedStopIds((prev) => {
       const newSet = new Set(prev);
@@ -280,12 +292,14 @@ export default function DispatchScreen() {
                 onCancel={() => setShowCreateTeam(false)}
               />
             )}
-            {teams.map((team: Team) => (
+            {sortedTeams.map((team: Team) => (
               <TeamCard
                 key={team.id}
                 campaignId={campaignId}
                 team={team}
-                stops={stops.filter((stop) => stop.assignedTeamId === team.id)}
+                stops={stops.filter(
+                  (stop) => stop.assignedTeamId === team.id && stop.stopType !== "Delivered",
+                )}
                 assignMode={selectedStopIds.size > 0}
                 onClick={clickTeam}
                 onUpdateStop={updateStop}

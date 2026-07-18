@@ -36,6 +36,17 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public async Task<OrderBase?> FindOrderByIdAsync(OrderId orderId, CancellationToken cancellationToken) =>
         await Orders.FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
 
+    public async Task<IReadOnlySet<TransactionId>> GetExistingTransactionIdsAsync(IEnumerable<TransactionId> transactionIds, CancellationToken cancellationToken)
+    {
+        var ids = transactionIds.ToList();
+        var existing = await Orders
+            .Where(o => o.TransactionId != null && ids.Contains(o.TransactionId))
+            .Select(o => o.TransactionId!)
+            .ToListAsync(cancellationToken);
+
+        return existing.ToHashSet();
+    }
+
     public IRepository<TAggregate, TKey> GetRepository<TAggregate, TKey>() =>
         (IRepository<TAggregate, TKey>)this;
 

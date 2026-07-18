@@ -4,6 +4,7 @@ import { getCampaigns, getOrders } from "../../shared/api/client";
 import type { Order } from "../../shared/api/models/order";
 import CreateOrderForm from "./CreateOrderForm";
 import CreateStreetSectionForm from "./CreateStreetSectionForm";
+import ImportPaymentsForm from "./ImportPaymentsForm";
 import OrderList from "./OrderList";
 import WashOrderForm from "./WashOrderForm";
 import NavigationPage from "../../shared/components/NavigationPage";
@@ -16,6 +17,7 @@ export default function IntakeScreen() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [territoryId, setTerritoryId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showImportForm, setShowImportForm] = useState(false);
 
   const loadOrders = () => {
     if (campaignId) {
@@ -97,17 +99,26 @@ export default function IntakeScreen() {
   const selectedOrder = orders.find((o) => o.id === selectedOrderId) ?? null;
   const showSidePanel =
     showCreateForm ||
+    showImportForm ||
     selectedOrder?.orderType === "Unwashed" ||
     selectedOrder?.orderType === "OutOfBounds";
 
   const handleSelectOrder = (orderId: string) => {
     setShowCreateForm(false);
+    setShowImportForm(false);
     setSelectedOrderId((prev) => (prev === orderId ? null : orderId));
   };
 
   const handleOpenCreateForm = () => {
     setSelectedOrderId(null);
+    setShowImportForm(false);
     setShowCreateForm(true);
+  };
+
+  const handleOpenImportForm = () => {
+    setSelectedOrderId(null);
+    setShowCreateForm(false);
+    setShowImportForm(true);
   };
 
   const handleWashed = () => {
@@ -129,12 +140,20 @@ export default function IntakeScreen() {
           <h1 className="text-xl font-bold">
             Bestillinger til manuel behandling
           </h1>
-          <button
-            onClick={handleOpenCreateForm}
-            className="bg-blue-600 text-white text-sm py-1.5 px-4 rounded hover:bg-blue-700"
-          >
-            Ny bestilling
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleOpenImportForm}
+              className="bg-gray-100 text-gray-700 text-sm py-1.5 px-4 rounded hover:bg-gray-200 border"
+            >
+              Importér CSV
+            </button>
+            <button
+              onClick={handleOpenCreateForm}
+              className="bg-blue-600 text-white text-sm py-1.5 px-4 rounded hover:bg-blue-700"
+            >
+              Ny bestilling
+            </button>
+          </div>
         </div>
         <div
           className={`flex gap-6 items-start ${showSidePanel ? "flex-col md:flex-row" : ""}`}
@@ -161,7 +180,13 @@ export default function IntakeScreen() {
               />
             </div>
           )}
-          {!showCreateForm && selectedOrder?.orderType === "Unwashed" && (
+          {showImportForm && (
+            <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+              <h2 className="text-base font-semibold mb-4">Importér betalinger</h2>
+              <ImportPaymentsForm campaignId={campaignId!} onImported={loadOrders} />
+            </div>
+          )}
+          {!showCreateForm && !showImportForm && selectedOrder?.orderType === "Unwashed" && (
             <div className="w-full md:w-1/2 border rounded p-4 bg-white">
               <h2 className="text-base font-semibold mb-4">Ret adresse</h2>
               <WashOrderForm
@@ -173,6 +198,7 @@ export default function IntakeScreen() {
             </div>
           )}
           {!showCreateForm &&
+            !showImportForm &&
             selectedOrder?.orderType === "OutOfBounds" &&
             territoryId &&
             selectedOrder.streetId && (

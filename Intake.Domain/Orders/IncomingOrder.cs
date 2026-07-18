@@ -11,7 +11,8 @@ public class IncomingOrder : OrderBase, IParseableOrder
         Sender sender,
         MoneyAmount amount,
         DateTimeOffset orderDate,
-        string message
+        string message,
+        TransactionId? transactionId = null
     )
     {
         var order = new IncomingOrder
@@ -21,7 +22,8 @@ public class IncomingOrder : OrderBase, IParseableOrder
             Sender = sender,
             Amount = amount,
             OrderDate = orderDate,
-            Message = message
+            Message = message,
+            TransactionId = transactionId
         };
 
         order.Raise(new Events.OrderReceived(order.Id, campaignId, sender, amount, orderDate, message));

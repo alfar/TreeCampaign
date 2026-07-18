@@ -1,6 +1,7 @@
 import type { Campaign } from "./models/campagin";
 import type { Neighborhood } from "./models/neighborhood";
 import type { Order } from "./models/order";
+import type { PaymentImportSummary } from "./models/paymentImport";
 import type { Street } from "./models/street";
 import type { Stop } from "./models/stop";
 import type { Team, TeamKind, TrailerSize } from "./models/team";
@@ -20,6 +21,17 @@ export async function createOrder(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+}
+
+export async function importPayments(campaignId: string, file: File): Promise<PaymentImportSummary> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`/api/campaigns/${campaignId}/orders/import`, {
+    method: 'POST',
+    body: formData,
+  });
+  return res.json();
 }
 
 export async function washOrder(
@@ -216,6 +228,11 @@ export async function sendTeamOnBreak(campaignId: string, teamId: string): Promi
 
 export async function reportTrailerFull(campaignId: string, teamId: string): Promise<Team> {
   const res = await fetch(`/api/${campaignId}/teams/${teamId}/trailer-full`, { method: 'POST' });
+  return res.json();
+}
+
+export async function clearTrailerFull(campaignId: string, teamId: string): Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams/${teamId}/trailer-full`, { method: 'DELETE' });
   return res.json();
 }
 

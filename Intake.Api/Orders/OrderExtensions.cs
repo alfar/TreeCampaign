@@ -10,6 +10,7 @@ public static class OrderExtensions
 
         group.MapPost("/", CreateOrderEndpoint.Handle);
         group.MapPost("/{orderId:guid}/wash", WashOrderEndpoint.Handle);
+        group.MapPost("/import", ImportPaymentsEndpoint.Handle).DisableAntiforgery();
 
         return app;
     }

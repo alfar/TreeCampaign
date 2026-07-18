@@ -16,7 +16,7 @@ public class OrderProjection
     public required string OrderType { get; init; }
     public required CampaignRef CampaignId { get; init; }
     public required string SenderName { get; init; }
-    public required string SenderPhoneNumber { get; init; }
+    public string? SenderPhoneNumber { get; init; }
     public required MoneyAmount Amount { get; init; }
     public required DateTimeOffset OrderDate { get; init; }
     public string Message { get; init; } = default!;

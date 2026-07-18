@@ -21,6 +21,7 @@ public class WashedOrder : OrderBase
             Amount = unwashedOrder.Amount,
             OrderDate = unwashedOrder.OrderDate,
             Message = unwashedOrder.Message,
+            TransactionId = unwashedOrder.TransactionId,
             StreetId = streetId,
             StreetSectionId = streetSectionId,
             NeighborhoodId = neighborhoodId,

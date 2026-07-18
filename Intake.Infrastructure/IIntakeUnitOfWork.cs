@@ -10,4 +10,5 @@ public interface IIntakeUnitOfWork : IUnitOfWork
     IQueryable<OrderBase> GetUnvalidatedOrdersByCampaign(CampaignRef campaignId);
     IQueryable<OrderBase> GetUnvalidatedOrders();
     Task<OrderBase?> FindOrderByIdAsync(OrderId orderId, CancellationToken cancellationToken);
+    Task<IReadOnlySet<TransactionId>> GetExistingTransactionIdsAsync(IEnumerable<TransactionId> transactionIds, CancellationToken cancellationToken);
 }

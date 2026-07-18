@@ -1,11 +1,11 @@
 import type { Stop } from "../../shared/api/models/stop";
-import { trailerSizeLabels, type Team } from "../../shared/api/models/team";
+import { trailerCapacity, trailerSizeLabels, type Team } from "../../shared/api/models/team";
 import { useState } from "react";
 import StopCard from "./StopCard";
 import ProgressBar from "../../components/ProgressBar";
 import { Link } from "react-router-dom";
 import { QrCodeIcon, Bars2Icon, Bars3Icon, Bars4Icon, UsersIcon } from "@heroicons/react/24/outline";
-import { sendTeamOnBreak } from "../../shared/api/client";
+import { clearTrailerFull, sendTeamOnBreak } from "../../shared/api/client";
 
 interface TeamCardProps {
   campaignId: string;
@@ -49,6 +49,12 @@ export default function TeamCard({
     { assigned: 0, unresolved: 0, collected: 0, delivered: 0, total: 0 },
   );
 
+  const estimatedCapacity =
+    team.kind === "Trailer" && team.trailerSize ? trailerCapacity[team.trailerSize] : null;
+  const estimatedLoad = counts.assigned + counts.collected;
+  const remainingRoom = estimatedCapacity !== null ? estimatedCapacity - estimatedLoad : null;
+  const isNearOrOverCapacity = remainingRoom !== null && remainingRoom <= 0;
+
   const trailerSizeIcon: Record<NonNullable<Team["trailerSize"]>, typeof Bars2Icon> = {
     Small: Bars2Icon,
     Large: Bars3Icon,
@@ -68,11 +74,18 @@ export default function TeamCard({
     sendTeamOnBreak(campaignId, team.id).then((updated) => onUpdateTeam?.(updated));
   };
 
+  const handleClearTrailerFull = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    clearTrailerFull(campaignId, team.id).then((updated) => onUpdateTeam?.(updated));
+  };
+
   return (
     <div
       className={
         assignMode
           ? "p-4 border border-amber-400 rounded-sm cursor-pointer"
+          : team.kind === 'Trailer' && team.isTrailerFull
+          ? "p-4 border border-amber-400 bg-amber-50 rounded-sm"
           : team.status !== 'Active'
           ? "p-4 border border-gray-200 rounded-sm opacity-60"
           : "p-4 border border-gray-200 rounded-sm"
@@ -86,9 +99,30 @@ export default function TeamCard({
           {team.kind === "Trailer" && team.trailerSize && (
             <span className="text-xs font-normal text-gray-500">{trailerSizeLabels[team.trailerSize]}</span>
           )}
+          {remainingRoom !== null && !team.isTrailerFull && (
+            <span
+              className={
+                isNearOrOverCapacity
+                  ? "text-xs font-normal text-amber-700"
+                  : "text-xs font-normal text-gray-500"
+              }
+            >
+              {isNearOrOverCapacity
+                ? `Fuld (est. ${estimatedLoad}/${estimatedCapacity})`
+                : `Plads til ~${remainingRoom} flere træer`}
+            </span>
+          )}
           {statusBadge}
         </span>
         <span className="flex items-center gap-2">
+          {team.kind === 'Trailer' && team.isTrailerFull && (
+            <button
+              className="text-xs text-amber-800 border border-amber-400 px-2 py-0.5 rounded hover:bg-amber-100"
+              onClick={handleClearTrailerFull}
+            >
+              Nulstil trailer fuld
+            </button>
+          )}
           {team.status === 'Active' && (
             <button
               className="text-xs text-gray-500 border border-gray-300 px-2 py-0.5 rounded hover:bg-gray-50"

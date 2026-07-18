@@ -27,6 +27,8 @@ internal static class OrderConfiguration
             s.Property(p => p.PhoneNumber).HasColumnName("SenderPhoneNumber");
         });
         orderBase.Property(o => o.Amount).HasConversion(new MoneyAmountValueConverter());
+        orderBase.Property(o => o.TransactionId).HasConversion(new TransactionIdValueConverter());
+        orderBase.HasIndex(o => o.TransactionId).IsUnique().HasFilter("TransactionId IS NOT NULL");
 
         modelBuilder.Entity<OutOfBoundsOrder>()
             .Property(o => o.StreetId)

@@ -18,6 +18,7 @@ public class UnwashedOrder : OrderBase, IParseableOrder
             Amount = incomingOrder.Amount,
             OrderDate = incomingOrder.OrderDate,
             Message = incomingOrder.Message,
+            TransactionId = incomingOrder.TransactionId,
             ErrorMessage = errorMessage,
         };
 
@@ -36,6 +37,7 @@ public class UnwashedOrder : OrderBase, IParseableOrder
             Amount = washedOrder.Amount,
             OrderDate = washedOrder.OrderDate,
             Message = washedOrder.Message,
+            TransactionId = washedOrder.TransactionId,
             ErrorMessage = errorMessage,
         };
 
@@ -54,6 +56,7 @@ public class UnwashedOrder : OrderBase, IParseableOrder
             Amount = outOfBoundsOrder.Amount,
             OrderDate = outOfBoundsOrder.OrderDate,
             Message = outOfBoundsOrder.Message,
+            TransactionId = outOfBoundsOrder.TransactionId,
             ErrorMessage = errorMessage,
         };
 

@@ -19,6 +19,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             Amount = incomingOrder.Amount,
             OrderDate = incomingOrder.OrderDate,
             Message = incomingOrder.Message,
+            TransactionId = incomingOrder.TransactionId,
             StreetId = streetId,
             HouseNumber = houseNumber
         };
@@ -38,6 +39,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             Amount = washedOrder.Amount,
             OrderDate = washedOrder.OrderDate,
             Message = washedOrder.Message,
+            TransactionId = washedOrder.TransactionId,
             StreetId = streetId,
             HouseNumber = washedOrder.HouseNumber
         };
@@ -57,6 +59,7 @@ public class OutOfBoundsOrder : OrderBase, IParseableOrder
             Amount = unwashedOrder.Amount,
             OrderDate = unwashedOrder.OrderDate,
             Message = unwashedOrder.Message,
+            TransactionId = unwashedOrder.TransactionId,
             StreetId = streetId,
             HouseNumber = houseNumber
         };

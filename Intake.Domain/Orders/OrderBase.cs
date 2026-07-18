@@ -31,5 +31,7 @@ public abstract class OrderBase : IHasDomainEvents
 
     public required string Message { get; init; }
 
+    public TransactionId? TransactionId { get; init; }
+
     protected OrderBase() { }
 }

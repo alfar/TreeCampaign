@@ -23,6 +23,8 @@ public static class ServiceExtensions
 
         services.AddScoped<IAddressValidationService, AddressValidationService>();
         services.AddScoped<ISectionResolutionService, SectionResolutionService>();
+        services.AddScoped<ICsvPaymentParser, CsvPaymentParser>();
+        services.AddScoped<IPaymentImportService, PaymentImportService>();
 
         services.AddScoped<OrderReceivedEventHandler>();
         services.AddScoped<OrderValidatedEventHandler>();
