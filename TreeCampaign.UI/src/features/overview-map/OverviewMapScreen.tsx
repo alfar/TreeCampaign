@@ -155,6 +155,7 @@ export default function OverviewMapScreen() {
             { title: "Tildelt", amount: counts.pending, color: "#2563eb" },
             { title: "Mangler", amount: counts.unassigned, color: "#ffffff" },
           ]}
+          textSize="text-3xl"
           total={counts.total}
         />
         <div className="flex-1">
