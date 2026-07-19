@@ -12,6 +12,10 @@ public static class NeighborhoodExtensions
         
         group.MapPost("/{neighborhoodId:guid}/street-sections", AddStreetSectionToNeighborhoodEndpoint.Handle);
 
+        group.MapPut("/{neighborhoodId:guid}/street-sections/{streetSectionId:guid}", UpdateStreetSectionEndpoint.Handle);
+
+        group.MapDelete("/{neighborhoodId:guid}/street-sections/{streetSectionId:guid}", DeleteStreetSectionEndpoint.Handle);
+
         return app;
     }
 }

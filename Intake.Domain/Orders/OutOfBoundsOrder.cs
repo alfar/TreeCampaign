@@ -4,7 +4,7 @@ using Intake.Domain.Orders.ValueObjects;
 
 namespace Intake.Domain.Orders;
 
-public class OutOfBoundsOrder : OrderBase, IParseableOrder
+public class OutOfBoundsOrder : OrderBase
 {
     public required StreetRef StreetId { get; init; }
     public required HouseNumber HouseNumber { get; init; }

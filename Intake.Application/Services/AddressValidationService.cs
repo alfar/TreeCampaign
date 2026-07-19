@@ -147,6 +147,59 @@ public class AddressValidationService(
         );
     }
 
+    public async Task<AddressValidationResult> ValidateStreetAsync(
+        StreetRef streetId,
+        HouseNumber houseNumber,
+        CampaignRef campaignId,
+        CancellationToken cancellationToken = default)
+    {
+        var campaign = await campaignContext.GetRepository<Campaign, CampaignId>()
+           .TryFindAsync(CampaignId.From(campaignId.Value), cancellationToken);
+
+        if (campaign?.TerritoryId is null)
+            return new StreetNotFound();
+
+        var territoryId = TerritoryId.From(campaign.TerritoryId.Value);
+
+        var street = await territoryContext.GetRepository<Street, StreetId>()
+            .TryFindAsync(StreetId.From(streetId.Value), cancellationToken);
+
+        if (street is null)
+            return new StreetNotFound();
+
+        var neighborhoods = await neighborhoodQueries.GetAllByTerritoryIdAsync(territoryId, cancellationToken);
+        var territoryHouseNumber = ToTerritory(houseNumber);
+
+        foreach (var neighborhood in neighborhoods)
+        {
+            var section = neighborhood.StreetSections.FirstOrDefault(s =>
+                s.StreetId == street.Id && s.ContainsHouseNumber(territoryHouseNumber));
+
+            if (section is null)
+                continue;
+
+            var lookup = await addressLookupClient.GetAddress(street.Name, houseNumber.ToString(), street.ZipCode.Value);
+
+            if (lookup is null)
+            {
+                return new AddressLookupFailed(
+                    $"Adressen {street.Name} {houseNumber} blev genkendt, men koordinater kunne ikke slås op via DAWA.");
+            }
+
+            return new ValidationSuccess(
+                TerritoryRef.From(territoryId.Value),
+                NeighborhoodRef.From(neighborhood.Id.Value),
+                StreetRef.From(street.Id.Value),
+                StreetSectionRef.From(section.Id.Value),
+                houseNumber,
+                lookup.Latitude,
+                lookup.Longitude
+            );
+        }
+
+        return new HouseNumberOutOfBounds(streetId, houseNumber);
+    }
+
     private static HouseNumber ToIntake(TreeTerritoryHouseNumber input) =>
         HouseNumber.Parse(input.ToString());
     

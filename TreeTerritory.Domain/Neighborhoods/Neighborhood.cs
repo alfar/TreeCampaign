@@ -33,9 +33,32 @@ public class Neighborhood
         Direction direction)
     {
         var section = StreetSection.Create(this.Id, streetId, startHouseNumber, endHouseNumber, sortOrder, direction);
-        
+
         // Add invariant checks here (no overlaps, etc.)
         _streetSections.Add(section);
+    }
+
+    public void UpdateStreetSection(
+        StreetSectionId streetSectionId,
+        HouseNumber? startHouseNumber,
+        HouseNumber? endHouseNumber,
+        int sortOrder,
+        Direction direction)
+    {
+        var section = _streetSections.SingleOrDefault(s => s.Id == streetSectionId)
+            ?? throw new InvalidOperationException($"Street section '{streetSectionId}' not found in neighborhood '{Id}'.");
+
+        section.UpdateHouseNumberRange(startHouseNumber, endHouseNumber);
+        section.UpdateSortOrder(sortOrder);
+        section.UpdateDirection(direction);
+    }
+
+    public void RemoveStreetSection(StreetSectionId streetSectionId)
+    {
+        var section = _streetSections.SingleOrDefault(s => s.Id == streetSectionId)
+            ?? throw new InvalidOperationException($"Street section '{streetSectionId}' not found in neighborhood '{Id}'.");
+
+        _streetSections.Remove(section);
     }
 
     private Neighborhood() { }

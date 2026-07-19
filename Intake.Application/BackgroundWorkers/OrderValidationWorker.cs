@@ -128,7 +128,7 @@ public class OrderValidationWorker : BackgroundService
                 }
                 break;
             case OutOfBoundsOrder outOfBounds:
-                switch (await TryValidateOrderByParsing(outOfBounds, parser, addressValidationService, stoppingToken))
+                switch (await TryValidateOrderByStreetAndHouseNumber(outOfBounds, addressValidationService, stoppingToken))
                 {
                     case ValidationSuccess success:
                         uow.Transition<OutOfBoundsOrder, ValidatedOrder, OrderId>(outOfBounds, outOfBounds.Accept(success));
@@ -137,6 +137,7 @@ public class OrderValidationWorker : BackgroundService
                         uow.Transition<OutOfBoundsOrder, UnwashedOrder, OrderId>(outOfBounds, outOfBounds.MarkUnwashed(lookupFailed.Reason));
                         break;
                 }
+
                 break;
         }
     }
@@ -167,6 +168,17 @@ public class OrderValidationWorker : BackgroundService
             _logger.LogInformation("Order {OrderId} validated successfully by references.", order.Id);
         else
             _logger.LogWarning("Order {OrderId} failed reference validation: {Reason}", order.Id, validationResult.GetType().Name);
+
+        return validationResult;
+    }
+
+    private async Task<AddressValidationResult> TryValidateOrderByStreetAndHouseNumber(OutOfBoundsOrder order, IAddressValidationService addressValidationService, CancellationToken stoppingToken = default)
+    {
+        var validationResult = await addressValidationService.ValidateStreetAsync(order.StreetId, order.HouseNumber, order.CampaignId, stoppingToken);
+        if (validationResult is ValidationSuccess)
+            _logger.LogInformation("Order {OrderId} validated successfully by street and house number.", order.Id);
+        else
+            _logger.LogWarning("Order {OrderId} failed street/house number validation: {Reason}", order.Id, validationResult.GetType().Name);
 
         return validationResult;
     }

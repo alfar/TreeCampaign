@@ -26,8 +26,8 @@ public class StreetSection : IHasDomainEvents
     public required NeighborhoodId NeighborhoodId { get; init; }
     public required StreetId StreetId { get; init; }
 
-    public HouseNumber? StartHouseNumber { get; init; }
-    public HouseNumber? EndHouseNumber { get; init; }
+    public HouseNumber? StartHouseNumber { get; private set; }
+    public HouseNumber? EndHouseNumber { get; private set; }
 
     public int SortOrder { get; private set; } = 0;
     public Direction Direction { get; private set; } = Direction.Ascending;
@@ -68,6 +68,14 @@ public class StreetSection : IHasDomainEvents
     public void UpdateDirection(Direction direction)
     {
         Direction = direction;
+    }
+
+    public void UpdateHouseNumberRange(HouseNumber? startHouseNumber, HouseNumber? endHouseNumber)
+    {
+        var comparison = (startHouseNumber is null || endHouseNumber is null) ? -1 : startHouseNumber.CompareTo(endHouseNumber);
+
+        StartHouseNumber = comparison <= 0 ? startHouseNumber : endHouseNumber;
+        EndHouseNumber = comparison <= 0 ? endHouseNumber : startHouseNumber;
     }
 
     public bool ContainsHouseNumber(HouseNumber houseNumber)

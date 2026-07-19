@@ -125,11 +125,41 @@ export async function createStreetSection(
   territoryId: string,
   neighborhoodId: string,
   streetId: string,
+  sortOrder: number = 0,
+  fromHouseNumber: string | null = null,
+  toHouseNumber: string | null = null,
+  direction: number = 0,
 ): Promise<Response> {
   return fetch(`/api/Territories/${territoryId}/neighborhoods/${neighborhoodId}/street-sections`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ streetId, sortOrder: 0, fromHouseNumber: null, toHouseNumber: null, direction: 0 }),
+    body: JSON.stringify({ streetId, sortOrder, fromHouseNumber, toHouseNumber, direction }),
+  });
+}
+
+export async function updateStreetSection(
+  territoryId: string,
+  neighborhoodId: string,
+  streetSectionId: string,
+  sortOrder: number = 0,
+  fromHouseNumber: string | null = null,
+  toHouseNumber: string | null = null,
+  direction: number = 0,
+): Promise<Response> {
+  return fetch(`/api/Territories/${territoryId}/neighborhoods/${neighborhoodId}/street-sections/${streetSectionId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sortOrder, fromHouseNumber, toHouseNumber, direction }),
+  });
+}
+
+export async function deleteStreetSection(
+  territoryId: string,
+  neighborhoodId: string,
+  streetSectionId: string,
+): Promise<Response> {
+  return fetch(`/api/Territories/${territoryId}/neighborhoods/${neighborhoodId}/street-sections/${streetSectionId}`, {
+    method: 'DELETE',
   });
 }
 

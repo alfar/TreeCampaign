@@ -16,4 +16,9 @@ public interface IAddressValidationService
         HouseNumber houseNumber,
         CampaignRef campaignId,
         CancellationToken cancellationToken = default);
+    Task<AddressValidationResult> ValidateStreetAsync(
+        StreetRef streetId,
+        HouseNumber houseNumber,
+        CampaignRef campaignId,
+        CancellationToken cancellationToken = default);
 }
