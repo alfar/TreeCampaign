@@ -37,9 +37,14 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 var apiGroup =app.MapGroup("/api");
 apiGroup.MapTreeCampaignEndpoints();
 apiGroup.MapTreeTerritoryEndpoints();
 apiGroup.MapIntakeEndpoints();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

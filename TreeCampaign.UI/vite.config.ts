@@ -18,6 +18,10 @@ export default defineConfig({
       '/api': 'http://localhost:5157'
     }
   },
+  build: {
+    outDir: path.resolve(dirname, '../publish_site/wwwroot'),
+    emptyOutDir: true
+  },
   test: {
     projects: [{
       extends: true,

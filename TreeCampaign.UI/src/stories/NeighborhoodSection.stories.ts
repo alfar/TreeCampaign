@@ -17,6 +17,10 @@ type Story = StoryObj<typeof meta>;
 // More on component testing: https://storybook.js.org/docs/writing-tests/interaction-testing
 export const Empty: Story = {
     args: {
-        name: "Empty section"
+        name: "Empty section",
+        campaignId: "00000000-0000-0000-0000-000000000000",
+        selectedStopIds: new Set<string>(),
+        stops: [],
+        toggleStop: (_: string) => {},          
     }
 };
