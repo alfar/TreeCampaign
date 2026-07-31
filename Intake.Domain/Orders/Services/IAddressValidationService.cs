@@ -21,4 +21,6 @@ public interface IAddressValidationService
         HouseNumber houseNumber,
         CampaignRef campaignId,
         CancellationToken cancellationToken = default);
+    
+    Task<bool> DoesTerritoryExistAsync(TerritoryRef territoryId, CancellationToken cancellationToken);
 }

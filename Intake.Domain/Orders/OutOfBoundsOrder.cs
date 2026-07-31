@@ -69,6 +69,27 @@ public class OutOfBoundsOrder : OrderBase
         return order;
     }
 
+
+    public static OutOfBoundsOrder CreateFrom(TransferredOrder transferredOrder)
+    {
+        var order = new OutOfBoundsOrder
+        {
+            Id = transferredOrder.Id,
+            CampaignId = transferredOrder.CampaignId,
+            Sender = transferredOrder.Sender,
+            Amount = transferredOrder.Amount,
+            OrderDate = transferredOrder.OrderDate,
+            Message = transferredOrder.Message,
+            TransactionId = transferredOrder.TransactionId,
+            StreetId = transferredOrder.StreetId,
+            HouseNumber = transferredOrder.HouseNumber
+        };
+
+        order.Raise(new Events.OrderTransferUndone(transferredOrder.Id, transferredOrder.CampaignId));
+
+        return order;
+    }
+
     public ValidatedOrder Accept(ValidationSuccess result)
     {
         return ValidatedOrder.CreateFrom(this, result.StreetId, result.StreetSectionId, result.NeighborhoodId, result.HouseNumber, result.Latitude, result.Longitude);
@@ -78,6 +99,12 @@ public class OutOfBoundsOrder : OrderBase
     {
         return UnwashedOrder.CreateFrom(this, errorMessage);
     }
+
+    public TransferredOrder Transfer(TerritoryRef territoryId)
+    {
+        return TransferredOrder.CreateFrom(this, territoryId);
+    }
+
 
     private OutOfBoundsOrder() { }
 }

@@ -19,6 +19,8 @@ using HouseNumber = Intake.Domain.Orders.ValueObjects.HouseNumber;
 using TreeTerritoryHouseNumber = TreeTerritory.Domain.StreetSections.ValueObjects.HouseNumber;
 using StreetSectionRef = Intake.Domain.ExternalReferences.StreetSectionRef;
 using TerritoryRef = Intake.Domain.ExternalReferences.TerritoryRef;
+using TreeTerritory.Domain.Territories;
+using TreeTerritory.Domain.StreetSections;
 
 namespace Intake.Application.Services;
 
@@ -205,4 +207,12 @@ public class AddressValidationService(
     
     private static TreeTerritoryHouseNumber ToTerritory(HouseNumber input) =>
         TreeTerritoryHouseNumber.Parse(input.ToString());
+
+    public async Task<bool> DoesTerritoryExistAsync(TerritoryRef territoryId, CancellationToken cancellationToken = default)
+    {
+        var territory = await territoryContext.GetRepository<Territory, TerritoryId>()
+            .TryFindAsync(TerritoryId.From(territoryId.Value), cancellationToken);
+
+        return territory != null;
+    }
 }

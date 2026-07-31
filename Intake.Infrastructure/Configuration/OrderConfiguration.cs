@@ -17,7 +17,8 @@ internal static class OrderConfiguration
             .HasValue<UnwashedOrder>("Unwashed")
             .HasValue<WashedOrder>("Washed")
             .HasValue<OutOfBoundsOrder>("OutOfBounds")
-            .HasValue<ValidatedOrder>("Validated");
+            .HasValue<ValidatedOrder>("Validated")
+            .HasValue<TransferredOrder>("Transferred");
 
         orderBase.Property(o => o.Id).HasConversion(new OrderIdValueConverter());
         orderBase.Property(o => o.CampaignId).HasConversion(new CampaignRefValueConverter());
@@ -45,6 +46,11 @@ internal static class OrderConfiguration
             .HasColumnName("StreetId")
             .HasConversion(new StreetRefValueConverter());
 
+        modelBuilder.Entity<TransferredOrder>()
+            .Property(o => o.StreetId)
+            .HasColumnName("StreetId")
+            .HasConversion(new StreetRefValueConverter()); 
+
         modelBuilder.Entity<WashedOrder>()
             .Property(o => o.StreetSectionId)
             .HasColumnName("StreetSectionId")
@@ -80,11 +86,21 @@ internal static class OrderConfiguration
             .HasColumnName("HouseNumber")
             .HasConversion(new HouseNumberValueConverter());
 
+        modelBuilder.Entity<TransferredOrder>()
+            .Property(o => o.HouseNumber)
+            .HasColumnName("HouseNumber")
+            .HasConversion(new HouseNumberValueConverter());
+
         modelBuilder.Entity<ValidatedOrder>()
             .Property(o => o.Longitude);
 
         modelBuilder.Entity<ValidatedOrder>()
             .Property(o => o.Latitude);
+
+        modelBuilder.Entity<TransferredOrder>()
+            .Property(o => o.TerritoryId)
+            .HasColumnName("TerritoryId")
+            .HasConversion(new TerritoryRefValueConverter()); 
 
         return modelBuilder;
     }

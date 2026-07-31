@@ -10,6 +10,8 @@ public static class OrderExtensions
 
         group.MapPost("/", CreateOrderEndpoint.Handle);
         group.MapPost("/{orderId:guid}/wash", WashOrderEndpoint.Handle);
+        group.MapPost("/{orderId:guid}/transfer", TransferOrderEndpoint.Handle);
+        group.MapDelete("/{orderId:guid}/transfer", UndoTransferOrderEndpoint.Handle);
         group.MapPost("/import", ImportPaymentsEndpoint.Handle).DisableAntiforgery();
 
         return app;
