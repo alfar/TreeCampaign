@@ -8,9 +8,9 @@ public class CampaignQueries(ProjectionContext context) : ICampaignQueries
 {
     public async Task<
         IReadOnlyCollection<ProjectionContext.CampaignProjection>
-    > GetCampaignsAsync(CancellationToken cancellationToken)
+    > GetCampaignsAsync(ScoutGroupRef scoutGroupId, CancellationToken cancellationToken)
     {
-        return await context.Campaigns.ToListAsync(cancellationToken);
+        return await context.Campaigns.Where(c => c.ScoutGroupId == scoutGroupId).ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<ProjectionContext.CampaignProjection>> GetAllByTerritoryIdAsync(TerritoryRef territoryId, CancellationToken cancellationToken)

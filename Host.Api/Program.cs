@@ -18,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 builder.Services.AddDomainEventServices();
+builder.Services.AddCurrentUserAccessor();
 builder.Services.AddAccess();
 builder.Services.AddTreeCampaign();
 builder.Services.AddTreeTerritory();

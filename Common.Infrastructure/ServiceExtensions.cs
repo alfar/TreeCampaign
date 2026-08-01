@@ -1,4 +1,5 @@
 using System.Threading.Channels;
+using Common.Infrastructure.Auth;
 using Common.Infrastructure.BackgroundWorkers;
 using Common.Infrastructure.BackgroundWorkers.Signals;
 using Common.Infrastructure.Services;
@@ -10,6 +11,14 @@ namespace Common.InfraStructure;
 
 public static class ServiceExtensions
 {
+    public static IServiceCollection AddCurrentUserAccessor(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserAccessor, CurrentUserAccessor>();
+
+        return services;
+    }
+
     public static IServiceCollection AddDomainEventServices(this IServiceCollection services)
     {
         var options = new BoundedChannelOptions(1)

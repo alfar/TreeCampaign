@@ -1,3 +1,4 @@
+using Common.Infrastructure.Auth;
 using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.ExternalReferences;
@@ -10,6 +11,7 @@ internal class UpdateCampaignEndpoint
     public record UpdateCampaignCommand(CampaignSeason Season, TerritoryRef TerritoryId);
 
     internal static async Task<IResult> Handle(
+        ICurrentUserAccessor currentUser,
         ITreeCampaignUnitOfWork unitOfWork,
         CampaignId campaignId,
         UpdateCampaignCommand command,
@@ -18,7 +20,7 @@ internal class UpdateCampaignEndpoint
     {
         var campaign = await unitOfWork.GetRepository<Campaign, CampaignId>().TryFindAsync(campaignId, cancellationToken);
 
-        if (campaign is null)
+        if (campaign is null || campaign.ScoutGroupId != currentUser.GetScoutGroupId())
         {
             return Results.NotFound();
         }

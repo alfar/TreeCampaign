@@ -4,6 +4,7 @@ using Access.Api.ScoutGroups;
 using Access.Api.Users;
 using Access.Domain.Users;
 using Access.Infrastructure;
+using Common.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 
@@ -37,7 +38,9 @@ public static class EndpointExtensions
                     return Task.CompletedTask;
                 };
             });
-        services.AddAuthorization();
+        services
+            .AddAuthorizationBuilder()
+            .AddPolicy(AuthPolicies.ScoutGroupMember, policy => policy.RequireClaim(AccessClaimTypes.ScoutGroupId));
 
         services.ConfigureHttpJsonOptions(options =>
         {

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Common.Infrastructure.Auth;
 
 namespace Access.Api.Auth;
 

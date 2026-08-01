@@ -78,6 +78,7 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
         public required CampaignId Id { get; init; }
         public required CampaignSeason Season { get; init; }
         public TerritoryRef? TerritoryId { get; init; }
+        public required ScoutGroupRef ScoutGroupId { get; init; }
     }
 
     public class TeamProjection
@@ -174,6 +175,10 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
             .Entity<CampaignProjection>()
             .Property(c => c.TerritoryId)
             .HasConversion(new NullableTerritoryRefValueConverter());
+        modelBuilder
+            .Entity<CampaignProjection>()
+            .Property(c => c.ScoutGroupId)
+            .HasConversion(new ScoutGroupRefValueConverter());
         modelBuilder.Entity<CampaignProjection>().ToTable("Campaigns");
 
         modelBuilder.Entity<TeamProjection>().HasKey(t => t.Id);

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Access.Domain.Users;
 using Access.Domain.Users.ValueObjects;
 using Access.Infrastructure.Queries;
+using Common.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
