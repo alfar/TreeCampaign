@@ -37,6 +37,9 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public IQueryable<OrderBase> GetUnvalidatedOrders() =>
         Orders.Where(o => !(o is ValidatedOrder));
 
+    public IQueryable<TransferredOrder> GetTransferredOrdersByTerritory(CampaignRef campaignId, TerritoryRef territoryId) =>
+        TransferredOrders.Where(o => o.CampaignId == campaignId && o.TerritoryId == territoryId);
+
     public async Task<OrderBase?> FindOrderByIdAsync(OrderId orderId, CancellationToken cancellationToken) =>
         await Orders.FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
 

@@ -70,6 +70,12 @@ export async function settleOrder(campaignId: string, orderId: string): Promise<
   });
 }
 
+export async function settleTerritoryOrders(campaignId: string, territoryId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/settle-by-territory/${territoryId}`, {
+    method: 'POST',
+  });
+}
+
 export async function getStreetsByZipCode(zipCode: string): Promise<Street[]> {
   const res = await fetch(`/api/streets/${zipCode}`);
   return res.json();

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCampaigns, getOrders, getTerritories } from "../../shared/api/client";
+import { getCampaigns, getOrders, getTerritories, settleTerritoryOrders } from "../../shared/api/client";
 import type { Order } from "../../shared/api/models/order";
 import type { Territory } from "../../shared/api/models/territory";
 import CreateOrderForm from "./CreateOrderForm";
 import CreateStreetSectionForm from "./CreateStreetSectionForm";
 import ImportPaymentsForm from "./ImportPaymentsForm";
 import OrderList from "./OrderList";
+import TerritoryGroupSection from "./TerritoryGroupSection";
 import TransferOrderForm from "./TransferOrderForm";
 import UndoTransferForm from "./UndoTransferForm";
 import WashOrderForm from "./WashOrderForm";
@@ -24,6 +25,8 @@ export default function IntakeScreen() {
   const [showImportForm, setShowImportForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"pending" | "transferred">("pending");
   const [oobAction, setOobAction] = useState<"section" | "transfer">("section");
+  const [bulkSettling, setBulkSettling] = useState<Record<string, boolean>>({});
+  const [bulkError, setBulkError] = useState<Record<string, string | undefined>>({});
 
   const loadOrders = () => {
     if (campaignId) {
@@ -122,6 +125,30 @@ export default function IntakeScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaignId]);
 
+  const transferredGroups = Object.values(
+    orders
+      .filter((o) => o.orderType === "Transferred" || o.orderType === "Settled")
+      .reduce<Record<string, Order[]>>((acc, o) => {
+        const key = o.territoryId ?? "unknown";
+        (acc[key] ??= []).push(o);
+        return acc;
+      }, {}),
+  )
+    .map((group) => ({
+      territoryId: group[0].territoryId,
+      orders: [...group].sort((a, b) =>
+        a.orderType === b.orderType ? 0 : a.orderType === "Transferred" ? -1 : 1,
+      ),
+      unsettledAmount: group
+        .filter((o) => o.orderType === "Transferred")
+        .reduce((sum, o) => sum + o.amount, 0),
+    }))
+    .sort((a, b) =>
+      (a.territoryId ? territoryNameById[a.territoryId] : undefined)?.localeCompare(
+        (b.territoryId ? territoryNameById[b.territoryId] : undefined) ?? "",
+      ) ?? 0,
+    );
+
   const selectedOrder = orders.find((o) => o.id === selectedOrderId) ?? null;
   const showSidePanel =
     showCreateForm ||
@@ -167,6 +194,25 @@ export default function IntakeScreen() {
 
   const handleSettled = () => {
     setSelectedOrderId(null);
+  };
+
+  const handleSettleTerritory = async (settleTerritoryId: string) => {
+    setBulkSettling((prev) => ({ ...prev, [settleTerritoryId]: true }));
+    setBulkError((prev) => ({ ...prev, [settleTerritoryId]: undefined }));
+    try {
+      const res = await settleTerritoryOrders(campaignId!, settleTerritoryId);
+      if (res.ok) {
+        const settled: { id: string }[] = await res.json();
+        const settledIds = new Set(settled.map((o) => o.id));
+        setOrders((prev) =>
+          prev.map((o) => (settledIds.has(o.id) ? { ...o, orderType: "Settled" } : o)),
+        );
+      } else {
+        setBulkError((prev) => ({ ...prev, [settleTerritoryId]: "Noget gik galt. Prøv igen." }));
+      }
+    } finally {
+      setBulkSettling((prev) => ({ ...prev, [settleTerritoryId]: false }));
+    }
   };
 
   const handleOrderCreated = () => {
@@ -220,23 +266,39 @@ export default function IntakeScreen() {
           className={`flex gap-6 items-start ${showSidePanel ? "flex-col md:flex-row" : ""}`}
         >
           <div className={showSidePanel ? "w-full md:w-1/2" : "w-full"}>
-            <OrderList
-              orders={
-                activeTab === "pending"
-                  ? orders.filter(
-                      (o) =>
-                        o.orderType === "Unwashed" ||
-                        o.orderType === "OutOfBounds" ||
-                        o.id === selectedOrderId,
-                    )
-                  : orders.filter(
-                      (o) => o.orderType === "Transferred" || o.orderType === "Settled",
-                    )
-              }
-              selectedOrderId={selectedOrderId ?? undefined}
-              onSelectOrder={handleSelectOrder}
-              territoryNameById={territoryNameById}
-            />
+            {activeTab === "pending" ? (
+              <OrderList
+                orders={orders.filter(
+                  (o) =>
+                    o.orderType === "Unwashed" ||
+                    o.orderType === "OutOfBounds" ||
+                    o.id === selectedOrderId,
+                )}
+                selectedOrderId={selectedOrderId ?? undefined}
+                onSelectOrder={handleSelectOrder}
+                territoryNameById={territoryNameById}
+              />
+            ) : transferredGroups.length === 0 ? (
+              <p className="text-sm text-gray-500">Ingen ordrer.</p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {transferredGroups.map((group) => (
+                  <TerritoryGroupSection
+                    key={group.territoryId ?? "unknown"}
+                    name={group.territoryId ? (territoryNameById[group.territoryId] ?? "Ukendt område") : "Ukendt område"}
+                    orders={group.orders}
+                    unsettledAmount={group.unsettledAmount}
+                    hasUnsettled={group.orders.some((o) => o.orderType === "Transferred")}
+                    isSettling={group.territoryId ? (bulkSettling[group.territoryId] ?? false) : false}
+                    error={group.territoryId ? bulkError[group.territoryId] : undefined}
+                    onSettleAll={() => group.territoryId && handleSettleTerritory(group.territoryId)}
+                    selectedOrderId={selectedOrderId ?? undefined}
+                    onSelectOrder={handleSelectOrder}
+                    territoryNameById={territoryNameById}
+                  />
+                ))}
+              </div>
+            )}
           </div>
           {showCreateForm && (
             <div className="w-full md:w-1/2 border rounded p-4 bg-white">
