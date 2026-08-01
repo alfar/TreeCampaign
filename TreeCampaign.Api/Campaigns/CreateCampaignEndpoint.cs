@@ -1,4 +1,5 @@
 using Common.Infrastructure.Auth;
+using TreeCampaign.Api.Helpers;
 using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.ExternalReferences;

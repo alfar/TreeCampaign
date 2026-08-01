@@ -5,7 +5,7 @@ import {
   deliverLoad,
   getCampaign,
   getStopsForTeam,
-  getTeams,
+  getTeam,
   markStopUnresolved,
   reportTrailerFull,
   retryStop,
@@ -30,9 +30,7 @@ export default function TeamStopsTab() {
   useEffect(() => {
     if (campaignId) {
       getStopsForTeam(campaignId, teamId).then(setStops);
-      getTeams(campaignId).then((teams) =>
-        setTeam(teams.find((t) => t.id === teamId) ?? null),
-      );
+      getTeam(campaignId, teamId).then(setTeam);
       getCampaign(campaignId).then(setCampaign);
     }
   }, [campaignId, teamId]);

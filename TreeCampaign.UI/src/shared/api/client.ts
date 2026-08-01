@@ -208,6 +208,11 @@ export async function getTeams(campaignId: string) : Promise<Team[]> {
   return res.json();
 }
 
+export async function getTeam(campaignId: string, teamId: string) : Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams/${teamId}`);
+  return res.json();
+}
+
 export async function createTeam(campaignId: string, name: string, kind: TeamKind, trailerSize?: TrailerSize): Promise<Team> {
   const res = await fetch(`/api/${campaignId}/teams`, {
     method: 'POST',

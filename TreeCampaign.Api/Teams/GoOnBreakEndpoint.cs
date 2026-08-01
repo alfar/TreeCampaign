@@ -1,3 +1,6 @@
+using Common.Infrastructure.Auth;
+using TreeCampaign.Api.Helpers;
+using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
@@ -9,10 +12,18 @@ internal class GoOnBreakEndpoint
     internal static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,
         CampaignId campaignId,
+        ICurrentUserAccessor currentUser,
         TeamId teamId,
         CancellationToken cancellationToken
     )
     {
+        var campaign = await unitOfWork.GetRepository<Campaign, CampaignId>().TryFindAsync(campaignId, cancellationToken);
+
+        if (campaign is null || campaign.ScoutGroupId != currentUser.GetScoutGroupId())
+        {
+            return Results.NotFound();
+        }
+
         var team = await unitOfWork.GetRepository<TeamBase, TeamId>().TryFindAsync(teamId, cancellationToken);
         if (team == null || team.CampaignId != campaignId)
             return TypedResults.NotFound();

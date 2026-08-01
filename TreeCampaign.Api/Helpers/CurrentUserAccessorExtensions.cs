@@ -1,7 +1,7 @@
 using Common.Infrastructure.Auth;
 using TreeCampaign.Domain.ExternalReferences;
 
-namespace TreeCampaign.Api.Campaigns;
+namespace TreeCampaign.Api.Helpers;
 
 internal static class CurrentUserAccessorExtensions
 {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import QRCode from "react-qr-code";
-import { addTeamMember, getTeams, removeTeamMember } from "../../shared/api/client";
+import { addTeamMember, getTeam, removeTeamMember } from "../../shared/api/client";
 import type { Team } from "../../shared/api/models/team";
 import UpdateTeamForm from "./UpdateTeamForm";
 import { AddMemberForm } from "./AddMemberForm";
@@ -12,10 +12,8 @@ export default function TeamInfoTab() {
   const [team, setTeam] = useState<Team | null>(null);
 
   useEffect(() => {
-    if (campaignId) {
-      getTeams(campaignId).then((teams) =>
-        setTeam(teams.find((t) => t.id === teamId) ?? null),
-      );
+    if (campaignId && teamId) {
+      getTeam(campaignId, teamId).then(setTeam);
     }
   }, [campaignId, teamId]);
 

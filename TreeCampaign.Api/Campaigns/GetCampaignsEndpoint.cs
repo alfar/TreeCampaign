@@ -1,4 +1,5 @@
 using Common.Infrastructure.Auth;
+using TreeCampaign.Api.Helpers;
 
 namespace TreeCampaign.Api.Campaigns;
 
