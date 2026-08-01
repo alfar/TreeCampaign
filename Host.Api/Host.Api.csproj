@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Access.Api\Access.Api.csproj" />
     <ProjectReference Include="..\Intake.Api\Intake.Api.csproj" />
     <ProjectReference Include="..\Intake.Application\Intake.Application.csproj" />
     <ProjectReference Include="..\TreeCampaign.Api\TreeCampaign.Api.csproj" />
