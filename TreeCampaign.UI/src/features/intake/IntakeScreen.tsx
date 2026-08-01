@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCampaigns, getOrders } from "../../shared/api/client";
+import { getCampaigns, getOrders, getTerritories } from "../../shared/api/client";
 import type { Order } from "../../shared/api/models/order";
+import type { Territory } from "../../shared/api/models/territory";
 import CreateOrderForm from "./CreateOrderForm";
 import CreateStreetSectionForm from "./CreateStreetSectionForm";
 import ImportPaymentsForm from "./ImportPaymentsForm";
 import OrderList from "./OrderList";
+import TransferOrderForm from "./TransferOrderForm";
+import UndoTransferForm from "./UndoTransferForm";
 import WashOrderForm from "./WashOrderForm";
 import NavigationPage from "../../shared/components/NavigationPage";
 
@@ -16,8 +19,11 @@ export default function IntakeScreen() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [territoryId, setTerritoryId] = useState<string | null>(null);
+  const [territories, setTerritories] = useState<Territory[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
+  const [activeTab, setActiveTab] = useState<"pending" | "transferred">("pending");
+  const [oobAction, setOobAction] = useState<"section" | "transfer">("section");
 
   const loadOrders = () => {
     if (campaignId) {
@@ -35,6 +41,15 @@ export default function IntakeScreen() {
       });
     }
   }, [campaignId]);
+
+  useEffect(() => {
+    getTerritories().then(setTerritories);
+  }, []);
+
+  const territoryNameById = territories.reduce<Record<string, string>>((acc, t) => {
+    acc[t.id] = t.name;
+    return acc;
+  }, {});
 
   useEffect(() => {
     if (!campaignId) return;
@@ -84,6 +99,17 @@ export default function IntakeScreen() {
           streetId: data.streetId as string,
           houseNumber: data.houseNumber as string,
         }),
+        OrderTransferred: patchOrderFunc(data.id as string, {
+          orderType: "Transferred",
+          territoryId: data.territoryId as string,
+        }),
+        OrderTransferUndone: patchOrderFunc(data.id as string, {
+          orderType: "OutOfBounds",
+          territoryId: undefined,
+        }),
+        OrderSettled: patchOrderFunc(data.id as string, {
+          orderType: "Settled",
+        }),
       };
 
       const action = actionByEvent[type];
@@ -101,11 +127,13 @@ export default function IntakeScreen() {
     showCreateForm ||
     showImportForm ||
     selectedOrder?.orderType === "Unwashed" ||
-    selectedOrder?.orderType === "OutOfBounds";
+    selectedOrder?.orderType === "OutOfBounds" ||
+    selectedOrder?.orderType === "Transferred";
 
   const handleSelectOrder = (orderId: string) => {
     setShowCreateForm(false);
     setShowImportForm(false);
+    setOobAction("section");
     setSelectedOrderId((prev) => (prev === orderId ? null : orderId));
   };
 
@@ -129,8 +157,27 @@ export default function IntakeScreen() {
     setSelectedOrderId(null);
   };
 
+  const handleTransferred = () => {
+    setSelectedOrderId(null);
+  };
+
+  const handleUndone = () => {
+    setSelectedOrderId(null);
+  };
+
+  const handleSettled = () => {
+    setSelectedOrderId(null);
+  };
+
   const handleOrderCreated = () => {
     setShowCreateForm(false);
+  };
+
+  const handleSelectTab = (tab: "pending" | "transferred") => {
+    setSelectedOrderId(null);
+    setShowCreateForm(false);
+    setShowImportForm(false);
+    setActiveTab(tab);
   };
 
   return (
@@ -155,19 +202,40 @@ export default function IntakeScreen() {
             </button>
           </div>
         </div>
+        <div className="flex gap-2 mb-4 border-b">
+          <button
+            onClick={() => handleSelectTab("pending")}
+            className={`text-sm py-2 px-4 border-b-2 -mb-px ${activeTab === "pending" ? "border-blue-600 text-blue-600 font-medium" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          >
+            Til behandling
+          </button>
+          <button
+            onClick={() => handleSelectTab("transferred")}
+            className={`text-sm py-2 px-4 border-b-2 -mb-px ${activeTab === "transferred" ? "border-blue-600 text-blue-600 font-medium" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          >
+            Overførte
+          </button>
+        </div>
         <div
           className={`flex gap-6 items-start ${showSidePanel ? "flex-col md:flex-row" : ""}`}
         >
           <div className={showSidePanel ? "w-full md:w-1/2" : "w-full"}>
             <OrderList
-              orders={orders.filter(
-                (o) =>
-                  o.orderType === "Unwashed" ||
-                  o.orderType === "OutOfBounds" ||
-                  o.id === selectedOrderId,
-              )}
+              orders={
+                activeTab === "pending"
+                  ? orders.filter(
+                      (o) =>
+                        o.orderType === "Unwashed" ||
+                        o.orderType === "OutOfBounds" ||
+                        o.id === selectedOrderId,
+                    )
+                  : orders.filter(
+                      (o) => o.orderType === "Transferred" || o.orderType === "Settled",
+                    )
+              }
               selectedOrderId={selectedOrderId ?? undefined}
               onSelectOrder={handleSelectOrder}
+              territoryNameById={territoryNameById}
             />
           </div>
           {showCreateForm && (
@@ -203,13 +271,53 @@ export default function IntakeScreen() {
             territoryId &&
             selectedOrder.streetId && (
               <div className="w-full md:w-1/2 border rounded p-4 bg-white">
-                <h2 className="text-base font-semibold mb-4">
-                  Opret vejstrækning
-                </h2>
-                <CreateStreetSectionForm
-                  order={{ ...selectedOrder, streetId: selectedOrder.streetId }}
-                  territoryId={territoryId}
-                  onSectionCreated={handleSectionCreated}
+                <div className="flex gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setOobAction("section")}
+                    className={`text-sm py-1.5 px-3 rounded border ${oobAction === "section" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-gray-50"}`}
+                  >
+                    Opret vejstrækning
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOobAction("transfer")}
+                    className={`text-sm py-1.5 px-3 rounded border ${oobAction === "transfer" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-gray-50"}`}
+                  >
+                    Overfør til andet område
+                  </button>
+                </div>
+                {oobAction === "section" ? (
+                  <CreateStreetSectionForm
+                    order={{ ...selectedOrder, streetId: selectedOrder.streetId }}
+                    territoryId={territoryId}
+                    onSectionCreated={handleSectionCreated}
+                  />
+                ) : (
+                  <TransferOrderForm
+                    order={selectedOrder}
+                    campaignId={campaignId!}
+                    currentTerritoryId={territoryId}
+                    onTransferred={handleTransferred}
+                  />
+                )}
+              </div>
+            )}
+          {!showCreateForm &&
+            !showImportForm &&
+            selectedOrder?.orderType === "Transferred" && (
+              <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+                <h2 className="text-base font-semibold mb-4">Overført bestilling</h2>
+                <UndoTransferForm
+                  order={selectedOrder}
+                  campaignId={campaignId!}
+                  territoryName={
+                    selectedOrder.territoryId
+                      ? territoryNameById[selectedOrder.territoryId]
+                      : undefined
+                  }
+                  onUndone={handleUndone}
+                  onSettled={handleSettled}
                 />
               </div>
             )}

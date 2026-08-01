@@ -18,7 +18,8 @@ internal static class OrderConfiguration
             .HasValue<WashedOrder>("Washed")
             .HasValue<OutOfBoundsOrder>("OutOfBounds")
             .HasValue<ValidatedOrder>("Validated")
-            .HasValue<TransferredOrder>("Transferred");
+            .HasValue<TransferredOrder>("Transferred")
+            .HasValue<SettledOrder>("Settled");
 
         orderBase.Property(o => o.Id).HasConversion(new OrderIdValueConverter());
         orderBase.Property(o => o.CampaignId).HasConversion(new CampaignRefValueConverter());
@@ -49,7 +50,12 @@ internal static class OrderConfiguration
         modelBuilder.Entity<TransferredOrder>()
             .Property(o => o.StreetId)
             .HasColumnName("StreetId")
-            .HasConversion(new StreetRefValueConverter()); 
+            .HasConversion(new StreetRefValueConverter());
+
+        modelBuilder.Entity<SettledOrder>()
+            .Property(o => o.StreetId)
+            .HasColumnName("StreetId")
+            .HasConversion(new StreetRefValueConverter());
 
         modelBuilder.Entity<WashedOrder>()
             .Property(o => o.StreetSectionId)
@@ -91,6 +97,11 @@ internal static class OrderConfiguration
             .HasColumnName("HouseNumber")
             .HasConversion(new HouseNumberValueConverter());
 
+        modelBuilder.Entity<SettledOrder>()
+            .Property(o => o.HouseNumber)
+            .HasColumnName("HouseNumber")
+            .HasConversion(new HouseNumberValueConverter());
+
         modelBuilder.Entity<ValidatedOrder>()
             .Property(o => o.Longitude);
 
@@ -100,7 +111,12 @@ internal static class OrderConfiguration
         modelBuilder.Entity<TransferredOrder>()
             .Property(o => o.TerritoryId)
             .HasColumnName("TerritoryId")
-            .HasConversion(new TerritoryRefValueConverter()); 
+            .HasConversion(new TerritoryRefValueConverter());
+
+        modelBuilder.Entity<SettledOrder>()
+            .Property(o => o.TerritoryId)
+            .HasColumnName("TerritoryId")
+            .HasConversion(new TerritoryRefValueConverter());
 
         return modelBuilder;
     }

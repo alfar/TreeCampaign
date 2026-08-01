@@ -40,4 +40,8 @@ public class TransferredOrder : OrderBase
         return OutOfBoundsOrder.CreateFrom(this);
     }
 
+    public SettledOrder MarkAsPaid()
+    {
+        return SettledOrder.CreateFrom(this);
+    }
 }

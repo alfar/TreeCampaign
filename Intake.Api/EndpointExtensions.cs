@@ -20,6 +20,7 @@ public static class EndpointExtensions
         {
             options.SerializerOptions.Converters.Add(new CampaignRefJsonConverter());
             options.SerializerOptions.Converters.Add(new NeighborhoodRefJsonConverter());
+            options.SerializerOptions.Converters.Add(new TerritoryRefJsonConverter());
             options.SerializerOptions.Converters.Add(new StreetSectionRefJsonConverter());
             options.SerializerOptions.Converters.Add(new StreetRefJsonConverter());
             options.SerializerOptions.Converters.Add(new OrderIdJsonConverter());
@@ -31,6 +32,7 @@ public static class EndpointExtensions
         {
             options.SerializerOptions.Converters.Add(new CampaignRefJsonConverter());
             options.SerializerOptions.Converters.Add(new NeighborhoodRefJsonConverter());
+            options.SerializerOptions.Converters.Add(new TerritoryRefJsonConverter());
             options.SerializerOptions.Converters.Add(new StreetSectionRefJsonConverter());
             options.SerializerOptions.Converters.Add(new StreetRefJsonConverter());
             options.SerializerOptions.Converters.Add(new OrderIdJsonConverter());

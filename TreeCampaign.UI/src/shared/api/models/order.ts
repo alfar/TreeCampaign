@@ -1,4 +1,4 @@
-export type OrderType = 'Incoming' | 'Unwashed' | 'Washed' | 'Validated' | 'OutOfBounds';
+export type OrderType = 'Incoming' | 'Unwashed' | 'Washed' | 'Validated' | 'OutOfBounds' | 'Transferred' | 'Settled';
 
 export interface Order {
   id: string;
@@ -15,4 +15,5 @@ export interface Order {
   streetId?: string;
   houseNumber?: string;
   errorMessage?: string;
+  territoryId?: string;
 }

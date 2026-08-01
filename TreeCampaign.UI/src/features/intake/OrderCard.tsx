@@ -1,9 +1,11 @@
 import type { Order, OrderType } from "../../shared/api/models/order";
 import {
+  BanknotesIcon,
   CheckCircleIcon,
   ClockIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
+  PaperAirplaneIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 
@@ -11,6 +13,7 @@ interface OrderCardProps {
   order: Order;
   selected?: boolean;
   onClick?: () => void;
+  territoryName?: string;
 }
 
 const STATE_CONFIG: Record<
@@ -42,6 +45,16 @@ const STATE_CONFIG: Record<
     icon: <ExclamationCircleIcon className="w-5 h-5 text-red-500" />,
     borderColor: "border-red-400",
   },
+  Transferred: {
+    label: "Overført",
+    icon: <PaperAirplaneIcon className="w-5 h-5 text-purple-500" />,
+    borderColor: "border-purple-400",
+  },
+  Settled: {
+    label: "Afregnet",
+    icon: <BanknotesIcon className="w-5 h-5 text-green-600" />,
+    borderColor: "border-green-500",
+  },
 };
 
 function formatDate(iso: string): string {
@@ -52,7 +65,7 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function OrderCard({ order, selected, onClick }: OrderCardProps) {
+export default function OrderCard({ order, selected, onClick, territoryName }: OrderCardProps) {
   const state = STATE_CONFIG[order.orderType];
   const treeCount = Math.round(order.amount / 40);
 
@@ -79,6 +92,12 @@ export default function OrderCard({ order, selected, onClick }: OrderCardProps) 
       {order.address && (
         <p className="mt-2 text-sm font-medium text-gray-800">
           {order.address.displayName} {order.address.houseNumber}
+        </p>
+      )}
+
+      {(order.orderType === "Transferred" || order.orderType === "Settled") && (
+        <p className={`mt-2 text-sm font-medium ${order.orderType === "Settled" ? "text-green-700" : "text-purple-700"}`}>
+          Overført til: {territoryName ?? "ukendt område"}
         </p>
       )}
 

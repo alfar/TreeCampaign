@@ -46,6 +46,30 @@ export async function washOrder(
   });
 }
 
+export async function transferOrder(
+  campaignId: string,
+  orderId: string,
+  territoryId: string
+): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/transfer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ territoryId }),
+  });
+}
+
+export async function undoTransferOrder(campaignId: string, orderId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/transfer`, {
+    method: 'DELETE',
+  });
+}
+
+export async function settleOrder(campaignId: string, orderId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/settle`, {
+    method: 'POST',
+  });
+}
+
 export async function getStreetsByZipCode(zipCode: string): Promise<Street[]> {
   const res = await fetch(`/api/streets/${zipCode}`);
   return res.json();

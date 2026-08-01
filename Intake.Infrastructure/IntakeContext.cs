@@ -19,7 +19,8 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
       IRepository<WashedOrder, OrderId>,
       IRepository<OutOfBoundsOrder, OrderId>,
       IRepository<ValidatedOrder, OrderId>,
-      IRepository<TransferredOrder, OrderId>
+      IRepository<TransferredOrder, OrderId>,
+      IRepository<SettledOrder, OrderId>
 {
     internal DbSet<OrderBase> Orders { get; set; }
     public DbSet<IncomingOrder> IncomingOrders { get; set; }
@@ -28,6 +29,7 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public DbSet<OutOfBoundsOrder> OutOfBoundsOrders { get; set; }
     public DbSet<ValidatedOrder> ValidatedOrders { get; set; }
     public DbSet<TransferredOrder> TransferredOrders { get; set; }
+    public DbSet<SettledOrder> SettledOrders { get; set; }
 
     public IQueryable<OrderBase> GetUnvalidatedOrdersByCampaign(CampaignRef campaignId) =>
         Orders.Where(o => !(o is ValidatedOrder) && o.CampaignId == campaignId);
@@ -89,6 +91,13 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public void Add(TransferredOrder aggregate) => TransferredOrders.Add(aggregate);
 
     public void Delete(TransferredOrder aggregate) => TransferredOrders.Remove(aggregate);
+
+    async Task<SettledOrder?> IRepository<SettledOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken cancellationToken) =>
+        await SettledOrders.FirstOrDefaultAsync(o => o.Id == key, cancellationToken);
+
+    public void Add(SettledOrder aggregate) => SettledOrders.Add(aggregate);
+
+    public void Delete(SettledOrder aggregate) => SettledOrders.Remove(aggregate);
 }
 
 public class IntakeContextFactory : IDesignTimeDbContextFactory<IntakeContext>

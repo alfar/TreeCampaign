@@ -30,4 +30,7 @@ public class OrderProjection
 
     // UnwashedOrder
     public string? ErrorMessage { get; init; }
+
+    // TransferredOrder
+    public TerritoryRef? TerritoryId { get; init; }
 }

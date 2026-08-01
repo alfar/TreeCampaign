@@ -5,9 +5,10 @@ interface OrderListProps {
   orders: Order[];
   selectedOrderId?: string;
   onSelectOrder?: (orderId: string) => void;
+  territoryNameById?: Record<string, string>;
 }
 
-export default function OrderList({ orders, selectedOrderId, onSelectOrder }: OrderListProps) {
+export default function OrderList({ orders, selectedOrderId, onSelectOrder, territoryNameById }: OrderListProps) {
   if (orders.length === 0) {
     return <p className="text-sm text-gray-500">Ingen ordrer.</p>;
   }
@@ -20,6 +21,7 @@ export default function OrderList({ orders, selectedOrderId, onSelectOrder }: Or
           order={order}
           selected={order.id === selectedOrderId}
           onClick={onSelectOrder ? () => onSelectOrder(order.id) : undefined}
+          territoryName={order.territoryId ? territoryNameById?.[order.territoryId] : undefined}
         />
       ))}
     </div>
