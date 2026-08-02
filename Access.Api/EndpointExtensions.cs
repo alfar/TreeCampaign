@@ -16,7 +16,7 @@ public static class EndpointExtensions
     {
         app.MapAuthEndpoints();
         app.MapScoutGroupEndpoints();
-        app.MapGroup("/scoutgroups/{scoutGroupId:guid}").MapUserEndpoints();
+        app.MapUserEndpoints();
 
         return app;
     }

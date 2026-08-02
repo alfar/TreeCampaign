@@ -50,6 +50,14 @@ export default function NavigationPage({ children }: PropsWithChildren) {
             >
               Territorier
             </Link>
+            {user && (
+              <Link
+                className="text-white hover:text-blue-200 whitespace-nowrap"
+                to="/users"
+              >
+                Brugere
+              </Link>
+            )}
             {campaignId && (
               <Link
                 className="text-white hover:text-blue-200 whitespace-nowrap"

@@ -6,7 +6,7 @@ import type { Street } from "./models/street";
 import type { Stop } from "./models/stop";
 import type { Team, TeamKind, TrailerSize } from "./models/team";
 import type { Territory } from "./models/territory";
-import type { CurrentUser } from "./models/user";
+import type { CurrentUser, User } from "./models/user";
 
 export async function login(email: string, password: string): Promise<Response> {
   return fetch('/api/auth/login', {
@@ -37,6 +37,23 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const res = await fetch('/api/auth/me');
   if (!res.ok) return null;
   return res.json();
+}
+
+export async function getUsers(): Promise<User[]> {
+  const res = await fetch('/api/users');
+  return res.json();
+}
+
+export async function createUser(
+  email: string,
+  displayName: string,
+  password: string
+): Promise<Response> {
+  return fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, displayName, password }),
+  });
 }
 
 export async function getOrders(campaignId: string): Promise<Order[]> {

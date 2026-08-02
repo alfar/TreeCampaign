@@ -1,7 +1,9 @@
-using Access.Domain.ScoutGroups.ValueObjects;
+using Access.Api.Helpers;
+using Access.Api.Users.Dto;
 using Access.Domain.Users;
 using Access.Domain.Users.ValueObjects;
 using Access.Infrastructure;
+using Common.Infrastructure.Auth;
 using Microsoft.AspNetCore.Identity;
 
 namespace Access.Api.Users;
@@ -11,7 +13,7 @@ internal class RegisterUserEndpoint
     public record RegisterUserRequest(string Email, string DisplayName, string Password);
 
     internal static async Task<IResult> Handle(
-        ScoutGroupId scoutGroupId,
+        ICurrentUserAccessor userAccessor,
         RegisterUserRequest request,
         IAccessUnitOfWork unitOfWork,
         IPasswordHasher<User> passwordHasher,
@@ -23,11 +25,11 @@ internal class RegisterUserEndpoint
         var email = Email.Create(request.Email);
         var passwordHash = passwordHasher.HashPassword(null!, request.Password);
 
-        var user = User.Register(scoutGroupId, email, request.DisplayName, passwordHash);
+        var user = User.Register(userAccessor.GetScoutGroupId(), email, request.DisplayName, passwordHash);
 
         userRepository.Add(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Results.Ok(user);
+        return Results.Ok(UserDto.From(user));
     }
 }

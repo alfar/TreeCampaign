@@ -5,3 +5,9 @@ export interface CurrentUser {
   scoutGroupId: string;
   isPlatformAdmin: boolean;
 }
+
+export interface User {
+  id: string;
+  email: string;
+  displayName: string;
+}
