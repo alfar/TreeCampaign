@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/AuthContext";
 
 export default function LoginScreen() {
@@ -72,6 +72,9 @@ export default function LoginScreen() {
         >
           {isSubmitting ? "Logger ind…" : "Log ind"}
         </button>
+        <Link to="/register" className="text-sm text-blue-600 text-center hover:underline">
+          Opret en ny gruppe
+        </Link>
       </form>
     </div>
   );

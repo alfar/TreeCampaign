@@ -10,12 +10,17 @@ import IntakeScreen from "../features/intake/IntakeScreen";
 import TerritoriesScreen from "../features/territories/TerritoriesScreen";
 import TerritoryScreen from "../features/territories/TerritoryScreen";
 import LoginScreen from "../features/auth/LoginScreen";
+import RegisterScreen from "../features/auth/RegisterScreen";
 import RequireAuth from "./RequireAuth";
 
 export const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginScreen />
+  },
+  {
+    path: "/register",
+    element: <RegisterScreen />
   },
   {
     path: "/campaigns/:campaignId/teams/:teamId",

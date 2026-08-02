@@ -16,6 +16,19 @@ export async function login(email: string, password: string): Promise<Response> 
   });
 }
 
+export async function registerScoutGroup(
+  name: string,
+  ownerEmail: string,
+  ownerDisplayName: string,
+  ownerPassword: string
+): Promise<Response> {
+  return fetch('/api/scoutgroups', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, ownerEmail, ownerDisplayName, ownerPassword }),
+  });
+}
+
 export async function logout(): Promise<Response> {
   return fetch('/api/auth/logout', { method: 'POST' });
 }
