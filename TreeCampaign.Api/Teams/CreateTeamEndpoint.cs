@@ -1,6 +1,5 @@
 using Common.Infrastructure.Auth;
 using TreeCampaign.Api.Helpers;
-using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.ExternalReferences;
 using TreeCampaign.Domain.Teams;
@@ -20,9 +19,7 @@ internal class CreateTeamEndpoint
         CancellationToken cancellationToken
     )
     {
-        var campaign = await unitOfWork.GetRepository<Campaign, CampaignId>().TryFindAsync(campaignId, cancellationToken);
-
-        if (campaign is null || campaign.ScoutGroupId != currentUser.GetScoutGroupId())
+        if (!await unitOfWork.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
         {
             return Results.NotFound();
         }

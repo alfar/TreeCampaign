@@ -1,3 +1,5 @@
+using Common.Infrastructure.Auth;
+using TreeCampaign.Api.Helpers;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.Queries;
@@ -9,13 +11,22 @@ public class GetStopsEndpoint
     public static async Task<IResult> Handle(
         CampaignId campaignId,
         TeamId? teamId,
-        IStopQueries stopQueries
+        ICurrentUserAccessor currentUser,
+        ICampaignQueries campaignQueries,
+        IStopQueries stopQueries,
+        CancellationToken cancellationToken
     )
     {
-        var stops =
-            teamId == null
-                ? await stopQueries.GetStopsAsync(campaignId)
-                : await stopQueries.GetStopsByTeamIdAsync(campaignId, teamId);
-        return TypedResults.Ok(stops);
+        if (teamId is null)
+        {
+            if (!await campaignQueries.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+            {
+                return TypedResults.NotFound();
+            }
+
+            return TypedResults.Ok(await stopQueries.GetStopsAsync(campaignId));
+        }
+
+        return TypedResults.Ok(await stopQueries.GetStopsByTeamIdAsync(campaignId, teamId));
     }
 }

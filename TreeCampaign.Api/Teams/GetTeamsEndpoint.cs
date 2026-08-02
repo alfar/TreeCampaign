@@ -12,9 +12,7 @@ internal class GetTeamsEndpoint
         CancellationToken cancellationToken
     )
     {
-        var campaign = await campaignQueries.GetByIdAsync(campaignId, cancellationToken);
-
-        if (campaign is null || campaign.ScoutGroupId != currentUser.GetScoutGroupId())
+        if (!await campaignQueries.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
         {
             return Results.NotFound();
         }

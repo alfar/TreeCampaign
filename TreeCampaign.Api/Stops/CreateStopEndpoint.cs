@@ -1,3 +1,5 @@
+using Common.Infrastructure.Auth;
+using TreeCampaign.Api.Helpers;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Stops.ValueObjects;
@@ -11,11 +13,17 @@ public class CreateStopEndpoint
 
     public static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,
+        ICurrentUserAccessor currentUser,
         CampaignId campaignId,
         CreateStopCommand command,
         CancellationToken cancellationToken
     )
     {
+        if (!await unitOfWork.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        {
+            return TypedResults.NotFound();
+        }
+
         var stop = UnassignedStop.Create(campaignId, command.Address, command.Amount);
 
         unitOfWork.GetRepository<UnassignedStop, StopId>().Add(stop);

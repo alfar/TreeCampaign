@@ -1,3 +1,5 @@
+using Common.Infrastructure.Auth;
+using TreeCampaign.Api.Helpers;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Stops.ValueObjects;
@@ -9,11 +11,17 @@ public class UnassignStopEndpoint
 {
     public static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,
+        ICurrentUserAccessor currentUser,
         CampaignId campaignId,
         StopId stopId,
         CancellationToken cancellationToken
     )
     {
+        if (!await unitOfWork.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        {
+            return TypedResults.NotFound();
+        }
+
         var stop = await unitOfWork.GetRepository<AssignedStop, StopId>().TryFindAsync(stopId, cancellationToken);
 
         if (stop == null || stop.CampaignId != campaignId)
