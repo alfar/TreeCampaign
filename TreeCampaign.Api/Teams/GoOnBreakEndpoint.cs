@@ -10,13 +10,14 @@ internal class GoOnBreakEndpoint
 {
     internal static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,
+        ICampaignQueries campaignQueries,
         CampaignId campaignId,
         ICurrentUserAccessor currentUser,
         TeamId teamId,
         CancellationToken cancellationToken
     )
     {
-        if (!await unitOfWork.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        if (!await campaignQueries.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
         {
             return Results.NotFound();
         }

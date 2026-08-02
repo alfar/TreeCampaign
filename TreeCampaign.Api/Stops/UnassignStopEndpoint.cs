@@ -10,6 +10,7 @@ namespace TreeCampaign.Api.Stops;
 public class UnassignStopEndpoint
 {
     public static async Task<IResult> Handle(
+        ICampaignQueries campaignQueries,
         ITreeCampaignUnitOfWork unitOfWork,
         ICurrentUserAccessor currentUser,
         CampaignId campaignId,
@@ -17,7 +18,7 @@ public class UnassignStopEndpoint
         CancellationToken cancellationToken
     )
     {
-        if (!await unitOfWork.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        if (!await campaignQueries.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
         {
             return TypedResults.NotFound();
         }

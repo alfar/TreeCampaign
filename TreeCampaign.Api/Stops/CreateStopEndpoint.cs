@@ -12,6 +12,7 @@ public class CreateStopEndpoint
     public record CreateStopCommand(Address Address, TreeCount Amount);
 
     public static async Task<IResult> Handle(
+        ICampaignQueries campaignQueries,
         ITreeCampaignUnitOfWork unitOfWork,
         ICurrentUserAccessor currentUser,
         CampaignId campaignId,
@@ -19,7 +20,7 @@ public class CreateStopEndpoint
         CancellationToken cancellationToken
     )
     {
-        if (!await unitOfWork.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        if (!await campaignQueries.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
         {
             return TypedResults.NotFound();
         }

@@ -15,6 +15,7 @@ public class AssignStopEndpoint
 
     public static async Task<IResult> Handle(
         ITreeCampaignUnitOfWork unitOfWork,
+        ICampaignQueries campaignQueries,
         ICurrentUserAccessor currentUser,
         CampaignId campaignId,
         StopId stopId,
@@ -22,7 +23,7 @@ public class AssignStopEndpoint
         CancellationToken cancellationToken
     )
     {
-        if (!await unitOfWork.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        if (!await campaignQueries.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
         {
             return TypedResults.NotFound();
         }

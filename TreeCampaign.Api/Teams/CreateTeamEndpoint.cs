@@ -1,7 +1,6 @@
 using Common.Infrastructure.Auth;
 using TreeCampaign.Api.Helpers;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
-using TreeCampaign.Domain.ExternalReferences;
 using TreeCampaign.Domain.Teams;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure;
@@ -12,14 +11,15 @@ internal class CreateTeamEndpoint
     public record CreateTeamCommand(TeamName Name, TeamKind Kind, TrailerSize? TrailerSize);
 
     internal static async Task<IResult> Handle(
-        ICurrentUserAccessor currentUser,
+        ICampaignQueries campaignQueries,
         ITreeCampaignUnitOfWork unitOfWork,
+        ICurrentUserAccessor currentUser,
         CampaignId campaignId,
         CreateTeamCommand command,
         CancellationToken cancellationToken
     )
     {
-        if (!await unitOfWork.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        if (!await campaignQueries.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
         {
             return Results.NotFound();
         }
