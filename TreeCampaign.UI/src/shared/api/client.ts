@@ -6,6 +6,25 @@ import type { Street } from "./models/street";
 import type { Stop } from "./models/stop";
 import type { Team, TeamKind, TrailerSize } from "./models/team";
 import type { Territory } from "./models/territory";
+import type { CurrentUser } from "./models/user";
+
+export async function login(email: string, password: string): Promise<Response> {
+  return fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function logout(): Promise<Response> {
+  return fetch('/api/auth/logout', { method: 'POST' });
+}
+
+export async function getCurrentUser(): Promise<CurrentUser | null> {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) return null;
+  return res.json();
+}
 
 export async function getOrders(campaignId: string): Promise<Order[]> {
   const res = await fetch(`/api/campaigns/${campaignId}/orders`);

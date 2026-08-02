@@ -9,11 +9,13 @@ import CampaignListScreen from "../features/campaigns/CampaignListScreen";
 import IntakeScreen from "../features/intake/IntakeScreen";
 import TerritoriesScreen from "../features/territories/TerritoriesScreen";
 import TerritoryScreen from "../features/territories/TerritoryScreen";
+import LoginScreen from "../features/auth/LoginScreen";
+import RequireAuth from "./RequireAuth";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <CampaignListScreen />
+    path: "/login",
+    element: <LoginScreen />
   },
   {
     path: "/campaigns/:campaignId/teams/:teamId",
@@ -26,23 +28,32 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/campaigns/:campaignId/dispatch",
-    element: <DispatchScreen />
-  },
-  {
-    path: "/campaigns/:campaignId/overview-map",
-    element: <OverviewMapScreen />
-  },
-  {
-    path: "/campaigns/:campaignId/intake",
-    element: <IntakeScreen />
-  },
-  {
-    path: "/territories",
-    element: <TerritoriesScreen />
-  },
-  {
-    path: "/territories/:id",
-    element: <TerritoryScreen />
+    element: <RequireAuth />,
+    children: [
+      {
+        path: "/",
+        element: <CampaignListScreen />
+      },
+      {
+        path: "/campaigns/:campaignId/dispatch",
+        element: <DispatchScreen />
+      },
+      {
+        path: "/campaigns/:campaignId/overview-map",
+        element: <OverviewMapScreen />
+      },
+      {
+        path: "/campaigns/:campaignId/intake",
+        element: <IntakeScreen />
+      },
+      {
+        path: "/territories",
+        element: <TerritoriesScreen />
+      },
+      {
+        path: "/territories/:id",
+        element: <TerritoryScreen />
+      }
+    ]
   }
 ]);
