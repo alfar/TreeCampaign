@@ -32,6 +32,7 @@ public static class EndpointExtensions
             options.SerializerOptions.Converters.Add(new ZipCodeJsonConverter());
             options.SerializerOptions.Converters.Add(new TerritoryIdJsonConverter());
             options.SerializerOptions.Converters.Add(new HouseNumberJsonConverter());
+            options.SerializerOptions.Converters.Add(new ScoutGroupRefJsonConverter());
         });
 
         return services;

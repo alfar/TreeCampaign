@@ -46,6 +46,7 @@ public static class EndpointExtensions
         {
             options.SerializerOptions.Converters.Add(new ScoutGroupIdJsonConverter());
             options.SerializerOptions.Converters.Add(new UserIdJsonConverter());
+            options.SerializerOptions.Converters.Add(new EmailJsonConverter());
         });
 
         return services;

@@ -1,3 +1,5 @@
+using Common.Infrastructure.Auth;
+using TreeTerritory.Api.Helpers;
 using TreeTerritory.Domain.Streets.ValueObjects;
 using TreeTerritory.Domain.Territories;
 using TreeTerritory.Domain.Territories.ValueObjects;
@@ -10,6 +12,7 @@ internal class CreateTerritoryEndpoint
     public record CreateTerritoryRequest(string Name, ZipCode DefaultZipCode);
 
     internal static async Task<IResult> Handle(
+        ICurrentUserAccessor currentUser,
         CreateTerritoryRequest request,
         ITreeTerritoryUnitOfWork unitOfWork,
         CancellationToken cancellationToken
@@ -17,7 +20,7 @@ internal class CreateTerritoryEndpoint
     {
         var territoryRepository = unitOfWork.GetRepository<Territory, TerritoryId>();
 
-        var territory = Territory.Create(request.Name, request.DefaultZipCode);
+        var territory = Territory.Create(request.Name, currentUser.GetScoutGroupId(), request.DefaultZipCode);
 
         territoryRepository.Add(territory);
         await unitOfWork.SaveChangesAsync(cancellationToken);

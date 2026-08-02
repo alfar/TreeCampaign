@@ -1,10 +1,12 @@
+using Common.Infrastructure.Auth;
+
 namespace TreeTerritory.Api.Neighborhoods;
 
 public static class NeighborhoodExtensions
 {
     public static IEndpointRouteBuilder MapNeighborhoodEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/neighborhoods").WithTags("Neighborhoods");
+        var group = app.MapGroup("/neighborhoods").WithTags("Neighborhoods").RequireAuthorization(AuthPolicies.ScoutGroupMember);
 
         group.MapGet("/", GetNeighborhoodsEndpoint.Handle);
 

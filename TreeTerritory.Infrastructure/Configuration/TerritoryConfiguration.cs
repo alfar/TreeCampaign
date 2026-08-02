@@ -21,6 +21,7 @@ internal static class TerritoryConfiguration
         builder.Property(c => c.Id).HasConversion(new TerritoryIdValueConverter());
         builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
         builder.Property(c => c.DefaultZipCode).HasConversion(new NullableZipCodeValueConverter()).HasColumnName("DefaultZipCode");
+        builder.Property(c => c.ScoutGroupId).HasConversion(new ScoutGroupRefValueConverter()).HasColumnName("ScoutGroupId");
         builder.HasMany<Neighborhood>().WithOne().HasForeignKey(s => s.TerritoryId);
     }
 }
