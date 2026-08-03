@@ -32,12 +32,12 @@ export default function TerritoriesScreen() {
         </div>
         {showForm && <CreateTerritoryForm onCreated={handleCreated} />}
         {territories.map((t) => (
-          <div key={t.id} className="p-4 border rounded">
+          <Link to={`/territories/${t.id}`} key={t.id} className="flex flex-col p-4 border rounded">
             <h2 className="text-lg font-semibold">
-              <Link to={`/territories/${t.id}`}>{t.name}</Link>
+              {t.name}
             </h2>
             <p className="text-sm text-gray-500">{t.defaultZipCode}</p>
-          </div>
+          </Link>
         ))}
       </div>
     </NavigationPage>

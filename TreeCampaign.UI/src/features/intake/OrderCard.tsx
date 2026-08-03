@@ -32,7 +32,7 @@ const STATE_CONFIG: Record<
   },
   Washed: {
     label: "Behandlet",
-    icon: <WrenchScrewdriverIcon className="w-5 h-5 text-blue-500" />,
+    icon: <WrenchScrewdriverIcon className="w-5 h-5 text-blue-600" />,
     borderColor: "border-blue-400",
   },
   Validated: {
@@ -47,12 +47,12 @@ const STATE_CONFIG: Record<
   },
   Transferred: {
     label: "Overført",
-    icon: <PaperAirplaneIcon className="w-5 h-5 text-purple-500" />,
-    borderColor: "border-purple-400",
+    icon: <PaperAirplaneIcon className="w-5 h-5 text-amber-500" />,
+    borderColor: "border-amber-500",
   },
   Settled: {
     label: "Afregnet",
-    icon: <BanknotesIcon className="w-5 h-5 text-green-600" />,
+    icon: <BanknotesIcon className="w-5 h-5 text-gray-500" />,
     borderColor: "border-green-500",
   },
 };
@@ -96,7 +96,7 @@ export default function OrderCard({ order, selected, onClick, territoryName }: O
       )}
 
       {(order.orderType === "Transferred" || order.orderType === "Settled") && (
-        <p className={`mt-2 text-sm font-medium ${order.orderType === "Settled" ? "text-green-700" : "text-purple-700"}`}>
+        <p className={`mt-2 text-sm font-medium ${order.orderType === "Settled" ? "text-gray-500" : "text-amber-600"}`}>
           Overført til: {territoryName ?? "ukendt område"}
         </p>
       )}

@@ -45,12 +45,13 @@ export default function CampaignListScreen() {
         {showCreateForm && <CreateCampaignForm onCreated={handleCreated} />}
         {campaigns.map((c) => (
           <div key={c.id} className="p-4 border rounded">
-            <div className="flex items-center justify-between">
+            <Link to={`/campaigns/${c.id}/dispatch`} className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">
-                <Link to={`/campaigns/${c.id}/dispatch`}>{c.season}</Link>
+                {c.season}
               </h2>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setEditingId((prev) => (prev === c.id ? null : c.id));
                   setShowCreateForm(false);
                 }}
@@ -66,7 +67,7 @@ export default function CampaignListScreen() {
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
               </button>
-            </div>
+            </Link>
             {editingId === c.id && (
               <UpdateCampaignForm
                 campaign={c}

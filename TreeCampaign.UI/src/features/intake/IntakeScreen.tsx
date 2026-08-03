@@ -260,6 +260,9 @@ export default function IntakeScreen() {
             className={`text-sm py-2 px-4 border-b-2 -mb-px ${activeTab === "transferred" ? "border-blue-600 text-blue-600 font-medium" : "border-transparent text-gray-500 hover:text-gray-700"}`}
           >
             Overførte
+            {transferredGroups.length > 0 && (
+              <span className="ml-1 text-gray-500">({transferredGroups.length})</span>
+            )}
           </button>
         </div>
         <div

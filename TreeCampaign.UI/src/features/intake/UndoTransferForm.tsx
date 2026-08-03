@@ -64,7 +64,7 @@ export default function UndoTransferForm({ order, campaignId, territoryName, onU
           disabled={pendingAction !== null}
           className="self-start bg-green-600 text-white py-2 px-5 rounded disabled:opacity-40"
         >
-          {pendingAction === "settle" ? "Markerer…" : "Marker som betalt"}
+          {pendingAction === "settle" ? "Markerer…" : "Marker som afregnet"}
         </button>
         <button
           type="button"
