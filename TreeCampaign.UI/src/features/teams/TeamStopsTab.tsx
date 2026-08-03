@@ -15,6 +15,7 @@ import type { Campaign } from "../../shared/api/models/campagin";
 import type { Stop } from "../../shared/api/models/stop";
 import type { Team } from "../../shared/api/models/team";
 import { PickupForm } from "./PickupForm";
+import Button from "../../components/Button";
 
 export default function TeamStopsTab() {
   const params = useParams();
@@ -46,8 +47,9 @@ export default function TeamStopsTab() {
       if (stop.stopType === "Assigned") {
         return (
           <div className="flex gap-2 mt-4">
-            <button
-              className="flex-1 bg-green-600 text-white py-3 rounded-xl"
+            <Button
+              size="lg"
+              className="flex-1 bg-green-600 hover:bg-green-700"
               onClick={() =>
                 collectStop(campaignId, stop.id).then((newStop) =>
                   updateStop(newStop),
@@ -55,9 +57,11 @@ export default function TeamStopsTab() {
               }
             >
               Hentet
-            </button>
-            <button
-              className="flex-1 bg-red-600 text-white py-3 rounded-xl"
+            </Button>
+            <Button
+              variant="danger"
+              size="lg"
+              className="flex-1"
               onClick={() =>
                 markStopUnresolved(campaignId, stop.id).then((newStop) =>
                   updateStop(newStop),
@@ -65,14 +69,15 @@ export default function TeamStopsTab() {
               }
             >
               Ikke fundet
-            </button>
+            </Button>
           </div>
         );
       } else if (stop.stopType === "Unresolved") {
         return (
           <div className="flex gap-2 mt-4">
-            <button
-              className="flex-1 bg-green-600 text-white py-3 rounded-xl"
+            <Button
+              size="lg"
+              className="flex-1 bg-green-600 hover:bg-green-700"
               onClick={() =>
                 retryStop(campaignId, stop.id).then((newStop) =>
                   updateStop(newStop),
@@ -80,14 +85,16 @@ export default function TeamStopsTab() {
               }
             >
               Genoptag
-            </button>
+            </Button>
           </div>
         );
       } else if (stop.stopType === "Collected") {
         return (
           <div className="flex gap-2 mt-4">
-            <button
-              className="flex-1 bg-red-600 text-white py-3 rounded-xl"
+            <Button
+              variant="danger"
+              size="lg"
+              className="flex-1"
               onClick={() =>
                 correctStop(campaignId, stop.id).then((newStop) =>
                   updateStop(newStop),
@@ -95,7 +102,7 @@ export default function TeamStopsTab() {
               }
             >
               Fortryd
-            </button>
+            </Button>
           </div>
         );
       }
@@ -110,15 +117,17 @@ export default function TeamStopsTab() {
     <div className="m-4 flex flex-col gap-4">
       {team?.kind === "Trailer" && (
         <div className="flex gap-2">
-          <button
-            className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium"
+          <Button
+            size="lg"
+            className="flex-1 bg-orange-500 hover:bg-orange-600"
             onClick={() => reportTrailerFull(campaignId, teamId)}
           >
             Trailer fuld
-          </button>
+          </Button>
           {hasCollected && (
-            <button
-              className="flex-1 bg-green-700 text-white py-3 rounded-xl font-medium"
+            <Button
+              size="lg"
+              className="flex-1 bg-green-700 hover:bg-green-800"
               onClick={() =>
                 deliverLoad(campaignId, teamId).then(() =>
                   getStopsForTeam(campaignId, teamId).then(setStops),
@@ -126,18 +135,19 @@ export default function TeamStopsTab() {
               }
             >
               Lever last
-            </button>
+            </Button>
           )}
         </div>
       )}
 
       {team?.kind === "Walking" && (
-        <button
-          className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium"
+        <Button
+          size="lg"
+          className="w-full"
           onClick={() => setShowPickupForm((v) => !v)}
         >
           {showPickupForm ? "Annuller afhentning" : "Anmod om afhentning"}
-        </button>
+        </Button>
       )}
 
       {showPickupForm && campaign && (

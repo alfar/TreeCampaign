@@ -1,4 +1,5 @@
 import type { TeamMember } from "../../shared/api/models/team";
+import Button from "../../components/Button";
 
 export function MemberRow({ member, onRemove }: { member: TeamMember; onRemove: () => void; }) {
   return (
@@ -12,12 +13,9 @@ export function MemberRow({ member, onRemove }: { member: TeamMember; onRemove: 
           <span className="text-gray-600 ml-2">{member.phoneNumber}</span>
         )}
       </div>
-      <button
-        onClick={onRemove}
-        className="text-red-500 text-xs ml-2 hover:text-red-700"
-      >
+      <Button variant="danger" onClick={onRemove} className="ml-2">
         Fjern
-      </button>
+      </Button>
     </div>
   );
 }

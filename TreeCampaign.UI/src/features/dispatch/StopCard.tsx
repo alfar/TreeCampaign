@@ -46,7 +46,7 @@ export default function StopCard({
     if (stop.stopType === "Assigned") {
       return (
         <Button
-          className="flex-1 bg-green-600"
+          className="flex-1 bg-green-600 hover:bg-green-700"
           onClick={() => unassignStop(campaignId, stop.id).then(onUpdateStop)}
         >
           Fjern
@@ -55,7 +55,7 @@ export default function StopCard({
     } else if (stop.stopType === "Unresolved") {
       return (
         <Button
-          className="flex-1 bg-green-600"
+          className="flex-1 bg-green-600 hover:bg-green-700"
           onClick={() => reopenStop(campaignId, stop.id).then(onUpdateStop)}
         >
           Genåbn
@@ -64,7 +64,7 @@ export default function StopCard({
     } else if (stop.stopType === "Collected") {
       return (
         <Button
-          className="flex-1 bg-green-600"
+          className="flex-1 bg-green-600 hover:bg-green-700"
           onClick={() => reopenStop(campaignId, stop.id).then(onUpdateStop)}
         >
           Genåbn
@@ -73,20 +73,12 @@ export default function StopCard({
     }
   };
 
-  return (
-    <label
-      htmlFor={assignMode ? stop.id : undefined}
-      className={"p-2 border rounded flex flex-row items-center gap-2 " + (selected ? "border-blue-200 bg-blue-100" : "border-gray-200")}
-    >
-      {assignMode && (
-        <input
-          type="checkbox"
-          id={stop.id}
-          className="w-6 h-6"
-          checked={selected}
-          onChange={() => onToggleSelect && onToggleSelect(stop.id)}
-        />
-      )}
+  const className =
+    "p-2 border rounded flex flex-row items-center gap-2 " +
+    (selected ? "border-blue-200 bg-blue-100" : "border-gray-200");
+
+  const content = (
+    <>
       <div className="w-8">{getStopIcon(stop.stopType)}</div>
       <div className="w-full">
         <div className="flex justify-between">
@@ -95,6 +87,23 @@ export default function StopCard({
         </div>
         <div>{getStopButtons(stop)}</div>
       </div>
-    </label>
+    </>
   );
+
+  if (assignMode) {
+    return (
+      <label htmlFor={stop.id} className={className}>
+        <input
+          type="checkbox"
+          id={stop.id}
+          className="w-6 h-6"
+          checked={selected}
+          onChange={() => onToggleSelect && onToggleSelect(stop.id)}
+        />
+        {content}
+      </label>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
 }

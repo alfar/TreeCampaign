@@ -5,6 +5,8 @@ import type { Campaign } from "../../shared/api/models/campagin";
 import CreateCampaignForm from "./CreateCampaignForm";
 import UpdateCampaignForm from "./UpdateCampaignForm";
 import NavigationPage from "../../shared/components/NavigationPage";
+import Button from "../../components/Button";
+import { PencilIcon } from "@heroicons/react/24/outline";
 
 export default function CampaignListScreen() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -32,42 +34,35 @@ export default function CampaignListScreen() {
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">Kampagner</h1>
-          <button
+          <Button
             onClick={() => {
               setShowCreateForm((v) => !v);
               setEditingId(null);
             }}
-            className="text-sm bg-blue-600 text-white py-1.5 px-4 rounded"
           >
             {showCreateForm ? "Annuller" : "Ny kampagne"}
-          </button>
+          </Button>
         </div>
         {showCreateForm && <CreateCampaignForm onCreated={handleCreated} />}
         {campaigns.map((c) => (
           <div key={c.id} className="p-4 border rounded">
-            <Link to={`/campaigns/${c.id}/dispatch`} className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">
-                {c.season}
-              </h2>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
+            <div className="flex items-center justify-between">
+              <Link to={`/campaigns/${c.id}/dispatch`} className="flex-1">
+                <h2 className="text-lg font-semibold">
+                  {c.season}
+                </h2>
+              </Link>
+              <Button
+                variant="secondary"
+                onClick={() => {
                   setEditingId((prev) => (prev === c.id ? null : c.id));
                   setShowCreateForm(false);
                 }}
-                className="text-gray-400 hover:text-gray-700"
-                aria-label="Rediger"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-              </button>
-            </Link>
+                <PencilIcon className="h-4 w-4" />
+                Rediger
+              </Button>
+            </div>
             {editingId === c.id && (
               <UpdateCampaignForm
                 campaign={c}

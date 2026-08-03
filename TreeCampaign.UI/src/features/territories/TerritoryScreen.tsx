@@ -11,6 +11,7 @@ import type { Neighborhood } from "../../shared/api/models/neighborhood";
 import type { Street } from "../../shared/api/models/street";
 import type { StreetSection } from "../../shared/api/models/streetSection";
 import NavigationPage from "../../shared/components/NavigationPage";
+import Button from "../../components/Button";
 import CreateNeighborhoodForm from "./CreateNeighborhoodForm";
 import CreateStreetSectionForm from "./CreateStreetSectionForm";
 import EditStreetSectionForm from "./EditStreetSectionForm";
@@ -80,13 +81,9 @@ export default function TerritoryScreen() {
             </p>
           </div>
           {!showCreateNeighborhood && (
-            <button
-              type="button"
-              onClick={() => setShowCreateNeighborhood(true)}
-              className="bg-blue-600 text-white py-2 px-4 rounded text-sm"
-            >
+            <Button onClick={() => setShowCreateNeighborhood(true)}>
               Nyt kvarter
-            </button>
+            </Button>
           )}
         </div>
 
@@ -110,13 +107,12 @@ export default function TerritoryScreen() {
             <div className="flex items-center justify-between">
               <h2 className="font-semibold">{hood.name}</h2>
               {activeStreetSectionNeighborhoodId !== hood.id && (
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
                   onClick={() => setActiveStreetSectionNeighborhoodId(hood.id)}
-                  className="text-sm text-blue-600 hover:underline"
                 >
                   + Vejstrækning
-                </button>
+                </Button>
               )}
             </div>
 
@@ -171,22 +167,21 @@ export default function TerritoryScreen() {
                           </td>
                           <td className="py-1.5 text-right whitespace-nowrap">
                             {editingSectionId !== section.id && (
-                              <button
-                                type="button"
+                              <Button
+                                variant="secondary"
+                                className="mr-2"
                                 onClick={() => setEditingSectionId(section.id)}
-                                className="text-sm text-blue-600 hover:underline mr-3"
                               >
                                 Rediger
-                              </button>
+                              </Button>
                             )}
-                            <button
-                              type="button"
+                            <Button
+                              variant="danger"
                               onClick={() => handleDeleteSection(hood.id, section.id)}
                               disabled={deletingSectionId === section.id}
-                              className="text-sm text-red-600 hover:underline disabled:opacity-50"
                             >
                               {deletingSectionId === section.id ? "Sletter…" : "Slet"}
-                            </button>
+                            </Button>
                           </td>
                         </tr>
                         {editingSectionId === section.id && (

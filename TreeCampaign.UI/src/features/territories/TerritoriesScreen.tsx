@@ -4,6 +4,7 @@ import { getTerritories } from "../../shared/api/client";
 import type { Territory } from "../../shared/api/models/territory";
 import CreateTerritoryForm from "./CreateTerritoryForm";
 import NavigationPage from "../../shared/components/NavigationPage";
+import Button from "../../components/Button";
 
 export default function TerritoriesScreen() {
   const [territories, setTerritories] = useState<Territory[]>([]);
@@ -23,12 +24,9 @@ export default function TerritoriesScreen() {
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">Territorier</h1>
-          <button
-            onClick={() => setShowForm((v) => !v)}
-            className="text-sm bg-blue-600 text-white py-1.5 px-4 rounded"
-          >
+          <Button onClick={() => setShowForm((v) => !v)}>
             {showForm ? "Annuller" : "Nyt territorium"}
-          </button>
+          </Button>
         </div>
         {showForm && <CreateTerritoryForm onCreated={handleCreated} />}
         {territories.map((t) => (

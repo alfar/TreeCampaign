@@ -217,8 +217,17 @@ export default function DispatchScreen() {
     <NavigationPage>
       <div>
         <h1 className="text-xl font-bold">Dispatch</h1>
-        <div className="flex gap-2 mt-4">
-          <div className="w-9/12 flex flex-col gap-2">
+        <div className="flex gap-4 mt-4 items-start">
+          <div className="w-8/12 flex flex-col gap-2 border border-gray-300 rounded-lg p-4">
+            <div className="flex items-center h-11">
+              <h2 className="text-base font-semibold">
+                {(onlyUnassigned ? "Frie" : "Alle") +
+                  (filter.length > 0
+                    ? ` stop, der starter med '${filter}' `
+                    : " stop ")}
+                - {sortedStops.length} stop
+              </h2>
+            </div>
             <div className="flex gap-2">
               <div className="flex border rounded-sm p-2 border-gray-200 w-6/12 items-center">
                 <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
@@ -241,13 +250,6 @@ export default function DispatchScreen() {
                 Vis kun frie stop
               </label>
             </div>
-            <h2 className="text-base font-semibold">
-              {(onlyUnassigned ? "Frie" : "Alle") +
-                (filter.length > 0
-                  ? ` stop, der starter med '${filter}' `
-                  : " stop ")}
-              - {sortedStops.length} stop
-            </h2>
             {stopsByNeighborhood.map(({ neighborhood, stops: nStops }) => (
               <NeighborhoodSection
                 key={neighborhood.id}
@@ -275,13 +277,10 @@ export default function DispatchScreen() {
                 </div>
               )}
           </div>
-          <div className="w-3/12 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
+          <div className="w-4/12 flex flex-col gap-2 border border-gray-300 rounded-lg p-4">
+            <div className="flex items-center justify-between h-11">
               <h2 className="text-base font-semibold">Hold</h2>
-              <Button
-                onClick={() => setShowCreateTeam((v) => !v)}
-                className="bg-blue-600"
-              >
+              <Button onClick={() => setShowCreateTeam((v) => !v)}>
                 {showCreateTeam ? "Annuller" : "Nyt hold"}
               </Button>
             </div>

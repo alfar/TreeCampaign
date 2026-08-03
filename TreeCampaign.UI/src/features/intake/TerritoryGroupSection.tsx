@@ -2,6 +2,7 @@ import { BuildingOffice2Icon } from "@heroicons/react/24/outline";
 import type { Order } from "../../shared/api/models/order";
 import Section from "../../shared/components/Section";
 import OrderList from "./OrderList";
+import Button from "../../components/Button";
 
 interface TerritoryGroupSectionProps {
   name: string;
@@ -43,14 +44,13 @@ export default function TerritoryGroupSection({
       }
       actions={
         hasUnsettled && (
-          <button
-            type="button"
+          <Button
             onClick={onSettleAll}
             disabled={isSettling}
-            className="text-xs bg-green-600 text-white py-1 px-3 rounded disabled:opacity-40"
+            className="bg-green-600 hover:bg-green-700"
           >
             {isSettling ? "Markerer…" : "Marker alle som afregnet"}
-          </button>
+          </Button>
         )
       }
     >

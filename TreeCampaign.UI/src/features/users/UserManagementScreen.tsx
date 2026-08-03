@@ -3,6 +3,7 @@ import { getUsers } from "../../shared/api/client";
 import type { User } from "../../shared/api/models/user";
 import CreateUserForm from "./CreateUserForm";
 import NavigationPage from "../../shared/components/NavigationPage";
+import Button from "../../components/Button";
 
 export default function UserManagementScreen() {
   const [users, setUsers] = useState<User[]>([]);
@@ -22,12 +23,9 @@ export default function UserManagementScreen() {
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">Brugere</h1>
-          <button
-            onClick={() => setShowCreateForm((v) => !v)}
-            className="text-sm bg-blue-600 text-white py-1.5 px-4 rounded"
-          >
+          <Button onClick={() => setShowCreateForm((v) => !v)}>
             {showCreateForm ? "Annuller" : "Ny bruger"}
-          </button>
+          </Button>
         </div>
         {showCreateForm && <CreateUserForm onCreated={handleCreated} />}
         {users.map((u) => (

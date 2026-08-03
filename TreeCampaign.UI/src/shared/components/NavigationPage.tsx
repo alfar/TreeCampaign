@@ -45,29 +45,29 @@ export default function NavigationPage({ children }: PropsWithChildren) {
           </button>
         )}
         {!collapsed && user && (
-          <nav className="flex flex-col gap-2 p-4 pr-8 w-fit">
+          <nav className="flex flex-col gap-1 p-4 pr-8 w-fit">
             <Link
-              className="text-white hover:text-blue-200 whitespace-nowrap"
+              className="text-white hover:text-blue-200 hover:bg-blue-700 whitespace-nowrap py-3 px-2 rounded"
               to="/"
             >
               Kampagner
             </Link>
             {campaignId && (
-              <div className="flex flex-col gap-2 ml-2">
+              <div className="flex flex-col gap-1 ml-2">
                 <Link
-                  className="text-white hover:text-blue-200 whitespace-nowrap"
+                  className="text-white hover:text-blue-200 hover:bg-blue-700 whitespace-nowrap py-3 px-2 rounded"
                   to={`/campaigns/${campaignId}/intake`}
                 >
                   Ordrer
                 </Link>
                 <Link
-                  className="text-white hover:text-blue-200 whitespace-nowrap"
+                  className="text-white hover:text-blue-200 hover:bg-blue-700 whitespace-nowrap py-3 px-2 rounded"
                   to={`/campaigns/${campaignId}/dispatch`}
                 >
                   Dispatch
                 </Link>
                 <Link
-                  className="text-white hover:text-blue-200 whitespace-nowrap"
+                  className="text-white hover:text-blue-200 hover:bg-blue-700 whitespace-nowrap py-3 px-2 rounded"
                   to={`/campaigns/${campaignId}/overview-map`}
                 >
                   Kort
@@ -75,13 +75,13 @@ export default function NavigationPage({ children }: PropsWithChildren) {
               </div>
             )}
             <Link
-              className="text-white hover:text-blue-200 whitespace-nowrap"
+              className="text-white hover:text-blue-200 hover:bg-blue-700 whitespace-nowrap py-3 px-2 rounded"
               to="/territories"
             >
               Territorier
             </Link>
             <Link
-              className="text-white hover:text-blue-200 whitespace-nowrap"
+              className="text-white hover:text-blue-200 hover:bg-blue-700 whitespace-nowrap py-3 px-2 rounded"
               to="/users"
             >
               Brugere
@@ -89,14 +89,14 @@ export default function NavigationPage({ children }: PropsWithChildren) {
           </nav>
         )}
         {!collapsed && user && (
-          <div className="mt-auto flex flex-col gap-2 p-4 pr-8">
-            <span className="text-blue-200 text-xs whitespace-nowrap">
+          <div className="mt-auto flex flex-col gap-1 p-4 pr-8">
+            <span className="text-blue-200 text-xs whitespace-nowrap px-2">
               {user.displayName}
             </span>
             <button
               type="button"
               onClick={handleLogout}
-              className="text-white hover:text-blue-200 text-sm text-left whitespace-nowrap"
+              className="text-white hover:text-blue-200 hover:bg-blue-700 text-sm text-left whitespace-nowrap py-3 px-2 rounded"
             >
               Log ud
             </button>

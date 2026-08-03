@@ -12,6 +12,7 @@ import TransferOrderForm from "./TransferOrderForm";
 import UndoTransferForm from "./UndoTransferForm";
 import WashOrderForm from "./WashOrderForm";
 import NavigationPage from "../../shared/components/NavigationPage";
+import Button from "../../components/Button";
 
 const DEFAULT_ZIP_CODE = "8600";
 
@@ -234,18 +235,10 @@ export default function IntakeScreen() {
             Bestillinger til manuel behandling
           </h1>
           <div className="flex gap-2">
-            <button
-              onClick={handleOpenImportForm}
-              className="bg-gray-100 text-gray-700 text-sm py-1.5 px-4 rounded hover:bg-gray-200 border"
-            >
+            <Button variant="secondary" onClick={handleOpenImportForm}>
               Importér CSV
-            </button>
-            <button
-              onClick={handleOpenCreateForm}
-              className="bg-blue-600 text-white text-sm py-1.5 px-4 rounded hover:bg-blue-700"
-            >
-              Ny bestilling
-            </button>
+            </Button>
+            <Button onClick={handleOpenCreateForm}>Ny bestilling</Button>
           </div>
         </div>
         <div className="flex gap-2 mb-4 border-b">
@@ -337,20 +330,18 @@ export default function IntakeScreen() {
             selectedOrder.streetId && (
               <div className="w-full md:w-1/2 border rounded p-4 bg-white">
                 <div className="flex gap-2 mb-4">
-                  <button
-                    type="button"
+                  <Button
+                    variant={oobAction === "section" ? "primary" : "secondary"}
                     onClick={() => setOobAction("section")}
-                    className={`text-sm py-1.5 px-3 rounded border ${oobAction === "section" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-gray-50"}`}
                   >
                     Opret vejstrækning
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant={oobAction === "transfer" ? "primary" : "secondary"}
                     onClick={() => setOobAction("transfer")}
-                    className={`text-sm py-1.5 px-3 rounded border ${oobAction === "transfer" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-gray-50"}`}
                   >
                     Overfør til andet område
-                  </button>
+                  </Button>
                 </div>
                 {oobAction === "section" ? (
                   <CreateStreetSectionForm
