@@ -13,7 +13,15 @@ namespace TreeTerritory.Api.Neighborhoods;
 
 internal class AddStreetSectionToNeighborhoodEndpoint
 {
-    public record AddStreetSectionToNeighborhoodRequest(StreetId StreetId, int SortOrder, HouseNumber? FromHouseNumber, HouseNumber? ToHouseNumber, Direction Direction);
+    public record AddStreetSectionToNeighborhoodRequest(
+        StreetId StreetId,
+        int SortOrder,
+        HouseNumber? EvenFromHouseNumber,
+        HouseNumber? EvenToHouseNumber,
+        HouseNumber? OddFromHouseNumber,
+        HouseNumber? OddToHouseNumber,
+        Direction Direction,
+        TrailerSize MaxTrailerSize = TrailerSize.Boogie);
 
     internal static async Task<IResult> Handle(
         ICurrentUserAccessor currentUser,
@@ -39,7 +47,15 @@ internal class AddStreetSectionToNeighborhoodEndpoint
             return Results.NotFound();
         }
 
-        neighborhood.AddStreetSection(request.StreetId, request.FromHouseNumber, request.ToHouseNumber, request.SortOrder, request.Direction);
+        neighborhood.AddStreetSection(
+            request.StreetId,
+            request.EvenFromHouseNumber,
+            request.EvenToHouseNumber,
+            request.OddFromHouseNumber,
+            request.OddToHouseNumber,
+            request.SortOrder,
+            request.Direction,
+            request.MaxTrailerSize);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Results.Ok(neighborhood);

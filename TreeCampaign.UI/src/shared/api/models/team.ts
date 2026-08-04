@@ -21,6 +21,12 @@ export const trailerCapacity: Record<TrailerSize, number> = {
     Boogie: 16,
 };
 
+export const trailerSizeOrder: Record<TrailerSize, number> = {
+    Small: 0,
+    Large: 1,
+    Boogie: 2,
+};
+
 export interface Team {
     id: string;
     name: string;

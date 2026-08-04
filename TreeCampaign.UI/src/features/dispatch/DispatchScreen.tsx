@@ -8,7 +8,7 @@ import {
 } from "../../shared/api/client";
 import { useEffect, useState } from "react";
 import type { Neighborhood } from "../../shared/api/models/neighborhood";
-import type { Team, TeamKind, TeamStatus } from "../../shared/api/models/team";
+import { trailerSizeOrder, type Team, type TeamKind, type TeamStatus, type TrailerSize } from "../../shared/api/models/team";
 import type { Stop } from "../../shared/api/models/stop";
 import TeamCard from "./TeamCard";
 import StopCard from "./StopCard";
@@ -172,6 +172,22 @@ export default function DispatchScreen() {
     (stop) => !sectionById.has(stop.address.streetSectionId),
   );
 
+  const maxTrailerSizeForSelection = Array.from(selectedStopIds)
+    .map((stopId) => stops.find((s) => s.id === stopId))
+    .map((stop) => (stop ? sectionById.get(stop.address.streetSectionId)?.maxTrailerSize : undefined))
+    .filter((size): size is TrailerSize => size !== undefined)
+    .reduce<TrailerSize | undefined>(
+      (smallest, size) =>
+        smallest === undefined || trailerSizeOrder[size] < trailerSizeOrder[smallest] ? size : smallest,
+      undefined,
+    );
+
+  const teamExceedsSelection = (team: Team) =>
+    team.kind === "Trailer" &&
+    !!team.trailerSize &&
+    !!maxTrailerSizeForSelection &&
+    trailerSizeOrder[team.trailerSize] > trailerSizeOrder[maxTrailerSizeForSelection];
+
   const teamRank = (team: Team) => {
     if (team.kind === "Trailer" && team.isTrailerFull) return 0;
     if (team.kind === "Walking") return 3;
@@ -207,6 +223,8 @@ export default function DispatchScreen() {
   };
 
   const clickTeam = (team: Team) => {
+    if (teamExceedsSelection(team)) return;
+
     selectedStopIds.forEach((stopId) => {
       assignStopToTeam(campaignId!, stopId, team.id).then(updateStop);
     });
@@ -300,6 +318,7 @@ export default function DispatchScreen() {
                   (stop) => stop.assignedTeamId === team.id && stop.stopType !== "Delivered",
                 )}
                 assignMode={selectedStopIds.size > 0}
+                blocked={selectedStopIds.size > 0 && teamExceedsSelection(team)}
                 onClick={clickTeam}
                 onUpdateStop={updateStop}
                 onUpdateTeam={updateTeam}

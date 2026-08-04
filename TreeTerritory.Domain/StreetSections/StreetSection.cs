@@ -26,34 +26,46 @@ public class StreetSection : IHasDomainEvents
     public required NeighborhoodId NeighborhoodId { get; init; }
     public required StreetId StreetId { get; init; }
 
-    public HouseNumber? StartHouseNumber { get; private set; }
-    public HouseNumber? EndHouseNumber { get; private set; }
+    public HouseNumber? EvenStartHouseNumber { get; private set; }
+    public HouseNumber? EvenEndHouseNumber { get; private set; }
+    public HouseNumber? OddStartHouseNumber { get; private set; }
+    public HouseNumber? OddEndHouseNumber { get; private set; }
 
     public int SortOrder { get; private set; } = 0;
     public Direction Direction { get; private set; } = Direction.Ascending;
+    public TrailerSize MaxTrailerSize { get; private set; } = TrailerSize.Boogie;
 
     internal static StreetSection Create(
         NeighborhoodId neighborhoodId,
         StreetId streetId,
-        HouseNumber? startHouseNumber,
-        HouseNumber? endHouseNumber,
+        HouseNumber? evenStartHouseNumber,
+        HouseNumber? evenEndHouseNumber,
+        HouseNumber? oddStartHouseNumber,
+        HouseNumber? oddEndHouseNumber,
         int sortOrder,
-        Direction direction)
+        Direction direction,
+        TrailerSize maxTrailerSize = TrailerSize.Boogie)
     {
-        var comparison = (startHouseNumber is null || endHouseNumber is null) ? -1 : startHouseNumber.CompareTo(endHouseNumber);
+        ValidateRangePairing(evenStartHouseNumber, evenEndHouseNumber, oddStartHouseNumber, oddEndHouseNumber);
+
+        var (evenStart, evenEnd) = OrderPair(evenStartHouseNumber, evenEndHouseNumber);
+        var (oddStart, oddEnd) = OrderPair(oddStartHouseNumber, oddEndHouseNumber);
 
         var section = new StreetSection
         {
             Id = StreetSectionId.From(Guid.NewGuid()),
             NeighborhoodId = neighborhoodId,
             StreetId = streetId,
-            StartHouseNumber = comparison <= 0 ? startHouseNumber : endHouseNumber,
-            EndHouseNumber = comparison <= 0 ? endHouseNumber : startHouseNumber,
+            EvenStartHouseNumber = evenStart,
+            EvenEndHouseNumber = evenEnd,
+            OddStartHouseNumber = oddStart,
+            OddEndHouseNumber = oddEnd,
             SortOrder = sortOrder,
-            Direction = direction
+            Direction = direction,
+            MaxTrailerSize = maxTrailerSize
         };
 
-        section.Raise(new StreetSectionCreated(section.Id, neighborhoodId, streetId, startHouseNumber, endHouseNumber, sortOrder, direction));
+        section.Raise(new StreetSectionCreated(section.Id, neighborhoodId, streetId, evenStart, evenEnd, oddStart, oddEnd, sortOrder, direction, maxTrailerSize));
 
         return section;
     }
@@ -70,16 +82,48 @@ public class StreetSection : IHasDomainEvents
         Direction = direction;
     }
 
-    public void UpdateHouseNumberRange(HouseNumber? startHouseNumber, HouseNumber? endHouseNumber)
+    public void UpdateMaxTrailerSize(TrailerSize maxTrailerSize)
     {
-        var comparison = (startHouseNumber is null || endHouseNumber is null) ? -1 : startHouseNumber.CompareTo(endHouseNumber);
+        MaxTrailerSize = maxTrailerSize;
+    }
 
-        StartHouseNumber = comparison <= 0 ? startHouseNumber : endHouseNumber;
-        EndHouseNumber = comparison <= 0 ? endHouseNumber : startHouseNumber;
+    public void UpdateHouseNumberRange(
+        HouseNumber? evenStartHouseNumber,
+        HouseNumber? evenEndHouseNumber,
+        HouseNumber? oddStartHouseNumber,
+        HouseNumber? oddEndHouseNumber)
+    {
+        ValidateRangePairing(evenStartHouseNumber, evenEndHouseNumber, oddStartHouseNumber, oddEndHouseNumber);
+
+        (EvenStartHouseNumber, EvenEndHouseNumber) = OrderPair(evenStartHouseNumber, evenEndHouseNumber);
+        (OddStartHouseNumber, OddEndHouseNumber) = OrderPair(oddStartHouseNumber, oddEndHouseNumber);
     }
 
     public bool ContainsHouseNumber(HouseNumber houseNumber)
-    {        
-        return (StartHouseNumber?.CompareTo(houseNumber) ?? -1) <= 0 && (EndHouseNumber?.CompareTo(houseNumber) ?? 1) >= 0;
+    {
+        var (start, end) = houseNumber.Number % 2 == 0
+            ? (EvenStartHouseNumber, EvenEndHouseNumber)
+            : (OddStartHouseNumber, OddEndHouseNumber);
+
+        return (start?.CompareTo(houseNumber) ?? -1) <= 0 && (end?.CompareTo(houseNumber) ?? 1) >= 0;
+    }
+
+    private static void ValidateRangePairing(
+        HouseNumber? evenStartHouseNumber,
+        HouseNumber? evenEndHouseNumber,
+        HouseNumber? oddStartHouseNumber,
+        HouseNumber? oddEndHouseNumber)
+    {
+        if (evenStartHouseNumber is null != evenEndHouseNumber is null)
+            throw new ArgumentException("Even start and end house numbers must both be set or both be null.");
+
+        if (oddStartHouseNumber is null != oddEndHouseNumber is null)
+            throw new ArgumentException("Odd start and end house numbers must both be set or both be null.");
+    }
+
+    private static (HouseNumber? Start, HouseNumber? End) OrderPair(HouseNumber? start, HouseNumber? end)
+    {
+        if (start is null || end is null) return (start, end);
+        return start.CompareTo(end) <= 0 ? (start, end) : (end, start);
     }
 }

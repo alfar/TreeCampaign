@@ -10,7 +10,27 @@ The developer is learning Domain-Driven Design by building this system. Claude's
 
 ## Bounded Contexts
 
-The solution contains three bounded contexts, all within one .NET solution. They are independent by design — no project may reference across context boundaries except through defined interfaces or events.
+The solution contains four bounded contexts, all within one .NET solution. They are independent by design — no project may reference across context boundaries except through defined interfaces or events.
+
+### Access (supporting subdomain) — implemented
+
+Owns authentication and multi-tenancy. A `ScoutGroup` is the tenant boundary; a `User` belongs to exactly one `ScoutGroup` and authenticates via email/password (ASP.NET Core Identity's `IPasswordHasher<User>`, cookie auth scheme).
+
+**Domain model:**
+```
+ScoutGroup (aggregate root) — Id, Name
+User (aggregate root)
+  ├─ ScoutGroupId
+  ├─ Email (value object)
+  ├─ PasswordHash
+  └─ IsPlatformAdmin (bool — cross-tenant override, granted/revoked explicitly)
+```
+
+**Auth flow:** `POST /api/access/auth/login` verifies credentials and issues a cookie carrying claims: `NameIdentifier` (UserId), `Email`, `Name` (DisplayName), and two custom claims defined in `Common.Infrastructure/Auth/AccessClaimTypes.cs` — `scout_group_id` and `platform_admin`. `Logout` and `Me` endpoints round out the flow.
+
+**Cross-context tenant scoping:** every other bounded context stamps its owned aggregates with a `ScoutGroupRef` (the `ExternalReferences/` pattern — see below) — currently `Territory.ScoutGroupId` and `Campaign.ScoutGroupId`. `ICurrentUserAccessor` (in `Common.Infrastructure/Auth/`) reads the claims off `HttpContext` and exposes `Guid? ScoutGroupId` / `bool IsPlatformAdmin`. Each context defines its own `*OwnershipExtensions.IsOwnedByCurrentScoutGroupAsync(id, currentUser, ct)` helper (e.g. `TreeTerritory.Api/Helpers/TerritoryOwnershipExtensions.cs`, `TreeCampaign.Api/Helpers/CampaignOwnershipExtensions.cs`) that endpoints call before allowing mutation — implemented as a projection/query lookup, not a `UnitOfWork` round-trip. `AuthPolicies.ScoutGroupMember` (in `Common.Infrastructure`) is the baseline `[Authorize]` policy applied to endpoints; ownership checks are an additional, explicit per-endpoint guard on top of that policy, not a replacement for it.
+
+Endpoints are being migrated to authed access incrementally — Campaign, Team, and Stop endpoints are covered; sweep for unauthenticated endpoints before assuming a given route is protected.
 
 ### TreeCampaign (core domain) — implemented
 
@@ -18,7 +38,9 @@ Manages campaign seasons, stop assignment, and team dispatch. Receives validated
 
 **Stop ordering** is a read-model concern only: when displaying a team's assigned stops, sort by `StreetSection.SortOrder` (from Territory), then by house number ascending or descending per `StreetSection.Direction`. The old paper route cap of 8 trees is gone — the dispatcher assigns stops to teams dynamically in real time.
 
-**Campaign** carries a `TerritoryRef` (local value object wrapping a Guid, defined in `TreeCampaign.Domain/Campaigns/ExternalReferences/`) to scope address validation to the right territory. This is a correlation ID — Campaign has no compile-time dependency on the Territory domain.
+**Campaign** carries a `TerritoryRef` (local value object wrapping a Guid, defined in `TreeCampaign.Domain/Campaigns/ExternalReferences/`) to scope address validation to the right territory. This is a correlation ID — Campaign has no compile-time dependency on the Territory domain. It also carries a `ScoutGroupRef` (same pattern) for tenant ownership — see Access above.
+
+**Trailer size**: each `Team` has a trailer capacity, and each `StreetSection` (Territory) declares a `MaxTrailerSize` — the largest trailer that can physically access that section. `TrailerSize` is a shared enum (`Small` | `Large` | `Boogie`, defined in `TreeTerritory.Domain/StreetSections/TrailerSize.cs`) surfaced to TreeCampaign only as data on the read-model projection, not a cross-context type reference. `ClearTrailerFullEndpoint` (Teams) lets the dispatcher clear a team's "trailer full" flag once it's emptied.
 
 ### Territory (supporting subdomain) — implemented
 
@@ -27,17 +49,22 @@ The authority on which addresses exist in the service area and how they are trav
 **Domain model:**
 ```
 Territory (aggregate root)
+  ├─ ScoutGroupId          ← tenant owner, see Access
   └─ Neighborhood (aggregate root, child of Territory)
         └─ StreetSection (entity, child of Neighborhood)
               ├─ Street reference (by StreetId — Street is a separate aggregate)
-              ├─ HouseNumberFrom / HouseNumberTo
+              ├─ EvenStartHouseNumber / EvenEndHouseNumber   ← range for even house numbers, independently nullable
+              ├─ OddStartHouseNumber / OddEndHouseNumber     ← range for odd house numbers, independently nullable
               ├─ Direction (enum: Ascending | Descending)   ← direction of travel within the section
-              └─ SortOrder (int)        ← position in the neighborhood's route
+              ├─ SortOrder (int)        ← position in the neighborhood's route
+              └─ MaxTrailerSize (enum: Small | Large | Boogie) ← largest trailer that fits this section
 
 Street (separate aggregate — a street can span multiple neighborhoods)
   ├─ Name
   └─ ZipCode
 ```
+
+**Why even/odd ranges:** Danish streets commonly have even and odd house numbers on opposite sides with different practical extents (e.g. odd side ends at 27, even side continues to 40). A single `HouseNumberFrom`/`HouseNumberTo` range couldn't express that, so the range is split into an even-number pair and an odd-number pair, each optional (a section can cover only one parity) but each pair must be set or unset together — enforced in `StreetSection.ValidateRangePairing`. `ContainsHouseNumber` picks the matching pair based on the number's parity.
 
 **Aggregate Boundaries:**
 - `Neighborhood` is the aggregate root; `StreetSection` can only be created through `Neighborhood.AddStreetSection()`. The internal `StreetSection.Create()` factory is not publicly accessible.
@@ -73,12 +100,21 @@ WashedOrder
   └─ MarkOutOfBounds(result)         → OutOfBoundsOrder
 
 OutOfBoundsOrder
-  └─ Accept(ValidationSuccess)       → ValidatedOrder     (retry after Territory section expanded)
+  ├─ Accept(ValidationSuccess)       → ValidatedOrder     (retry after Territory section expanded)
+  └─ Transfer(TerritoryRef)          → TransferredOrder   (address belongs to a neighboring scout group's territory)
+
+TransferredOrder
+  ├─ UndoTransfer()                  → OutOfBoundsOrder   (transfer was a mistake)
+  └─ MarkAsPaid()                    → SettledOrder       (the receiving group has been paid/reimbursed for this order)
 ```
 
-`OrderBase` carries: `OrderId`, `CampaignRef`, `Sender` (name + phone), `MoneyAmount`, `OrderDate`, `Message` (original free text).
+`OrderBase` carries: `OrderId`, `CampaignRef`, `Sender` (name + phone), `MoneyAmount`, `OrderDate`, `Message` (original free text), `TransactionId?` (from the CSV payment import, see below).
 
 `ValidatedOrder` additionally carries: `HouseNumber`, `StreetRef`, `StreetSectionRef`, `NeighborhoodId` (resolved address components needed to create stops in TreeCampaign).
+
+**Transfer/Settle:** an `OutOfBoundsOrder` whose address falls outside the owning scout group's Territory but inside a neighboring one is `Transfer`red to that `TerritoryRef` rather than retried — it's not a data error, it's someone else's stop to collect. `TransferredOrder` is reversible (`UndoTransfer`) until it is `MarkAsPaid()`'d into a terminal `SettledOrder`, once the inter-group money has actually changed hands. The Intake screen groups outstanding transferred orders by territory with a "settle all" bulk action (`SettleTerritoryOrdersEndpoint`).
+
+**CSV payment import:** `ICsvPaymentParser` / `CsvPaymentParser` (`Intake.Domain/Orders/Services/`) parses a semicolon-delimited MobilePay-style export (columns: `Amount`, `Timestamp`, `Message`, `User Name`, `User Phone Number`, `Payment Transaction ID`) into `PaymentParsingResult` — a discriminated union of `ParsedPayment` | `PaymentParsingFailed(lineNumber, reason)`. It's a pure domain service (no I/O); `PaymentImportService` (`Intake.Application`) is the orchestrator that turns successfully parsed rows into `IncomingOrder`s via the same address-validation pipeline as single orders. Exposed via `POST /api/intake/orders/import`.
 
 **Value objects:**
 - `ParsedAddress(Street, HouseNumber, ZipCode?, City?)` — what the auto-parser extracted from `Message`
@@ -97,7 +133,8 @@ OutOfBoundsOrder
 ```
 Intake ──validates──► Territory       ("is this address in our service area?")
 Intake ──submits────► TreeCampaign    ("create a stop for this validated order")
-TreeCampaign ──reads► Territory       (projection: sort order + direction for stop display)
+TreeCampaign ──reads► Territory       (projection: sort order, direction, trailer size for stop/team display)
+Access ──authenticates► (all)         (login issues the cookie every other context reads via ICurrentUserAccessor)
 ```
 
 Triggered interactions between the contexts happen through domain events being published via an outbox pattern and then processed by a background worker that distributes events to their respective handlers.
@@ -107,7 +144,10 @@ Triggered interactions between the contexts happen through domain events being p
 | Project | Type | Role |
 |---|---|---|
 | `Common.Domain` | Class Library | Shared domain abstractions: `IDomainEvent`, `IHasDomainEvents` |
-| `Common.Infrastructure` | Class Library | Shared infrastructure: `IUnitOfWork`, `IRepository<TAggregate, TId>`, `OutboxDbContext`, `StoredDomainEventContext` |
+| `Common.Infrastructure` | Class Library | Shared infrastructure: `IUnitOfWork`, `IRepository<TAggregate, TId>`, `OutboxDbContext`, `StoredDomainEventContext`, auth (`ICurrentUserAccessor`, `AccessClaimTypes`, `AuthPolicies`) |
+| `Access.Domain` | Class Library | Pure domain logic for Access context: `User`, `ScoutGroup` |
+| `Access.Infrastructure` | Class Library | EF Core persistence for Access context |
+| `Access.Api` | Class Library | Endpoint extension methods for Access context (login/logout/me, user + scout group management) |
 | `TreeCampaign.Domain` | Class Library | Pure domain logic — no external dependencies |
 | `TreeCampaign.Infrastructure` | Class Library | EF Core + SQLite, dual DbContext pattern |
 | `TreeCampaign.Api` | Class Library | Endpoint extension methods for TreeCampaign context |
@@ -167,6 +207,7 @@ Each bounded context defines its own empty sub-interface of `IUnitOfWork` to avo
 public interface ITreeCampaignUnitOfWork : IUnitOfWork { }
 public interface ITreeTerritoryUnitOfWork : IUnitOfWork { }
 public interface IIntakeUnitOfWork : IUnitOfWork { }
+public interface IAccessUnitOfWork : IUnitOfWork { }
 ```
 
 Each context's `ServiceExtensions` registers only its own sub-interface. Endpoints inject the context-specific interface, never the base `IUnitOfWork`.
@@ -199,11 +240,17 @@ Key stop action endpoints (all `POST`):
 
 ### Frontend
 
-Layered: `client.ts` → hooks → screens → components. React Router v7.
+Layered: `client.ts` → hooks → screens → components. React Router v7, routes defined in `src/app/routes.tsx`.
 
-- `/` → Campaign list
-- `/campaigns/:campaignId/dispatch` → Dispatch screen (assign stops to teams)
-- `/campaigns/:campaignId/teams/:teamId` → Team detail view
+- `/login`, `/register` → unauthenticated
+- `/campaigns/:campaignId/teams/:teamId` → Team detail view (tabs: stops, map, info) — unauthenticated so scouts in the field can open it without logging in
+- Everything else sits behind `RequireAuth` (`src/app/RequireAuth.tsx`), which gates on the Access login cookie:
+  - `/` → Campaign list
+  - `/campaigns/:campaignId/dispatch` → Dispatch screen (assign stops to teams)
+  - `/campaigns/:campaignId/overview-map` → Overview map screen
+  - `/campaigns/:campaignId/intake` → Intake screen (order review, washing, transfer/settle, CSV import)
+  - `/territories`, `/territories/:id` → Territory management
+  - `/users` → User management screen (Access context)
 
 Vite proxies `/api/*` to `:5006`.
 

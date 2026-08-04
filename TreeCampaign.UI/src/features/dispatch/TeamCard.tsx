@@ -23,6 +23,7 @@ interface TeamCardProps {
   team: Team;
   stops: Stop[];
   assignMode: boolean;
+  blocked?: boolean;
   onClick: (team: Team) => any;
   onUpdateStop?: (stop: Stop) => any;
   onUpdateTeam?: (team: Team) => any;
@@ -33,6 +34,7 @@ export default function TeamCard({
   team,
   stops,
   assignMode,
+  blocked = false,
   onClick,
   onUpdateStop,
   onUpdateTeam,
@@ -110,15 +112,17 @@ export default function TeamCard({
   return (
     <div
       className={
-        assignMode
-          ? "p-4 border border-amber-400 rounded-sm cursor-pointer"
-          : team.kind === "Trailer" && team.isTrailerFull
-            ? "p-4 border border-amber-400 bg-amber-50 rounded-sm"
-            : team.status !== "Active"
-              ? "p-4 border border-gray-200 rounded-sm opacity-60"
-              : "p-4 border border-gray-200 rounded-sm"
+        assignMode && blocked
+          ? "p-4 border border-gray-200 rounded-sm opacity-40 cursor-not-allowed"
+          : assignMode
+            ? "p-4 border border-amber-400 rounded-sm cursor-pointer"
+            : team.kind === "Trailer" && team.isTrailerFull
+              ? "p-4 border border-amber-400 bg-amber-50 rounded-sm"
+              : team.status !== "Active"
+                ? "p-4 border border-gray-200 rounded-sm opacity-60"
+                : "p-4 border border-gray-200 rounded-sm"
       }
-      onClick={() => onClick(team)}
+      onClick={() => !blocked && onClick(team)}
     >
       <h2 className="text-lg font-semibold flex justify-between gap-2 flex-wrap">
         <span className="flex items-center gap-2">
@@ -143,6 +147,11 @@ export default function TeamCard({
             </span>
           )}
           {statusBadge}
+          {assignMode && blocked && (
+            <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
+              Trailer for stor
+            </span>
+          )}
         </span>
         <span className="flex items-center gap-2">
           {team.kind === "Trailer" && team.isTrailerFull && (

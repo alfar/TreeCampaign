@@ -3,6 +3,7 @@ import { createStreet, createStreetSection, getStreetsByZipCode } from "../../sh
 import { searchStreets, type StreetCandidate } from "../../shared/api/adressevaelger";
 import type { Street } from "../../shared/api/models/street";
 import type { Neighborhood } from "../../shared/api/models/neighborhood";
+import { trailerSizeLabels, type TrailerSize } from "../../shared/api/models/team";
 
 interface CreateStreetSectionFormProps {
   territoryId: string;
@@ -26,10 +27,13 @@ export default function CreateStreetSectionForm({
   const [resolvedStreet, setResolvedStreet] = useState<Street | null>(null);
   const [isCreatingStreet, setIsCreatingStreet] = useState(false);
 
-  const [fromHouseNumber, setFromHouseNumber] = useState("");
-  const [toHouseNumber, setToHouseNumber] = useState("");
+  const [evenFromHouseNumber, setEvenFromHouseNumber] = useState("");
+  const [evenToHouseNumber, setEvenToHouseNumber] = useState("");
+  const [oddFromHouseNumber, setOddFromHouseNumber] = useState("");
+  const [oddToHouseNumber, setOddToHouseNumber] = useState("");
   const [sortOrder, setSortOrder] = useState("0");
   const [direction, setDirection] = useState<0 | 1>(0);
+  const [maxTrailerSize, setMaxTrailerSize] = useState<TrailerSize>("Boogie");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,9 +107,12 @@ export default function CreateStreetSectionForm({
         neighborhoodId,
         resolvedStreet.id,
         Number(sortOrder),
-        fromHouseNumber.trim() || null,
-        toHouseNumber.trim() || null,
+        evenFromHouseNumber.trim() || null,
+        evenToHouseNumber.trim() || null,
+        oddFromHouseNumber.trim() || null,
+        oddToHouseNumber.trim() || null,
         direction,
+        maxTrailerSize,
       );
       if (res.ok) {
         const neighborhood: Neighborhood = await res.json();
@@ -183,21 +190,44 @@ export default function CreateStreetSectionForm({
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="text-sm font-medium text-gray-700 block mb-1">Fra husnummer (valgfri)</label>
+          <label className="text-sm font-medium text-gray-700 block mb-1">Lige husnumre, fra (valgfri)</label>
           <input
             type="text"
-            value={fromHouseNumber}
-            onChange={(e) => setFromHouseNumber(e.target.value)}
+            value={evenFromHouseNumber}
+            onChange={(e) => setEvenFromHouseNumber(e.target.value)}
+            className="w-full border rounded px-3 py-2 text-sm"
+            placeholder="2"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="text-sm font-medium text-gray-700 block mb-1">Lige husnumre, til (valgfri)</label>
+          <input
+            type="text"
+            value={evenToHouseNumber}
+            onChange={(e) => setEvenToHouseNumber(e.target.value)}
+            className="w-full border rounded px-3 py-2 text-sm"
+            placeholder="98"
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <label className="text-sm font-medium text-gray-700 block mb-1">Ulige husnumre, fra (valgfri)</label>
+          <input
+            type="text"
+            value={oddFromHouseNumber}
+            onChange={(e) => setOddFromHouseNumber(e.target.value)}
             className="w-full border rounded px-3 py-2 text-sm"
             placeholder="1"
           />
         </div>
         <div className="flex-1">
-          <label className="text-sm font-medium text-gray-700 block mb-1">Til husnummer (valgfri)</label>
+          <label className="text-sm font-medium text-gray-700 block mb-1">Ulige husnumre, til (valgfri)</label>
           <input
             type="text"
-            value={toHouseNumber}
-            onChange={(e) => setToHouseNumber(e.target.value)}
+            value={oddToHouseNumber}
+            onChange={(e) => setOddToHouseNumber(e.target.value)}
             className="w-full border rounded px-3 py-2 text-sm"
             placeholder="99"
           />
@@ -230,6 +260,22 @@ export default function CreateStreetSectionForm({
           >
             Faldende
           </button>
+        </div>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-gray-700 block mb-1">Maks. trailerstørrelse</label>
+        <div className="flex gap-2">
+          {(Object.keys(trailerSizeLabels) as TrailerSize[]).map((size) => (
+            <button
+              key={size}
+              type="button"
+              onClick={() => setMaxTrailerSize(size)}
+              className={`flex-1 py-2 rounded text-sm border ${maxTrailerSize === size ? "bg-blue-600 text-white border-blue-600" : "border-gray-300"}`}
+            >
+              {trailerSizeLabels[size]}
+            </button>
+          ))}
         </div>
       </div>
 

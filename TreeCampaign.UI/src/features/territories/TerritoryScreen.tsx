@@ -15,13 +15,23 @@ import Button from "../../components/Button";
 import CreateNeighborhoodForm from "./CreateNeighborhoodForm";
 import CreateStreetSectionForm from "./CreateStreetSectionForm";
 import EditStreetSectionForm from "./EditStreetSectionForm";
+import { trailerSizeLabels } from "../../shared/api/models/team";
+
+function partialRange(start: string | null, end: string | null): string | null {
+  if (start == null && end == null) return null;
+  if (start == null) return `– ${end}`;
+  if (end == null) return `${start} –`;
+  return `${start} – ${end}`;
+}
 
 function houseNumberRange(section: StreetSection): string {
-  if (section.startHouseNumber == null && section.endHouseNumber == null)
-    return "alle numre";
-  if (section.startHouseNumber == null) return `– ${section.endHouseNumber}`;
-  if (section.endHouseNumber == null) return `${section.startHouseNumber} –`;
-  return `${section.startHouseNumber} – ${section.endHouseNumber}`;
+  const even = partialRange(section.evenStartHouseNumber, section.evenEndHouseNumber);
+  const odd = partialRange(section.oddStartHouseNumber, section.oddEndHouseNumber);
+
+  if (even == null && odd == null) return "alle numre";
+  if (even == null) return `ulige ${odd}`;
+  if (odd == null) return `lige ${even}`;
+  return `lige ${even}, ulige ${odd}`;
 }
 
 export default function TerritoryScreen() {
@@ -142,6 +152,7 @@ export default function TerritoryScreen() {
                     <th className="pb-1 pr-4 font-medium">Numre</th>
                     <th className="pb-1 pr-4 font-medium">Rækkefølge</th>
                     <th className="pb-1 pr-4 font-medium">Retning</th>
+                    <th className="pb-1 pr-4 font-medium">Maks. trailer</th>
                     <th className="pb-1 font-medium"></th>
                   </tr>
                 </thead>
@@ -165,6 +176,9 @@ export default function TerritoryScreen() {
                           <td className="py-1.5 pr-4 text-gray-600">
                             {section.direction === 0 ? "Stigende" : "Faldende"}
                           </td>
+                          <td className="py-1.5 pr-4 text-gray-600">
+                            {trailerSizeLabels[section.maxTrailerSize]}
+                          </td>
                           <td className="py-1.5 text-right whitespace-nowrap">
                             {editingSectionId !== section.id && (
                               <Button
@@ -186,7 +200,7 @@ export default function TerritoryScreen() {
                         </tr>
                         {editingSectionId === section.id && (
                           <tr className="border-b last:border-0">
-                            <td colSpan={5} className="py-2">
+                            <td colSpan={6} className="py-2">
                               <EditStreetSectionForm
                                 territoryId={territory.id}
                                 neighborhoodId={hood.id}

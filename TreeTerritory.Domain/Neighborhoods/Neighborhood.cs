@@ -27,12 +27,15 @@ public class Neighborhood
 
     public void AddStreetSection(
         StreetId streetId,
-        HouseNumber? startHouseNumber,
-        HouseNumber? endHouseNumber,
+        HouseNumber? evenStartHouseNumber,
+        HouseNumber? evenEndHouseNumber,
+        HouseNumber? oddStartHouseNumber,
+        HouseNumber? oddEndHouseNumber,
         int sortOrder,
-        Direction direction)
+        Direction direction,
+        TrailerSize maxTrailerSize = TrailerSize.Boogie)
     {
-        var section = StreetSection.Create(this.Id, streetId, startHouseNumber, endHouseNumber, sortOrder, direction);
+        var section = StreetSection.Create(this.Id, streetId, evenStartHouseNumber, evenEndHouseNumber, oddStartHouseNumber, oddEndHouseNumber, sortOrder, direction, maxTrailerSize);
 
         // Add invariant checks here (no overlaps, etc.)
         _streetSections.Add(section);
@@ -40,17 +43,21 @@ public class Neighborhood
 
     public void UpdateStreetSection(
         StreetSectionId streetSectionId,
-        HouseNumber? startHouseNumber,
-        HouseNumber? endHouseNumber,
+        HouseNumber? evenStartHouseNumber,
+        HouseNumber? evenEndHouseNumber,
+        HouseNumber? oddStartHouseNumber,
+        HouseNumber? oddEndHouseNumber,
         int sortOrder,
-        Direction direction)
+        Direction direction,
+        TrailerSize maxTrailerSize)
     {
         var section = _streetSections.SingleOrDefault(s => s.Id == streetSectionId)
             ?? throw new InvalidOperationException($"Street section '{streetSectionId}' not found in neighborhood '{Id}'.");
 
-        section.UpdateHouseNumberRange(startHouseNumber, endHouseNumber);
+        section.UpdateHouseNumberRange(evenStartHouseNumber, evenEndHouseNumber, oddStartHouseNumber, oddEndHouseNumber);
         section.UpdateSortOrder(sortOrder);
         section.UpdateDirection(direction);
+        section.UpdateMaxTrailerSize(maxTrailerSize);
     }
 
     public void RemoveStreetSection(StreetSectionId streetSectionId)

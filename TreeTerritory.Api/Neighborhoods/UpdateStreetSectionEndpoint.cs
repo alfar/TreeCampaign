@@ -12,7 +12,14 @@ namespace TreeTerritory.Api.Neighborhoods;
 
 internal class UpdateStreetSectionEndpoint
 {
-    public record UpdateStreetSectionRequest(int SortOrder, HouseNumber? FromHouseNumber, HouseNumber? ToHouseNumber, Direction Direction);
+    public record UpdateStreetSectionRequest(
+        int SortOrder,
+        HouseNumber? EvenFromHouseNumber,
+        HouseNumber? EvenToHouseNumber,
+        HouseNumber? OddFromHouseNumber,
+        HouseNumber? OddToHouseNumber,
+        Direction Direction,
+        TrailerSize MaxTrailerSize);
 
     internal static async Task<IResult> Handle(
         ICurrentUserAccessor currentUser,
@@ -44,7 +51,15 @@ internal class UpdateStreetSectionEndpoint
             return Results.NotFound();
         }
 
-        neighborhood.UpdateStreetSection(streetSectionId, request.FromHouseNumber, request.ToHouseNumber, request.SortOrder, request.Direction);
+        neighborhood.UpdateStreetSection(
+            streetSectionId,
+            request.EvenFromHouseNumber,
+            request.EvenToHouseNumber,
+            request.OddFromHouseNumber,
+            request.OddToHouseNumber,
+            request.SortOrder,
+            request.Direction,
+            request.MaxTrailerSize);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Results.Ok(neighborhood);

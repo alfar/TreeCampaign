@@ -205,14 +205,26 @@ export async function createStreetSection(
   neighborhoodId: string,
   streetId: string,
   sortOrder: number = 0,
-  fromHouseNumber: string | null = null,
-  toHouseNumber: string | null = null,
+  evenFromHouseNumber: string | null = null,
+  evenToHouseNumber: string | null = null,
+  oddFromHouseNumber: string | null = null,
+  oddToHouseNumber: string | null = null,
   direction: number = 0,
+  maxTrailerSize: TrailerSize = 'Boogie',
 ): Promise<Response> {
   return fetch(`/api/Territories/${territoryId}/neighborhoods/${neighborhoodId}/street-sections`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ streetId, sortOrder, fromHouseNumber, toHouseNumber, direction }),
+    body: JSON.stringify({
+      streetId,
+      sortOrder,
+      evenFromHouseNumber,
+      evenToHouseNumber,
+      oddFromHouseNumber,
+      oddToHouseNumber,
+      direction,
+      maxTrailerSize,
+    }),
   });
 }
 
@@ -221,14 +233,25 @@ export async function updateStreetSection(
   neighborhoodId: string,
   streetSectionId: string,
   sortOrder: number = 0,
-  fromHouseNumber: string | null = null,
-  toHouseNumber: string | null = null,
+  evenFromHouseNumber: string | null = null,
+  evenToHouseNumber: string | null = null,
+  oddFromHouseNumber: string | null = null,
+  oddToHouseNumber: string | null = null,
   direction: number = 0,
+  maxTrailerSize: TrailerSize = 'Boogie',
 ): Promise<Response> {
   return fetch(`/api/Territories/${territoryId}/neighborhoods/${neighborhoodId}/street-sections/${streetSectionId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sortOrder, fromHouseNumber, toHouseNumber, direction }),
+    body: JSON.stringify({
+      sortOrder,
+      evenFromHouseNumber,
+      evenToHouseNumber,
+      oddFromHouseNumber,
+      oddToHouseNumber,
+      direction,
+      maxTrailerSize,
+    }),
   });
 }
 
