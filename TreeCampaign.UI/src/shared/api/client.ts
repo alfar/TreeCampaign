@@ -2,6 +2,7 @@ import type { Campaign } from "./models/campagin";
 import type { Neighborhood } from "./models/neighborhood";
 import type { Order } from "./models/order";
 import type { PaymentImportSummary } from "./models/paymentImport";
+import type { StreetSectionImportSummary } from "./models/streetSectionImport";
 import type { Street } from "./models/street";
 import type { Stop } from "./models/stop";
 import type { Team, TeamKind, TrailerSize } from "./models/team";
@@ -182,6 +183,17 @@ export async function createTerritory(name: string, defaultZipCode: string): Pro
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, defaultZipCode }),
+  });
+  return res.json();
+}
+
+export async function importStreetSections(territoryId: string, file: File): Promise<StreetSectionImportSummary> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`/api/Territories/${territoryId}/import-street-sections`, {
+    method: 'POST',
+    body: formData,
   });
   return res.json();
 }

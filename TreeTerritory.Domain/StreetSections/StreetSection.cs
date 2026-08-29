@@ -46,8 +46,6 @@ public class StreetSection : IHasDomainEvents
         Direction direction,
         TrailerSize maxTrailerSize = TrailerSize.Boogie)
     {
-        ValidateRangePairing(evenStartHouseNumber, evenEndHouseNumber, oddStartHouseNumber, oddEndHouseNumber);
-
         var (evenStart, evenEnd) = OrderPair(evenStartHouseNumber, evenEndHouseNumber);
         var (oddStart, oddEnd) = OrderPair(oddStartHouseNumber, oddEndHouseNumber);
 
@@ -93,8 +91,6 @@ public class StreetSection : IHasDomainEvents
         HouseNumber? oddStartHouseNumber,
         HouseNumber? oddEndHouseNumber)
     {
-        ValidateRangePairing(evenStartHouseNumber, evenEndHouseNumber, oddStartHouseNumber, oddEndHouseNumber);
-
         (EvenStartHouseNumber, EvenEndHouseNumber) = OrderPair(evenStartHouseNumber, evenEndHouseNumber);
         (OddStartHouseNumber, OddEndHouseNumber) = OrderPair(oddStartHouseNumber, oddEndHouseNumber);
     }
@@ -106,19 +102,6 @@ public class StreetSection : IHasDomainEvents
             : (OddStartHouseNumber, OddEndHouseNumber);
 
         return (start?.CompareTo(houseNumber) ?? -1) <= 0 && (end?.CompareTo(houseNumber) ?? 1) >= 0;
-    }
-
-    private static void ValidateRangePairing(
-        HouseNumber? evenStartHouseNumber,
-        HouseNumber? evenEndHouseNumber,
-        HouseNumber? oddStartHouseNumber,
-        HouseNumber? oddEndHouseNumber)
-    {
-        if (evenStartHouseNumber is null != evenEndHouseNumber is null)
-            throw new ArgumentException("Even start and end house numbers must both be set or both be null.");
-
-        if (oddStartHouseNumber is null != oddEndHouseNumber is null)
-            throw new ArgumentException("Odd start and end house numbers must both be set or both be null.");
     }
 
     private static (HouseNumber? Start, HouseNumber? End) OrderPair(HouseNumber? start, HouseNumber? end)

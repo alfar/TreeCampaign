@@ -15,6 +15,7 @@ import Button from "../../components/Button";
 import CreateNeighborhoodForm from "./CreateNeighborhoodForm";
 import CreateStreetSectionForm from "./CreateStreetSectionForm";
 import EditStreetSectionForm from "./EditStreetSectionForm";
+import ImportStreetSectionsForm from "./ImportStreetSectionsForm";
 import { trailerSizeLabels } from "../../shared/api/models/team";
 
 function partialRange(start: string | null, end: string | null): string | null {
@@ -34,6 +35,13 @@ function houseNumberRange(section: StreetSection): string {
   return `lige ${even}, ulige ${odd}`;
 }
 
+function minSortOrder(hood: Neighborhood): number {
+  return hood.streetSections.reduce(
+    (min, section) => Math.min(min, section.sortOrder),
+    Infinity,
+  );
+}
+
 export default function TerritoryScreen() {
   const { id } = useParams<{ id: string }>();
   const [territory, setTerritory] = useState<Territory | null>(null);
@@ -42,6 +50,7 @@ export default function TerritoryScreen() {
     new Map(),
   );
   const [showCreateNeighborhood, setShowCreateNeighborhood] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [activeStreetSectionNeighborhoodId, setActiveStreetSectionNeighborhoodId] = useState<string | null>(null);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [deletingSectionId, setDeletingSectionId] = useState<string | null>(null);
@@ -90,12 +99,37 @@ export default function TerritoryScreen() {
               Postnr. {territory.defaultZipCode}
             </p>
           </div>
-          {!showCreateNeighborhood && (
-            <Button onClick={() => setShowCreateNeighborhood(true)}>
-              Nyt kvarter
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {!showImport && (
+              <Button variant="secondary" onClick={() => setShowImport(true)}>
+                Importér CSV
+              </Button>
+            )}
+            {!showCreateNeighborhood && (
+              <Button onClick={() => setShowCreateNeighborhood(true)}>
+                Nyt kvarter
+              </Button>
+            )}
+          </div>
         </div>
+
+        {showImport && (
+          <div className="border rounded p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold">Importér vejstykker</h2>
+              <Button variant="secondary" onClick={() => setShowImport(false)}>
+                Luk
+              </Button>
+            </div>
+            <ImportStreetSectionsForm
+              territoryId={territory.id}
+              onImported={() => {
+                getNeighborhoods(territory.id).then(setNeighborhoods);
+                refreshStreetIndex(territory.defaultZipCode);
+              }}
+            />
+          </div>
+        )}
 
         {showCreateNeighborhood && (
           <CreateNeighborhoodForm
@@ -112,7 +146,9 @@ export default function TerritoryScreen() {
           <p className="text-sm text-gray-500">Ingen kvarterer endnu.</p>
         )}
 
-        {neighborhoods.map((hood) => (
+        {[...neighborhoods]
+          .sort((a, b) => minSortOrder(a) - minSortOrder(b))
+          .map((hood) => (
           <div key={hood.id} className="border rounded p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold">{hood.name}</h2>

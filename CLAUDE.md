@@ -64,7 +64,7 @@ Street (separate aggregate — a street can span multiple neighborhoods)
   └─ ZipCode
 ```
 
-**Why even/odd ranges:** Danish streets commonly have even and odd house numbers on opposite sides with different practical extents (e.g. odd side ends at 27, even side continues to 40). A single `HouseNumberFrom`/`HouseNumberTo` range couldn't express that, so the range is split into an even-number pair and an odd-number pair, each optional (a section can cover only one parity) but each pair must be set or unset together — enforced in `StreetSection.ValidateRangePairing`. `ContainsHouseNumber` picks the matching pair based on the number's parity.
+**Why even/odd ranges:** Danish streets commonly have even and odd house numbers on opposite sides with different practical extents (e.g. odd side ends at 27, even side continues to 40). A single `HouseNumberFrom`/`HouseNumberTo` range couldn't express that, so the range is split into an even-number pair and an odd-number pair, each independently optional. Start and end within a pair are also independently nullable — a set start with a null end means "this number and above," a null start with a set end means "this number and below" (the dispatcher often doesn't know the true highest house number on a street). `ContainsHouseNumber` picks the matching pair based on the number's parity and treats a null bound as unbounded on that side.
 
 **Aggregate Boundaries:**
 - `Neighborhood` is the aggregate root; `StreetSection` can only be created through `Neighborhood.AddStreetSection()`. The internal `StreetSection.Create()` factory is not publicly accessible.

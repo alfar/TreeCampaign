@@ -1,3 +1,5 @@
+using Common.Infrastructure.Auth;
+using TreeTerritory.Application;
 using TreeTerritory.Infrastructure;
 using TreeTerritory.Api.Streets;
 using TreeTerritory.Api.Territories;
@@ -15,7 +17,11 @@ public static class EndpointExtensions
         app.MapTerritoryEndpoints();
         app.MapGroup("/Territories/{territoryId:guid}")
             .MapNeighborhoodEndpoints()
-            .MapStreetSectionEndpoints();
+            .MapStreetSectionEndpoints()
+            .MapPost("/import-street-sections", ImportStreetSectionsEndpoint.Handle)
+            .WithTags("Territories")
+            .RequireAuthorization(AuthPolicies.ScoutGroupMember)
+            .DisableAntiforgery();
 
         return app;
     }
@@ -23,6 +29,7 @@ public static class EndpointExtensions
     public static IServiceCollection AddTreeTerritory(this IServiceCollection services)
     {
         services.AddTreeTerritoryRepository();
+        services.AddTreeTerritoryServices();
 
         services.ConfigureHttpJsonOptions(options =>
         {

@@ -16,7 +16,7 @@ public static class ServiceExtensions
             options.UseSqlite($"Data Source={dbPath}");
         });
 
-        services.AddScoped<ITreeTerritoryUnitOfWork, TreeTerritoryContext>();
+        services.AddScoped<ITreeTerritoryUnitOfWork>(sp => sp.GetRequiredService<TreeTerritoryContext>());
         services.AddScoped<INeighborhoodQueries, NeighborhoodQueries>();
         services.AddScoped<ITerritoryQueries, TerritoryQueries>();
         services.AddScoped<IStreetQueries, StreetQueries>();

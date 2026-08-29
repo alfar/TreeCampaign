@@ -11,6 +11,9 @@ public class AdressevaelgerClient : IAddressLookupClient
     public record SearchResult(string Status, string Beskrivelse, IEnumerable<SearchMatch> Fund);
     public record SearchMatch(string Id, string Vejnavn, string? Husnummer);
 
+    public record StreetSearchResponse(string Status, string Beskrivelse, IEnumerable<StreetSearchMatch> Fund);
+    public record StreetSearchMatch(string Id, string Vejnavn, string Postnr, string Postdistrikt, int AntalHusnumre);
+
     public record DetailResult(string Status, HusnummerDetail Husnummer);
     public record HusnummerDetail(string Husnummertekst, string Vejnavn, Postnummer Postnummer, Adgangspunkt Adgangspunkt);
     public record Postnummer(string Navn, string Postnr);
@@ -64,6 +67,28 @@ public class AdressevaelgerClient : IAddressLookupClient
         catch
         {
             return null;
+        }
+    }
+
+    public async Task<IReadOnlyList<StreetSearchResult>> SearchStreets(string street, string zipCode)
+    {
+        try
+        {
+            var searchUri = new UriBuilder("https://adressevaelger.dk/soeg")
+            {
+                Query = $"?vejnavn={Uri.EscapeDataString(street)}&postnummer={Uri.EscapeDataString(zipCode)}&token={Token}&maal=navngivenvejpostnummer"
+            };
+
+            var searchResult = await _httpClient.GetFromJsonAsync<StreetSearchResponse>(searchUri.Uri);
+
+            return searchResult?.Fund
+                .Select(f => new StreetSearchResult(f.Vejnavn, f.Postnr, f.Postdistrikt, f.AntalHusnumre))
+                .ToList()
+                ?? [];
+        }
+        catch
+        {
+            return [];
         }
     }
 }

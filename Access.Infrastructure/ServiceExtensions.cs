@@ -15,7 +15,7 @@ public static class ServiceExtensions
             options.UseSqlite($"Data Source={dbPath}");
         });
 
-        services.AddScoped<IAccessUnitOfWork, AccessContext>();
+        services.AddScoped<IAccessUnitOfWork>(sp => sp.GetRequiredService<AccessContext>());
         services.AddScoped<IUserQueries, UserQueries>();
 
         return services;

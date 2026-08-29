@@ -24,7 +24,7 @@ public static class ServiceExtensions
             options.UseSqlite($"Data Source={dbPath}");
         });
 
-        services.AddScoped<ITreeCampaignUnitOfWork, TreeCampaignContext>();
+        services.AddScoped<ITreeCampaignUnitOfWork>(sp => sp.GetRequiredService<TreeCampaignContext>());
         services.AddScoped<IStopQueries, StopQueries>();
         services.AddScoped<ICampaignQueries, CampaignQueries>();
         services.AddScoped<ITeamQueries, TeamQueries>();

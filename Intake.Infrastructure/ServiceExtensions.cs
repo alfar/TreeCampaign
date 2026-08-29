@@ -16,7 +16,7 @@ public static class ServiceExtensions
         services.AddDbContext<IntakeProjectionContext>(options =>
             options.UseSqlite($"Data Source={Path.Combine(AppContext.BaseDirectory, "app.db")}"));
 
-        services.AddScoped<IIntakeUnitOfWork, IntakeContext>();
+        services.AddScoped<IIntakeUnitOfWork>(sp => sp.GetRequiredService<IntakeContext>());
         services.AddScoped<IAddressParser, RegexAddressParser>();
         services.AddScoped<IOrderQueries, OrderQueries>();
 

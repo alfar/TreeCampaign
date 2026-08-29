@@ -9,6 +9,7 @@ public interface INeighborhoodQueries
 {
     Task<IReadOnlyCollection<Neighborhood>> GetAllByTerritoryIdAsync(TerritoryId territoryId, CancellationToken cancellationToken = default);
     Task<Neighborhood?> GetByIdAsync(NeighborhoodId neighborhoodId, CancellationToken cancellationToken = default);
+    Task<Neighborhood?> GetByNameAsync(TerritoryId territoryId, string name, CancellationToken cancellationToken = default);
 }
 
 public class NeighborhoodQueries : INeighborhoodQueries
@@ -33,6 +34,14 @@ public class NeighborhoodQueries : INeighborhoodQueries
         return await
             _dbContext.Neighborhoods.Include(n => n.StreetSections)
                 .Where(n => n.Id == neighborhoodId)
+                .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<Neighborhood?> GetByNameAsync(TerritoryId territoryId, string name, CancellationToken cancellationToken = default)
+    {
+        return await
+            _dbContext.Neighborhoods.Include(n => n.StreetSections)
+                .Where(n => n.TerritoryId == territoryId && EF.Functions.Like(n.Name, name))
                 .FirstOrDefaultAsync(cancellationToken);
     }
 }
