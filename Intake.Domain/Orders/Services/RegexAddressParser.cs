@@ -6,18 +6,33 @@ namespace Intake.Domain.Services;
 
 public class RegexAddressParser : IAddressParser
 {
-    // Matches Danish addresses: <street name> <number>[<letter>][, <zip>[ <city>]]
-    // Street names may contain Æ Ø Å and hyphens (e.g. "H.C. Andersens Vej", "Nørre-Allé")
+    // Matches Danish addresses: <street name> <number>[<letter>]
+    // Street names may contain Æ Ø Å and hyphens/dots (e.g. "H.C. Andersens Vej", "Nørre-Allé").
+    // Anchored to a word boundary (not end-of-string) so trailing free text - order notes,
+    // floor/side ("1.th"), neighborhood names, emoji, etc. - doesn't prevent a match.
+    // A single letter directly after the number is always captured as a suite letter (e.g. "45 a",
+    // "6a"). This is ambiguous with a following one-letter word ("39 i Sydbyen" -> house number
+    // "39i") but that's acceptable here - a bogus house number like that fails address validation
+    // downstream rather than silently producing a wrong-but-plausible result.
     private static readonly Regex AddressPattern = new(
-        @"(?<street>[A-Za-zÆæØøÅå][A-Za-zÆæØøÅå0-9\s\-\.]+)" +
-        @"\s+(?<number>\d+)\s*(?<letter>[A-Za-zÆæØøÅå])?" +
-        @"(?:\s*,\s*(?<zip>\d{4})(?:\s+(?<city>[A-Za-zÆæØøÅå\s]+))?)?$",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline
+        @"(?<street>[A-Za-zÆæØøÅå][A-Za-zÆæØøÅå\-\.]*(?:\s+[A-Za-zÆæØøÅå][A-Za-zÆæØøÅå\-\.]*)*)" +
+        @"\s+(?<number>\d+)(?:\s*(?<letter>[A-Za-zÆæØøÅå])\b)?",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
+
+    // Leading pickup notes that precede the street rather than being part of it (e.g. "Afh. Vejlbovej 46").
+    private static readonly Regex LeadingNoisePattern = new(
+        @"^\s*(?:afh(?:ent(?:es)?)?\.?)\s+",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase
+    );
+
+    // Danish zip codes are 4 digits; matched as a standalone token anywhere in the message.
+    private static readonly Regex ZipPattern = new(@"\b\d{4}\b", RegexOptions.Compiled);
 
     public ParsedAddress? TryParse(string message)
     {
-        var match = AddressPattern.Match(message);
+        var search = LeadingNoisePattern.Replace(message, "", 1);
+        var match = AddressPattern.Match(search);
         if (!match.Success)
             return null;
 
@@ -28,9 +43,10 @@ public class RegexAddressParser : IAddressParser
         var number = match.Groups["number"].Value;
         var letter = match.Groups["letter"].Value;
         var houseNumber = string.IsNullOrEmpty(letter) ? number : $"{number}{letter}";
-        var zipCode = match.Groups["zip"].Success ? match.Groups["zip"].Value : null;
-        var city = match.Groups["city"].Success ? match.Groups["city"].Value.Trim() : null;
 
-        return new ParsedAddress(street, houseNumber, zipCode, string.IsNullOrEmpty(city) ? null : city);
+        var zipMatch = ZipPattern.Match(message);
+        var zipCode = zipMatch.Success ? zipMatch.Value : null;
+
+        return new ParsedAddress(street, houseNumber, zipCode, null);
     }
 }

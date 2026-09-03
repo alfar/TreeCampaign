@@ -1,4 +1,6 @@
 using Common.Infrastructure.Abstractions;
+using Common.Infrastructure.Auth;
+using Intake.Api.Helpers;
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders;
 using Intake.Domain.Orders.Services;
@@ -10,8 +12,19 @@ namespace Intake.Api.Orders;
 
 public static class UndoTransferOrderEndpoint
 {
-    public static async Task<IResult> Handle([FromRoute] CampaignRef campaignId, [FromRoute] OrderId orderId, IIntakeUnitOfWork unitOfWork, CancellationToken cancellationToken)
+    public static async Task<IResult> Handle(
+        [FromRoute] CampaignRef campaignId,
+        [FromRoute] OrderId orderId,
+        IIntakeUnitOfWork unitOfWork,
+        ICampaignOwnershipService campaignOwnershipService,
+        ICurrentUserAccessor currentUser,
+        CancellationToken cancellationToken)
     {
+        if (!await campaignOwnershipService.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        {
+            return Results.NotFound();
+        }
+
         var order = await unitOfWork.GetRepository<TransferredOrder, OrderId>().TryFindAsync(orderId, cancellationToken);
         if (order is null || order.CampaignId != campaignId)
         {

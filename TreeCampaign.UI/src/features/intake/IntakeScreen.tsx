@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCampaigns, getOrders, getTerritories, settleTerritoryOrders } from "../../shared/api/client";
+import { getCampaigns, getOrders, getTerritories, revalidateCampaignOrders, settleTerritoryOrders } from "../../shared/api/client";
 import type { Order } from "../../shared/api/models/order";
 import type { Territory } from "../../shared/api/models/territory";
 import CreateOrderForm from "./CreateOrderForm";
@@ -28,6 +28,7 @@ export default function IntakeScreen() {
   const [oobAction, setOobAction] = useState<"section" | "transfer">("section");
   const [bulkSettling, setBulkSettling] = useState<Record<string, boolean>>({});
   const [bulkError, setBulkError] = useState<Record<string, string | undefined>>({});
+  const [revalidating, setRevalidating] = useState(false);
 
   const loadOrders = () => {
     if (campaignId) {
@@ -220,6 +221,16 @@ export default function IntakeScreen() {
     setShowCreateForm(false);
   };
 
+  const handleRevalidate = async () => {
+    if (!campaignId) return;
+    setRevalidating(true);
+    try {
+      await revalidateCampaignOrders(campaignId);
+    } finally {
+      setRevalidating(false);
+    }
+  };
+
   const handleSelectTab = (tab: "pending" | "transferred") => {
     setSelectedOrderId(null);
     setShowCreateForm(false);
@@ -235,6 +246,9 @@ export default function IntakeScreen() {
             Bestillinger til manuel behandling
           </h1>
           <div className="flex gap-2">
+            <Button variant="secondary" onClick={handleRevalidate} disabled={revalidating}>
+              {revalidating ? "Genbehandler…" : "Genbehandl bestillinger"}
+            </Button>
             <Button variant="secondary" onClick={handleOpenImportForm}>
               Importér CSV
             </Button>

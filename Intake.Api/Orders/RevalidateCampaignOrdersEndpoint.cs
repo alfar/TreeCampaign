@@ -1,18 +1,18 @@
+using System.Threading.Channels;
 using Common.Infrastructure.Auth;
 using Intake.Api.Helpers;
-using Intake.Application.Services;
+using Intake.Application.BackgroundWorkers.Signals;
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Intake.Api.Orders;
 
-internal class ImportPaymentsEndpoint
+public static class RevalidateCampaignOrdersEndpoint
 {
     public static async Task<IResult> Handle(
         [FromRoute] CampaignRef campaignId,
-        IFormFile file,
-        IPaymentImportService paymentImportService,
+        ChannelWriter<ValidationSignalBase> signalWriter,
         ICampaignOwnershipService campaignOwnershipService,
         ICurrentUserAccessor currentUser,
         CancellationToken cancellationToken)
@@ -22,11 +22,8 @@ internal class ImportPaymentsEndpoint
             return Results.NotFound();
         }
 
-        using var reader = new StreamReader(file.OpenReadStream());
-        var csvContent = await reader.ReadToEndAsync(cancellationToken);
+        await signalWriter.WriteAsync(new CampaignValidationSignal(campaignId), cancellationToken);
 
-        var summary = await paymentImportService.ImportAsync(campaignId, csvContent, cancellationToken);
-
-        return Results.Ok(summary);
+        return Results.Accepted();
     }
 }

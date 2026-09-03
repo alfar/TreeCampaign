@@ -6,6 +6,7 @@ using Intake.Application.BackgroundWorkers.Signals;
 using Intake.Api.JsonConverters;
 using Common.InfraStructure;
 using Common.Infrastructure.Services;
+using Common.Infrastructure.Auth;
 
 namespace Intake.Api;
 
@@ -45,15 +46,10 @@ public static class EndpointExtensions
 
     public static IEndpointRouteBuilder MapIntakeEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGroup("/campaigns/{campaignId:guid}").MapOrderEndpoints().MapIntakeSseEndpoint();
-
-        app.MapPost("/intake/testValidation", 
-            async (ChannelWriter<ValidationSignalBase> signalWriter) =>
-            {
-                await signalWriter.WriteAsync(new EverythingValidationSignal());
-            })
-            .WithTags("Intake")
-            .WithName("TestValidation");
+        app.MapGroup("/campaigns/{campaignId:guid}")
+            .RequireAuthorization(AuthPolicies.ScoutGroupMember)
+            .MapOrderEndpoints()
+            .MapIntakeSseEndpoint();
 
         return app;
     }

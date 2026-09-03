@@ -1,4 +1,6 @@
 using Common.Infrastructure.Abstractions;
+using Common.Infrastructure.Auth;
+using Intake.Api.Helpers;
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders;
 using Intake.Domain.Orders.Services;
@@ -12,8 +14,21 @@ public static class WashOrderEndpoint
 {
     public record WashOrderRequest(StreetRef StreetId, HouseNumber HouseNumber);
 
-    public static async Task<IResult> Handle([FromRoute] CampaignRef campaignId, [FromRoute] OrderId orderId, WashOrderRequest request, ISectionResolutionService sectionResolutionService, IIntakeUnitOfWork unitOfWork, CancellationToken cancellationToken)
+    public static async Task<IResult> Handle(
+        [FromRoute] CampaignRef campaignId,
+        [FromRoute] OrderId orderId,
+        WashOrderRequest request,
+        ISectionResolutionService sectionResolutionService,
+        ICampaignOwnershipService campaignOwnershipService,
+        ICurrentUserAccessor currentUser,
+        IIntakeUnitOfWork unitOfWork,
+        CancellationToken cancellationToken)
     {
+        if (!await campaignOwnershipService.IsOwnedByCurrentScoutGroupAsync(campaignId, currentUser, cancellationToken))
+        {
+            return Results.NotFound();
+        }
+
         var order = await unitOfWork.GetRepository<UnwashedOrder, OrderId>().TryFindAsync(orderId, cancellationToken);
         if (order is null || order.CampaignId != campaignId)
         {

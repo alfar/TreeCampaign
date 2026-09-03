@@ -126,6 +126,12 @@ export async function settleTerritoryOrders(campaignId: string, territoryId: str
   });
 }
 
+export async function revalidateCampaignOrders(campaignId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/revalidate`, {
+    method: 'POST',
+  });
+}
+
 export async function getStreetsByZipCode(zipCode: string): Promise<Street[]> {
   const res = await fetch(`/api/streets/${zipCode}`);
   return res.json();

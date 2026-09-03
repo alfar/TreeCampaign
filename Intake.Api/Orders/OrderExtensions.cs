@@ -15,6 +15,7 @@ public static class OrderExtensions
         group.MapPost("/{orderId:guid}/settle", SettleOrderEndpoint.Handle);
         group.MapPost("/settle-by-territory/{territoryId:guid}", SettleTerritoryOrdersEndpoint.Handle);
         group.MapPost("/import", ImportPaymentsEndpoint.Handle).DisableAntiforgery();
+        group.MapPost("/revalidate", RevalidateCampaignOrdersEndpoint.Handle);
 
         return app;
     }
