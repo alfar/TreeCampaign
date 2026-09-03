@@ -11,9 +11,9 @@ namespace Intake.Api;
 
 public static class EndpointExtensions
 {
-    public static IServiceCollection AddIntake(this IServiceCollection services)
+    public static IServiceCollection AddIntake(this IServiceCollection services, string connectionString)
     {
-        services.AddIntakeRepository();
+        services.AddIntakeRepository(connectionString);
         services.AddIntakeServices();
 
         services.ConfigureHttpJsonOptions(options =>

@@ -8,20 +8,16 @@ namespace TreeCampaign.Infrastructure;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddTreeCampaignRepository(this IServiceCollection services)
+    public static IServiceCollection AddTreeCampaignRepository(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<TreeCampaignContext>(options =>
         {
-            var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-
-            options.UseSqlite($"Data Source={dbPath}");
+            options.UseSqlServer(connectionString);
         });
 
         services.AddDbContext<ProjectionContext>(options =>
         {
-            var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-
-            options.UseSqlite($"Data Source={dbPath}");
+            options.UseSqlServer(connectionString);
         });
 
         services.AddScoped<ITreeCampaignUnitOfWork>(sp => sp.GetRequiredService<TreeCampaignContext>());

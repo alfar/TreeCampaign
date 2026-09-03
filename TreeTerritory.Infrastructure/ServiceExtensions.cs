@@ -7,13 +7,11 @@ namespace TreeTerritory.Infrastructure;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddTreeTerritoryRepository(this IServiceCollection services)
+    public static IServiceCollection AddTreeTerritoryRepository(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<TreeTerritoryContext>(options =>
         {
-            var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-
-            options.UseSqlite($"Data Source={dbPath}");
+            options.UseSqlServer(connectionString);
         });
 
         services.AddScoped<ITreeTerritoryUnitOfWork>(sp => sp.GetRequiredService<TreeTerritoryContext>());

@@ -6,6 +6,6 @@ namespace TreeCampaign.Domain.Teams;
 public enum TrailerSize
 {
     Small,
-    Large,
     Boogie,
+    Large,
 }

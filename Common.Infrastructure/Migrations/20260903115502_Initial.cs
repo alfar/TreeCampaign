@@ -15,13 +15,13 @@ namespace Common.Infrastructure.Migrations
                 name: "StoredDomainEvents",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    AggregateId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false),
-                    OccurredAtUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Data = table.Column<string>(type: "TEXT", nullable: false),
-                    ProcessedAtUtc = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AggregateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OccurredAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProcessedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {

@@ -25,8 +25,7 @@ public class StoredDomainEventContextFactory : IDesignTimeDbContextFactory<Store
     public StoredDomainEventContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<StoredDomainEventContext>();
-        var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=TreeCampaign;Trusted_Connection=True;");
 
         return new StoredDomainEventContext(optionsBuilder.Options);
     }

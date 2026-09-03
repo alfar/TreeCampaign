@@ -26,9 +26,9 @@ public static class EndpointExtensions
         return app;
     }
 
-    public static IServiceCollection AddTreeTerritory(this IServiceCollection services)
+    public static IServiceCollection AddTreeTerritory(this IServiceCollection services, string connectionString)
     {
-        services.AddTreeTerritoryRepository();
+        services.AddTreeTerritoryRepository(connectionString);
         services.AddTreeTerritoryServices();
 
         services.ConfigureHttpJsonOptions(options =>

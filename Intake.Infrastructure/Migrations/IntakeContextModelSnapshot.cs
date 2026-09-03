@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Intake.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -16,30 +17,36 @@ namespace Intake.Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Common.Infrastructure.Events.StoredDomainEvent", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<Guid>("AggregateId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Data")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("OccurredAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("ProcessedAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -52,28 +59,28 @@ namespace Intake.Infrastructure.Migrations
             modelBuilder.Entity("Intake.Domain.Orders.OrderBase", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("CampaignId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("OrderDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("OrderType")
                         .IsRequired()
                         .HasMaxLength(13)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<string>("TransactionId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(450)");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Sender", "Intake.Domain.Orders.OrderBase.Sender#Sender", b1 =>
                         {
@@ -81,11 +88,11 @@ namespace Intake.Infrastructure.Migrations
 
                             b1.Property<string>("Name")
                                 .IsRequired()
-                                .HasColumnType("TEXT")
+                                .HasColumnType("nvarchar(max)")
                                 .HasColumnName("SenderName");
 
                             b1.Property<string>("PhoneNumber")
-                                .HasColumnType("TEXT")
+                                .HasColumnType("nvarchar(max)")
                                 .HasColumnName("SenderPhoneNumber");
                         });
 
@@ -116,12 +123,12 @@ namespace Intake.Infrastructure.Migrations
                     b.Property<string>("HouseNumber")
                         .IsRequired()
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("HouseNumber");
 
                     b.Property<Guid>("StreetId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("StreetId");
 
                     b.HasDiscriminator().HasValue("OutOfBounds");
@@ -134,17 +141,17 @@ namespace Intake.Infrastructure.Migrations
                     b.Property<string>("HouseNumber")
                         .IsRequired()
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("HouseNumber");
 
                     b.Property<Guid>("StreetId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("StreetId");
 
                     b.Property<Guid>("TerritoryId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("TerritoryId");
 
                     b.HasDiscriminator().HasValue("Settled");
@@ -157,17 +164,17 @@ namespace Intake.Infrastructure.Migrations
                     b.Property<string>("HouseNumber")
                         .IsRequired()
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("HouseNumber");
 
                     b.Property<Guid>("StreetId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("StreetId");
 
                     b.Property<Guid>("TerritoryId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("TerritoryId");
 
                     b.HasDiscriminator().HasValue("Transferred");
@@ -178,7 +185,7 @@ namespace Intake.Infrastructure.Migrations
                     b.HasBaseType("Intake.Domain.Orders.OrderBase");
 
                     b.Property<string>("ErrorMessage")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("Unwashed");
                 });
@@ -190,28 +197,28 @@ namespace Intake.Infrastructure.Migrations
                     b.Property<string>("HouseNumber")
                         .IsRequired()
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("HouseNumber");
 
                     b.Property<decimal>("Latitude")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Longitude")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("NeighborhoodId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("NeighborhoodId");
 
                     b.Property<Guid>("StreetId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("StreetId");
 
                     b.Property<Guid>("StreetSectionId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("StreetSectionId");
 
                     b.HasDiscriminator().HasValue("Validated");
@@ -224,22 +231,22 @@ namespace Intake.Infrastructure.Migrations
                     b.Property<string>("HouseNumber")
                         .IsRequired()
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("HouseNumber");
 
                     b.Property<Guid>("NeighborhoodId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("NeighborhoodId");
 
                     b.Property<Guid>("StreetId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("StreetId");
 
                     b.Property<Guid>("StreetSectionId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("StreetSectionId");
 
                     b.HasDiscriminator().HasValue("Washed");

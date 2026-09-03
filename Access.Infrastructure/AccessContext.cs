@@ -49,8 +49,7 @@ public class AccessContextFactory : IDesignTimeDbContextFactory<AccessContext>
     public AccessContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<AccessContext>();
-        var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=TreeCampaign;Trusted_Connection=True;");
 
         return new AccessContext(optionsBuilder.Options, null!);
     }

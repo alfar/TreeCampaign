@@ -15,9 +15,9 @@ namespace TreeTerritory.Infrastructure.Migrations
                 name: "Streets",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    ZipCode = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,9 +28,10 @@ namespace TreeTerritory.Infrastructure.Migrations
                 name: "Territories",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    DefaultZipCode = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DefaultZipCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ScoutGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,9 +42,9 @@ namespace TreeTerritory.Infrastructure.Migrations
                 name: "Neighborhoods",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TerritoryId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TerritoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,13 +61,16 @@ namespace TreeTerritory.Infrastructure.Migrations
                 name: "StreetSections",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    NeighborhoodId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    StreetId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    StartHouseNumber = table.Column<string>(type: "TEXT", nullable: false),
-                    EndHouseNumber = table.Column<string>(type: "TEXT", nullable: false),
-                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
-                    Direction = table.Column<byte>(type: "INTEGER", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NeighborhoodId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StreetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EvenStartHouseNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EvenEndHouseNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OddStartHouseNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OddEndHouseNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    Direction = table.Column<byte>(type: "tinyint", nullable: false),
+                    MaxTrailerSize = table.Column<byte>(type: "tinyint", nullable: false, defaultValue: (byte)2)
                 },
                 constraints: table =>
                 {

@@ -20,9 +20,9 @@ public static class EndpointExtensions
         return app;
     }
 
-    public static IServiceCollection AddTreeCampaign(this IServiceCollection services)
+    public static IServiceCollection AddTreeCampaign(this IServiceCollection services, string connectionString)
     {
-        services.AddTreeCampaignRepository();
+        services.AddTreeCampaignRepository(connectionString);
         services.AddTreeCampaignApplicationServices();
 
         services.ConfigureHttpJsonOptions(options =>

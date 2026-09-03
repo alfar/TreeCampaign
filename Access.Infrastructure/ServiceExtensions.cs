@@ -6,13 +6,11 @@ namespace Access.Infrastructure;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddAccessRepository(this IServiceCollection services)
+    public static IServiceCollection AddAccessRepository(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<AccessContext>(options =>
         {
-            var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-
-            options.UseSqlite($"Data Source={dbPath}");
+            options.UseSqlServer(connectionString);
         });
 
         services.AddScoped<IAccessUnitOfWork>(sp => sp.GetRequiredService<AccessContext>());

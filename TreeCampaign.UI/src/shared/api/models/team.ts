@@ -11,20 +11,20 @@ export type TrailerSize = 'Small' | 'Large' | 'Boogie';
 
 export const trailerSizeLabels: Record<TrailerSize, string> = {
     Small: 'Lille havetrailer',
-    Large: 'Stor havetrailer',
     Boogie: 'Boogietrailer',
+    Large: 'Stor havetrailer',
 };
 
 export const trailerCapacity: Record<TrailerSize, number> = {
     Small: 8,
-    Large: 12,
     Boogie: 16,
+    Large: 12,
 };
 
 export const trailerSizeOrder: Record<TrailerSize, number> = {
     Small: 0,
-    Large: 1,
-    Boogie: 2,
+    Boogie: 1,
+    Large: 2,
 };
 
 export interface Team {

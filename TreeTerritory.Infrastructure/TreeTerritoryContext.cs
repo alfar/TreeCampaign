@@ -71,8 +71,7 @@ public class TreeTerritoryContextFactory : IDesignTimeDbContextFactory<TreeTerri
     public TreeTerritoryContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<TreeTerritoryContext>();
-        var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=TreeCampaign;Trusted_Connection=True;");
 
         return new TreeTerritoryContext(optionsBuilder.Options, null!);
     }

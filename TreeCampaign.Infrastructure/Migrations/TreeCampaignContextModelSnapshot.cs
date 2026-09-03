@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeCampaign.Infrastructure;
 
@@ -16,30 +17,36 @@ namespace TreeCampaign.Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Common.Infrastructure.Events.StoredDomainEvent", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<Guid>("AggregateId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Data")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("OccurredAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("ProcessedAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -52,16 +59,16 @@ namespace TreeCampaign.Infrastructure.Migrations
             modelBuilder.Entity("TreeCampaign.Domain.Campaigns.Campaign", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ScoutGroupId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Season")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("TerritoryId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -71,18 +78,18 @@ namespace TreeCampaign.Infrastructure.Migrations
             modelBuilder.Entity("TreeCampaign.Domain.Stops.StopBase", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Amount")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<Guid>("CampaignId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("StopType")
                         .IsRequired()
                         .HasMaxLength(21)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(21)");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Address", "TreeCampaign.Domain.Stops.StopBase.Address#Address", b1 =>
                         {
@@ -90,19 +97,19 @@ namespace TreeCampaign.Infrastructure.Migrations
 
                             b1.Property<string>("DisplayName")
                                 .IsRequired()
-                                .HasColumnType("TEXT")
+                                .HasColumnType("nvarchar(max)")
                                 .HasColumnName("AddressDisplayName");
 
                             b1.Property<decimal>("Latitude")
-                                .HasColumnType("TEXT")
+                                .HasColumnType("decimal(18,2)")
                                 .HasColumnName("AddressLatitude");
 
                             b1.Property<decimal>("Longitude")
-                                .HasColumnType("TEXT")
+                                .HasColumnType("decimal(18,2)")
                                 .HasColumnName("AddressLongitude");
 
                             b1.Property<Guid>("StreetSectionId")
-                                .HasColumnType("TEXT")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("StreetSectionId");
                         });
 
@@ -118,20 +125,20 @@ namespace TreeCampaign.Infrastructure.Migrations
             modelBuilder.Entity("TreeCampaign.Domain.TeamMembers.TeamMember", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ScoutRelativeName")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("TeamId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -143,24 +150,24 @@ namespace TreeCampaign.Infrastructure.Migrations
             modelBuilder.Entity("TreeCampaign.Domain.Teams.TeamBase", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CampaignId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte>("Status")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("tinyint")
                         .HasDefaultValue((byte)0);
 
                     b.Property<string>("TeamKind")
                         .IsRequired()
                         .HasMaxLength(8)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(8)");
 
                     b.HasKey("Id");
 
@@ -177,7 +184,7 @@ namespace TreeCampaign.Infrastructure.Migrations
 
                     b.Property<Guid>("AssignedTeamId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("AssignedTeamId");
 
                     b.HasDiscriminator().HasValue("Assigned");
@@ -189,7 +196,7 @@ namespace TreeCampaign.Infrastructure.Migrations
 
                     b.Property<Guid>("DeliveredByTeamId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("AssignedTeamId");
 
                     b.HasDiscriminator().HasValue("Delivered");
@@ -208,7 +215,7 @@ namespace TreeCampaign.Infrastructure.Migrations
 
                     b.Property<Guid?>("AssignedTeamId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("AssignedTeamId");
 
                     b.HasDiscriminator().HasValue("Unassigned");
@@ -220,11 +227,11 @@ namespace TreeCampaign.Infrastructure.Migrations
 
                     b.Property<bool>("IsTrailerFull")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false);
 
                     b.Property<byte>("TrailerSize")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("tinyint");
 
                     b.HasDiscriminator().HasValue("Trailer");
                 });
@@ -242,7 +249,7 @@ namespace TreeCampaign.Infrastructure.Migrations
 
                     b.Property<Guid>("CollectedByTeamId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("AssignedTeamId");
 
                     b.HasDiscriminator().HasValue("Collected");
@@ -254,12 +261,12 @@ namespace TreeCampaign.Infrastructure.Migrations
 
                     b.Property<Guid>("UnresolvedByTeamId")
                         .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("AssignedTeamId");
 
                     b.Property<string>("UnresolvedReason")
                         .IsRequired()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("UnresolvedReason");
 
                     b.HasDiscriminator().HasValue("Unresolved");

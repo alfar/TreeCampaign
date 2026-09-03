@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TreeTerritory.Infrastructure;
 
@@ -15,30 +16,36 @@ namespace TreeTerritory.Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Common.Infrastructure.Events.StoredDomainEvent", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<Guid>("AggregateId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Data")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("OccurredAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("ProcessedAtUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -51,15 +58,15 @@ namespace TreeTerritory.Infrastructure.Migrations
             modelBuilder.Entity("TreeTerritory.Domain.Neighborhoods.Neighborhood", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid>("TerritoryId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -71,36 +78,36 @@ namespace TreeTerritory.Infrastructure.Migrations
             modelBuilder.Entity("TreeTerritory.Domain.StreetSections.StreetSection", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<byte>("Direction")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("EvenEndHouseNumber")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EvenStartHouseNumber")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte>("MaxTrailerSize")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("tinyint")
                         .HasDefaultValue((byte)2);
 
                     b.Property<Guid>("NeighborhoodId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("OddEndHouseNumber")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OddStartHouseNumber")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SortOrder")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<Guid>("StreetId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -112,17 +119,16 @@ namespace TreeTerritory.Infrastructure.Migrations
             modelBuilder.Entity("TreeTerritory.Domain.Streets.Street", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("TEXT")
-                        .UseCollation("NOCASE");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ZipCode")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -132,19 +138,19 @@ namespace TreeTerritory.Infrastructure.Migrations
             modelBuilder.Entity("TreeTerritory.Domain.Territories.Territory", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DefaultZipCode")
-                        .HasColumnType("TEXT")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("DefaultZipCode");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid>("ScoutGroupId")
-                        .HasColumnType("TEXT")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("ScoutGroupId");
 
                     b.HasKey("Id");

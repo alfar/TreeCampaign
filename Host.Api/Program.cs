@@ -15,14 +15,17 @@ using TreeTerritory.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException("Missing 'ConnectionStrings:Default' configuration value.");
+
 builder.Services.AddOpenApi();
 
-builder.Services.AddDomainEventServices();
+builder.Services.AddDomainEventServices(connectionString);
 builder.Services.AddCurrentUserAccessor();
-builder.Services.AddAccess();
-builder.Services.AddTreeCampaign();
-builder.Services.AddTreeTerritory();
-builder.Services.AddIntake();
+builder.Services.AddAccess(connectionString);
+builder.Services.AddTreeCampaign(connectionString);
+builder.Services.AddTreeTerritory(connectionString);
+builder.Services.AddIntake(connectionString);
 
 var app = builder.Build();
 

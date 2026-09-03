@@ -8,13 +8,13 @@ namespace Intake.Infrastructure;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddIntakeRepository(this IServiceCollection services)
+    public static IServiceCollection AddIntakeRepository(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<IntakeContext>(options =>
-            options.UseSqlite($"Data Source={Path.Combine(AppContext.BaseDirectory, "app.db")}"));
+            options.UseSqlServer(connectionString));
 
         services.AddDbContext<IntakeProjectionContext>(options =>
-            options.UseSqlite($"Data Source={Path.Combine(AppContext.BaseDirectory, "app.db")}"));
+            options.UseSqlServer(connectionString));
 
         services.AddScoped<IIntakeUnitOfWork>(sp => sp.GetRequiredService<IntakeContext>());
         services.AddScoped<IAddressParser, RegexAddressParser>();

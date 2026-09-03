@@ -15,8 +15,8 @@ namespace Access.Infrastructure.Migrations
                 name: "ScoutGroups",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,12 +27,12 @@ namespace Access.Infrastructure.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ScoutGroupId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    DisplayName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    IsPlatformAdmin = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ScoutGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsPlatformAdmin = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

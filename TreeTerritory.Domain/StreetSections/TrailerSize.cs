@@ -6,6 +6,6 @@ namespace TreeTerritory.Domain.StreetSections;
 public enum TrailerSize
 {
     Small,
-    Large,
     Boogie,
+    Large,
 }

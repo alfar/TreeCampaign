@@ -108,8 +108,7 @@ public class IntakeContextFactory : IDesignTimeDbContextFactory<IntakeContext>
     public IntakeContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<IntakeContext>();
-        var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=TreeCampaign;Trusted_Connection=True;");
         return new IntakeContext(optionsBuilder.Options, null!);
     }
 }

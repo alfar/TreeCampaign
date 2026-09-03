@@ -19,7 +19,7 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddDomainEventServices(this IServiceCollection services)
+    public static IServiceCollection AddDomainEventServices(this IServiceCollection services, string connectionString)
     {
         var options = new BoundedChannelOptions(1)
         {
@@ -38,9 +38,7 @@ public static class ServiceExtensions
 
         services.AddDbContext<StoredDomainEventContext>(options =>
         {
-            var dbPath = Path.Combine(AppContext.BaseDirectory, "app.db");
-
-            options.UseSqlite($"Data Source={dbPath}");
+            options.UseSqlServer(connectionString);
         });
 
         return services;

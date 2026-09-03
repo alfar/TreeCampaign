@@ -21,9 +21,9 @@ public static class EndpointExtensions
         return app;
     }
 
-    public static IServiceCollection AddAccess(this IServiceCollection services)
+    public static IServiceCollection AddAccess(this IServiceCollection services, string connectionString)
     {
-        services.AddAccessRepository();
+        services.AddAccessRepository(connectionString);
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
         services
