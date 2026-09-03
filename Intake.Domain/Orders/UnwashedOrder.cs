@@ -65,6 +65,22 @@ public class UnwashedOrder : OrderBase, IParseableOrder
         return order;
     }
 
+    public static UnwashedOrder CreateFrom(UnwashableOrder unwashableOrder)
+    {
+        var order = new UnwashedOrder
+        {
+            Id = unwashableOrder.Id,
+            CampaignId = unwashableOrder.CampaignId,
+            Sender = unwashableOrder.Sender,
+            Amount = unwashableOrder.Amount,
+            OrderDate = unwashableOrder.OrderDate,
+            Message = unwashableOrder.Message,
+            TransactionId = unwashableOrder.TransactionId,
+        };
+
+        return order;
+    }
+
     public WashedOrder Wash(StreetRef streetId, StreetSectionRef streetSectionId, NeighborhoodRef neighborhoodId, HouseNumber houseNumber)
     {
         return WashedOrder.CreateFrom(this, streetId, streetSectionId, neighborhoodId, houseNumber);
@@ -73,6 +89,11 @@ public class UnwashedOrder : OrderBase, IParseableOrder
     public OutOfBoundsOrder MarkOutOfBounds(StreetRef streetId, HouseNumber houseNumber)
     {
         return OutOfBoundsOrder.CreateFrom(this, streetId, houseNumber);
+    }
+
+    public UnwashableOrder MarkUnwashable()
+    {
+        return UnwashableOrder.CreateFrom(this);
     }
 
     public ValidatedOrder Accept(ValidationSuccess result)

@@ -5,6 +5,8 @@ import {
   ClockIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
+  GiftIcon,
+  NoSymbolIcon,
   PaperAirplaneIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
@@ -54,6 +56,21 @@ const STATE_CONFIG: Record<
     label: "Afregnet",
     icon: <BanknotesIcon className="w-5 h-5 text-gray-500" />,
     borderColor: "border-green-500",
+  },
+  Unwashable: {
+    label: "Ikke brugbar",
+    icon: <NoSymbolIcon className="w-5 h-5 text-gray-500" />,
+    borderColor: "border-gray-400",
+  },
+  Refunded: {
+    label: "Tilbagebetalt",
+    icon: <BanknotesIcon className="w-5 h-5 text-gray-500" />,
+    borderColor: "border-gray-400",
+  },
+  Donated: {
+    label: "Donation",
+    icon: <GiftIcon className="w-5 h-5 text-gray-500" />,
+    borderColor: "border-gray-400",
   },
 };
 

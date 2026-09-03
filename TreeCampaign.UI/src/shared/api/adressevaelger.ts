@@ -38,6 +38,7 @@ export async function searchHouseNumbers(streetName: string, zipCode: string, ho
   const params = new URLSearchParams({
     vejnavn: streetName,
     postnummer: zipCode,
+    maksimum: "200",
     token: TOKEN,
   });
   if (houseNumber) {

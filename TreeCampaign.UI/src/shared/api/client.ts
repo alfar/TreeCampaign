@@ -126,6 +126,30 @@ export async function settleTerritoryOrders(campaignId: string, territoryId: str
   });
 }
 
+export async function markOrderUnwashable(campaignId: string, orderId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/unwashable`, {
+    method: 'POST',
+  });
+}
+
+export async function undoMarkOrderUnwashable(campaignId: string, orderId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/unwashable`, {
+    method: 'DELETE',
+  });
+}
+
+export async function refundOrder(campaignId: string, orderId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/refund`, {
+    method: 'POST',
+  });
+}
+
+export async function markOrderAsDonation(campaignId: string, orderId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/donate`, {
+    method: 'POST',
+  });
+}
+
 export async function revalidateCampaignOrders(campaignId: string): Promise<Response> {
   return fetch(`/api/campaigns/${campaignId}/orders/revalidate`, {
     method: 'POST',

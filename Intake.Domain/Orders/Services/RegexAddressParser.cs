@@ -7,7 +7,8 @@ namespace Intake.Domain.Services;
 public class RegexAddressParser : IAddressParser
 {
     // Matches Danish addresses: <street name> <number>[<letter>]
-    // Street names may contain Æ Ø Å and hyphens/dots (e.g. "H.C. Andersens Vej", "Nørre-Allé").
+    // Street names may contain any Unicode letter (\p{L}, e.g. Æ Ø Å é ü ö) and hyphens/dots
+    // (e.g. "H.C. Andersens Vej", "Nørre-Allé").
     // Anchored to a word boundary (not end-of-string) so trailing free text - order notes,
     // floor/side ("1.th"), neighborhood names, emoji, etc. - doesn't prevent a match.
     // A single letter directly after the number is always captured as a suite letter (e.g. "45 a",
@@ -15,8 +16,8 @@ public class RegexAddressParser : IAddressParser
     // "39i") but that's acceptable here - a bogus house number like that fails address validation
     // downstream rather than silently producing a wrong-but-plausible result.
     private static readonly Regex AddressPattern = new(
-        @"(?<street>[A-Za-zÆæØøÅåé][A-Za-zÆæØøÅåé\-\.]*(?:\s+[A-Za-zÆæØøÅåé][A-Za-zÆæØøÅåé\-\.]*)*)" +
-        @"\s+(?<number>\d+)(?:\s*(?<letter>[A-Za-zÆæØøÅå])\b)?",
+        @"(?<street>\p{L}[\p{L}\-\.]*(?:\s+\p{L}[\p{L}\-\.]*)*)" +
+        @"\s+(?<number>\d+)(?:\s*(?<letter>\p{L})\b)?",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 

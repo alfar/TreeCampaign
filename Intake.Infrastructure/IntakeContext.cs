@@ -20,7 +20,10 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
       IRepository<OutOfBoundsOrder, OrderId>,
       IRepository<ValidatedOrder, OrderId>,
       IRepository<TransferredOrder, OrderId>,
-      IRepository<SettledOrder, OrderId>
+      IRepository<SettledOrder, OrderId>,
+      IRepository<UnwashableOrder, OrderId>,
+      IRepository<RefundedOrder, OrderId>,
+      IRepository<DonatedOrder, OrderId>
 {
     internal DbSet<OrderBase> Orders { get; set; }
     public DbSet<IncomingOrder> IncomingOrders { get; set; }
@@ -30,6 +33,9 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public DbSet<ValidatedOrder> ValidatedOrders { get; set; }
     public DbSet<TransferredOrder> TransferredOrders { get; set; }
     public DbSet<SettledOrder> SettledOrders { get; set; }
+    public DbSet<UnwashableOrder> UnwashableOrders { get; set; }
+    public DbSet<RefundedOrder> RefundedOrders { get; set; }
+    public DbSet<DonatedOrder> DonatedOrders { get; set; }
 
     public IQueryable<OrderBase> GetUnvalidatedOrdersByCampaign(CampaignRef campaignId) =>
         Orders.Where(o => !(o is ValidatedOrder) && o.CampaignId == campaignId);
@@ -101,6 +107,27 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public void Add(SettledOrder aggregate) => SettledOrders.Add(aggregate);
 
     public void Delete(SettledOrder aggregate) => SettledOrders.Remove(aggregate);
+
+    async Task<UnwashableOrder?> IRepository<UnwashableOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken cancellationToken) =>
+        await UnwashableOrders.FirstOrDefaultAsync(o => o.Id == key, cancellationToken);
+
+    public void Add(UnwashableOrder aggregate) => UnwashableOrders.Add(aggregate);
+
+    public void Delete(UnwashableOrder aggregate) => UnwashableOrders.Remove(aggregate);
+
+    async Task<RefundedOrder?> IRepository<RefundedOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken cancellationToken) =>
+        await RefundedOrders.FirstOrDefaultAsync(o => o.Id == key, cancellationToken);
+
+    public void Add(RefundedOrder aggregate) => RefundedOrders.Add(aggregate);
+
+    public void Delete(RefundedOrder aggregate) => RefundedOrders.Remove(aggregate);
+
+    async Task<DonatedOrder?> IRepository<DonatedOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken cancellationToken) =>
+        await DonatedOrders.FirstOrDefaultAsync(o => o.Id == key, cancellationToken);
+
+    public void Add(DonatedOrder aggregate) => DonatedOrders.Add(aggregate);
+
+    public void Delete(DonatedOrder aggregate) => DonatedOrders.Remove(aggregate);
 }
 
 public class IntakeContextFactory : IDesignTimeDbContextFactory<IntakeContext>

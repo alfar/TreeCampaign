@@ -19,7 +19,10 @@ internal static class OrderConfiguration
             .HasValue<OutOfBoundsOrder>("OutOfBounds")
             .HasValue<ValidatedOrder>("Validated")
             .HasValue<TransferredOrder>("Transferred")
-            .HasValue<SettledOrder>("Settled");
+            .HasValue<SettledOrder>("Settled")
+            .HasValue<UnwashableOrder>("Unwashable")
+            .HasValue<RefundedOrder>("Refunded")
+            .HasValue<DonatedOrder>("Donated");
 
         orderBase.Property(o => o.Id).HasConversion(new OrderIdValueConverter());
         orderBase.Property(o => o.CampaignId).HasConversion(new CampaignRefValueConverter());

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createStreet, washOrder } from "../../shared/api/client";
+import { createStreet, markOrderUnwashable, washOrder } from "../../shared/api/client";
 import type { Order } from "../../shared/api/models/order";
 import type { Street } from "../../shared/api/models/street";
 import { AddressPicker, type Address } from "../../shared/components/AddressPicker";
@@ -10,11 +10,12 @@ interface WashOrderFormProps {
   defaultZipCode: string;
   onStreetAdded?: () => void;
   onWashed?: () => void;
+  onMarkedUnwashable?: () => void;
 }
 
 // Best-effort prefill only — this is exactly the message the backend parser/washer
 // already failed to resolve, so the result here is a starting point, not a guarantee.
-const MESSAGE_PATTERN = /(?<street>[A-Za-zÆæØøÅå][A-Za-zÆæØøÅå0-9\s\-.]+)\s+(?<number>\d+)\s*(?<letter>[A-Za-zÆæØøÅå])?(?:\s*,\s*(?<zip>\d{4}))?\s*$/;
+const MESSAGE_PATTERN = /(?<street>\p{L}[\p{L}0-9\s\-.]+)\s+(?<number>\d+)\s*(?<letter>\p{L})?(?:\s*,\s*(?<zip>\d{4}))?\s*$/u;
 
 function parseMessage(message: string): { streetName: string; houseNumber: string; zipCode: string | null } | null {
   const match = MESSAGE_PATTERN.exec(message);
@@ -29,7 +30,7 @@ function parseMessage(message: string): { streetName: string; houseNumber: strin
   return { streetName, houseNumber, zipCode };
 }
 
-export default function WashOrderForm({ order, campaignId, defaultZipCode, onStreetAdded, onWashed }: WashOrderFormProps) {
+export default function WashOrderForm({ order, campaignId, defaultZipCode, onStreetAdded, onWashed, onMarkedUnwashable }: WashOrderFormProps) {
   const parsed = useMemo(() => parseMessage(order.message), [order.message]);
 
   const [address, setAddress] = useState<Address>({
@@ -43,6 +44,22 @@ export default function WashOrderForm({ order, campaignId, defaultZipCode, onStr
   const [isAdding, setIsAdding] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [washError, setWashError] = useState<string | null>(null);
+  const [isMarkingUnwashable, setIsMarkingUnwashable] = useState(false);
+
+  const handleMarkUnwashable = async () => {
+    setIsMarkingUnwashable(true);
+    setWashError(null);
+    try {
+      const res = await markOrderUnwashable(campaignId, order.id);
+      if (res.ok) {
+        onMarkedUnwashable?.();
+      } else {
+        setWashError("Noget gik galt. Prøv igen.");
+      }
+    } finally {
+      setIsMarkingUnwashable(false);
+    }
+  };
 
   const effectiveStreet = address.street ?? createdStreet;
   const noMatch = address.streetName.trim().length > 0 && address.zipCode.length === 4 && !effectiveStreet;
@@ -123,13 +140,23 @@ export default function WashOrderForm({ order, campaignId, defaultZipCode, onStr
         <p className="text-sm text-red-600">{washError}</p>
       )}
 
-      <button
-        type="submit"
-        disabled={!canSubmit}
-        className="self-start bg-blue-600 text-white py-2 px-5 rounded disabled:opacity-40"
-      >
-        {isSubmitting ? "Gemmer…" : "Gem adresse"}
-      </button>
+      <div className="flex items-center gap-4">
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          className="self-start bg-blue-600 text-white py-2 px-5 rounded disabled:opacity-40"
+        >
+          {isSubmitting ? "Gemmer…" : "Gem adresse"}
+        </button>
+        <button
+          type="button"
+          onClick={handleMarkUnwashable}
+          disabled={isMarkingUnwashable}
+          className="text-sm text-gray-500 hover:underline disabled:opacity-50"
+        >
+          {isMarkingUnwashable ? "Markerer…" : "Kan ikke behandles (tom/ugyldig besked)"}
+        </button>
+      </div>
     </form>
   );
 }

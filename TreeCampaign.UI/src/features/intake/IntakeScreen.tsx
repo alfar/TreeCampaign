@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCampaigns, getOrders, getTerritories, revalidateCampaignOrders, settleTerritoryOrders } from "../../shared/api/client";
+import { getCampaigns, getOrders, getTerritories, markOrderUnwashable, revalidateCampaignOrders, settleTerritoryOrders } from "../../shared/api/client";
 import type { Order } from "../../shared/api/models/order";
 import type { Territory } from "../../shared/api/models/territory";
 import CreateOrderForm from "./CreateOrderForm";
@@ -10,6 +10,7 @@ import OrderList from "./OrderList";
 import TerritoryGroupSection from "./TerritoryGroupSection";
 import TransferOrderForm from "./TransferOrderForm";
 import UndoTransferForm from "./UndoTransferForm";
+import UnwashableOrderForm from "./UnwashableOrderForm";
 import WashOrderForm from "./WashOrderForm";
 import NavigationPage from "../../shared/components/NavigationPage";
 import Button from "../../components/Button";
@@ -24,11 +25,12 @@ export default function IntakeScreen() {
   const [territories, setTerritories] = useState<Territory[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<"pending" | "transferred">("pending");
-  const [oobAction, setOobAction] = useState<"section" | "transfer">("section");
+  const [activeTab, setActiveTab] = useState<"pending" | "transferred" | "unusable">("pending");
+  const [oobAction, setOobAction] = useState<"section" | "transfer" | "unwashable">("section");
   const [bulkSettling, setBulkSettling] = useState<Record<string, boolean>>({});
   const [bulkError, setBulkError] = useState<Record<string, string | undefined>>({});
   const [revalidating, setRevalidating] = useState(false);
+  const [markingUnwashable, setMarkingUnwashable] = useState(false);
 
   const loadOrders = () => {
     if (campaignId) {
@@ -115,6 +117,18 @@ export default function IntakeScreen() {
         OrderSettled: patchOrderFunc(data.id as string, {
           orderType: "Settled",
         }),
+        OrderMarkedUnwashable: patchOrderFunc(data.id as string, {
+          orderType: "Unwashable",
+        }),
+        OrderUnwashableUndone: patchOrderFunc(data.id as string, {
+          orderType: "Unwashed",
+        }),
+        OrderRefunded: patchOrderFunc(data.id as string, {
+          orderType: "Refunded",
+        }),
+        OrderMarkedAsDonation: patchOrderFunc(data.id as string, {
+          orderType: "Donated",
+        }),
       };
 
       const action = actionByEvent[type];
@@ -157,7 +171,26 @@ export default function IntakeScreen() {
     showImportForm ||
     selectedOrder?.orderType === "Unwashed" ||
     selectedOrder?.orderType === "OutOfBounds" ||
-    selectedOrder?.orderType === "Transferred";
+    selectedOrder?.orderType === "Transferred" ||
+    selectedOrder?.orderType === "Unwashable";
+
+  const unusableOrderRank = (orderType: Order["orderType"]) =>
+    orderType === "Unwashable" ? 0 : 1;
+
+  const unusableOrders = orders
+    .filter(
+      (o) => o.orderType === "Unwashable" || o.orderType === "Refunded" || o.orderType === "Donated",
+    )
+    .sort((a, b) => {
+      const rankDiff = unusableOrderRank(a.orderType) - unusableOrderRank(b.orderType);
+      return rankDiff !== 0
+        ? rankDiff
+        : new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime();
+    });
+  const outstandingUnusableCount = unusableOrders.filter((o) => o.orderType === "Unwashable").length;
+  const donatedAmount = unusableOrders
+    .filter((o) => o.orderType === "Donated")
+    .reduce((sum, o) => sum + o.amount, 0);
 
   const handleSelectOrder = (orderId: string) => {
     setShowCreateForm(false);
@@ -198,6 +231,27 @@ export default function IntakeScreen() {
     setSelectedOrderId(null);
   };
 
+  const handleMarkedUnwashable = () => {
+    setSelectedOrderId(null);
+  };
+
+  const handleUnwashableResolved = () => {
+    setSelectedOrderId(null);
+  };
+
+  const handleMarkOutOfBoundsUnwashable = async () => {
+    if (!campaignId || !selectedOrder) return;
+    setMarkingUnwashable(true);
+    try {
+      const res = await markOrderUnwashable(campaignId, selectedOrder.id);
+      if (res.ok) {
+        setSelectedOrderId(null);
+      }
+    } finally {
+      setMarkingUnwashable(false);
+    }
+  };
+
   const handleSettleTerritory = async (settleTerritoryId: string) => {
     setBulkSettling((prev) => ({ ...prev, [settleTerritoryId]: true }));
     setBulkError((prev) => ({ ...prev, [settleTerritoryId]: undefined }));
@@ -231,7 +285,7 @@ export default function IntakeScreen() {
     }
   };
 
-  const handleSelectTab = (tab: "pending" | "transferred") => {
+  const handleSelectTab = (tab: "pending" | "transferred" | "unusable") => {
     setSelectedOrderId(null);
     setShowCreateForm(false);
     setShowImportForm(false);
@@ -271,6 +325,15 @@ export default function IntakeScreen() {
               <span className="ml-1 text-gray-500">({transferredGroups.length})</span>
             )}
           </button>
+          <button
+            onClick={() => handleSelectTab("unusable")}
+            className={`text-sm py-2 px-4 border-b-2 -mb-px ${activeTab === "unusable" ? "border-blue-600 text-blue-600 font-medium" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          >
+            Ikke brugbare
+            {outstandingUnusableCount > 0 && (
+              <span className="ml-1 text-gray-500">({outstandingUnusableCount})</span>
+            )}
+          </button>
         </div>
         <div
           className={`flex gap-6 items-start ${showSidePanel ? "flex-col md:flex-row" : ""}`}
@@ -278,35 +341,52 @@ export default function IntakeScreen() {
           <div className={showSidePanel ? "w-full md:w-1/2" : "w-full"}>
             {activeTab === "pending" ? (
               <OrderList
-                orders={orders.filter(
-                  (o) =>
-                    o.orderType === "Unwashed" ||
-                    o.orderType === "OutOfBounds" ||
-                    o.id === selectedOrderId,
-                )}
+                orders={orders
+                  .filter(
+                    (o) =>
+                      o.orderType === "Unwashed" ||
+                      o.orderType === "OutOfBounds" ||
+                      o.id === selectedOrderId,
+                  )}
                 selectedOrderId={selectedOrderId ?? undefined}
                 onSelectOrder={handleSelectOrder}
                 territoryNameById={territoryNameById}
               />
-            ) : transferredGroups.length === 0 ? (
-              <p className="text-sm text-gray-500">Ingen ordrer.</p>
+            ) : activeTab === "transferred" ? (
+              transferredGroups.length === 0 ? (
+                <p className="text-sm text-gray-500">Ingen ordrer.</p>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {transferredGroups.map((group) => (
+                    <TerritoryGroupSection
+                      key={group.territoryId ?? "unknown"}
+                      name={group.territoryId ? (territoryNameById[group.territoryId] ?? "Ukendt område") : "Ukendt område"}
+                      orders={group.orders}
+                      unsettledAmount={group.unsettledAmount}
+                      hasUnsettled={group.orders.some((o) => o.orderType === "Transferred")}
+                      isSettling={group.territoryId ? (bulkSettling[group.territoryId] ?? false) : false}
+                      error={group.territoryId ? bulkError[group.territoryId] : undefined}
+                      onSettleAll={() => group.territoryId && handleSettleTerritory(group.territoryId)}
+                      selectedOrderId={selectedOrderId ?? undefined}
+                      onSelectOrder={handleSelectOrder}
+                      territoryNameById={territoryNameById}
+                    />
+                  ))}
+                </div>
+              )
             ) : (
-              <div className="flex flex-col gap-4">
-                {transferredGroups.map((group) => (
-                  <TerritoryGroupSection
-                    key={group.territoryId ?? "unknown"}
-                    name={group.territoryId ? (territoryNameById[group.territoryId] ?? "Ukendt område") : "Ukendt område"}
-                    orders={group.orders}
-                    unsettledAmount={group.unsettledAmount}
-                    hasUnsettled={group.orders.some((o) => o.orderType === "Transferred")}
-                    isSettling={group.territoryId ? (bulkSettling[group.territoryId] ?? false) : false}
-                    error={group.territoryId ? bulkError[group.territoryId] : undefined}
-                    onSettleAll={() => group.territoryId && handleSettleTerritory(group.territoryId)}
-                    selectedOrderId={selectedOrderId ?? undefined}
-                    onSelectOrder={handleSelectOrder}
-                    territoryNameById={territoryNameById}
-                  />
-                ))}
+              <div className="flex flex-col gap-2">
+                {donatedAmount > 0 && (
+                  <p className="text-sm text-gray-600">
+                    Doneret i alt: <span className="font-medium">{donatedAmount} kr.</span>
+                  </p>
+                )}
+                <OrderList
+                  orders={unusableOrders}
+                  selectedOrderId={selectedOrderId ?? undefined}
+                  onSelectOrder={handleSelectOrder}
+                  territoryNameById={territoryNameById}
+                />
               </div>
             )}
           </div>
@@ -334,6 +414,7 @@ export default function IntakeScreen() {
                 campaignId={campaignId!}
                 defaultZipCode={DEFAULT_ZIP_CODE}
                 onWashed={handleWashed}
+                onMarkedUnwashable={handleMarkedUnwashable}
               />
             </div>
           )}
@@ -356,6 +437,12 @@ export default function IntakeScreen() {
                   >
                     Overfør til andet område
                   </Button>
+                  <Button
+                    variant={oobAction === "unwashable" ? "primary" : "secondary"}
+                    onClick={() => setOobAction("unwashable")}
+                  >
+                    Ikke brugbar
+                  </Button>
                 </div>
                 {oobAction === "section" ? (
                   <CreateStreetSectionForm
@@ -363,13 +450,27 @@ export default function IntakeScreen() {
                     territoryId={territoryId}
                     onSectionCreated={handleSectionCreated}
                   />
-                ) : (
+                ) : oobAction === "transfer" ? (
                   <TransferOrderForm
                     order={selectedOrder}
                     campaignId={campaignId!}
                     currentTerritoryId={territoryId}
                     onTransferred={handleTransferred}
                   />
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    <p className="text-sm text-gray-600">
+                      Denne bestilling bliver ikke til et stop og flyttes til fanen "Ikke brugbare".
+                    </p>
+                    <Button
+                      variant="danger"
+                      onClick={handleMarkOutOfBoundsUnwashable}
+                      disabled={markingUnwashable}
+                      className="self-start"
+                    >
+                      {markingUnwashable ? "Markerer…" : "Marker som ikke brugbar"}
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
@@ -388,6 +489,20 @@ export default function IntakeScreen() {
                   }
                   onUndone={handleUndone}
                   onSettled={handleSettled}
+                />
+              </div>
+            )}
+          {!showCreateForm &&
+            !showImportForm &&
+            selectedOrder?.orderType === "Unwashable" && (
+              <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+                <h2 className="text-base font-semibold mb-4">Ikke brugbar bestilling</h2>
+                <UnwashableOrderForm
+                  order={selectedOrder}
+                  campaignId={campaignId!}
+                  onRefunded={handleUnwashableResolved}
+                  onDonated={handleUnwashableResolved}
+                  onUndone={handleUnwashableResolved}
                 />
               </div>
             )}

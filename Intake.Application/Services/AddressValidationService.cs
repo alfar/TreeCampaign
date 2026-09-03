@@ -70,10 +70,11 @@ public class AddressValidationService(
 
                 var lookup = await addressLookupClient.GetAddress(address.Street, address.HouseNumber, address.ZipCode ?? "8600");
 
-                if (lookup is null)
+                if (lookup is not SuccessfulAddressResult success)
                 {
+                    var reason = (lookup as FailedAddressResult)?.Reason ?? "Ukendt fejl under adresseopslag.";
                     return new AddressLookupFailed(
-                        $"Adressen {street.Name} {address.HouseNumber} blev genkendt, men koordinater kunne ikke slås op via DAWA.");
+                        $"Adressen {street.Name} {address.HouseNumber} blev genkendt, men koordinater kunne ikke slås op via DAWA: {reason}");
                 }
 
                 return new ValidationSuccess(
@@ -82,8 +83,8 @@ public class AddressValidationService(
                     StreetRef.From(street.Id.Value),
                     StreetSectionRef.From(section.Id.Value),
                     ToIntake(territoryHouseNumber),
-                    lookup.Latitude,
-                    lookup.Longitude
+                    success.Latitude,
+                    success.Longitude
                 );
             }
         }
@@ -132,10 +133,11 @@ public class AddressValidationService(
 
         var lookup = await addressLookupClient.GetAddress(street.Name, houseNumber.ToString(), street.ZipCode.Value);
 
-        if (lookup is null)
+        if (lookup is not SuccessfulAddressResult success)
         {
+            var reason = (lookup as FailedAddressResult)?.Reason ?? "Ukendt fejl under adresseopslag.";
             return new AddressLookupFailed(
-                $"Koordinater for {street.Name} {houseNumber} kunne ikke slås op via DAWA.");
+                $"Koordinater for {street.Name} {houseNumber} kunne ikke slås op via DAWA: {reason}");
         }
 
         return new ValidationSuccess(
@@ -144,8 +146,8 @@ public class AddressValidationService(
             StreetRef.From(street.Id.Value),
             StreetSectionRef.From(section.Id.Value),
             houseNumber,
-            lookup.Latitude,
-            lookup.Longitude
+            success.Latitude,
+            success.Longitude
         );
     }
 
@@ -182,10 +184,11 @@ public class AddressValidationService(
 
             var lookup = await addressLookupClient.GetAddress(street.Name, houseNumber.ToString(), street.ZipCode.Value);
 
-            if (lookup is null)
+            if (lookup is not SuccessfulAddressResult success)
             {
+                var reason = (lookup as FailedAddressResult)?.Reason ?? "Ukendt fejl under adresseopslag.";
                 return new AddressLookupFailed(
-                    $"Adressen {street.Name} {houseNumber} blev genkendt, men koordinater kunne ikke slås op via DAWA.");
+                    $"Adressen {street.Name} {houseNumber} blev genkendt, men koordinater kunne ikke slås op via DAWA: {reason}");
             }
 
             return new ValidationSuccess(
@@ -194,8 +197,8 @@ public class AddressValidationService(
                 StreetRef.From(street.Id.Value),
                 StreetSectionRef.From(section.Id.Value),
                 houseNumber,
-                lookup.Latitude,
-                lookup.Longitude
+                success.Latitude,
+                success.Longitude
             );
         }
 

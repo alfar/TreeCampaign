@@ -27,7 +27,7 @@ public class AdressevaelgerClient : IAddressLookupClient
         _httpClient = httpClient;
     }
 
-    public async Task<AddressResult?> GetAddress(string street, string houseNumber, string zipCode)
+    public async Task<AddressResult> GetAddress(string street, string houseNumber, string zipCode)
     {
         try
         {
@@ -42,7 +42,7 @@ public class AdressevaelgerClient : IAddressLookupClient
                 string.Equals(f.Husnummer, houseNumber, StringComparison.OrdinalIgnoreCase));
 
             if (match is null)
-                return null;
+                return new FailedAddressResult("Adressen blev ikke fundet i søgningen.");
 
             var detailUri = new UriBuilder($"https://adressevaelger.dk/husnumre/{match.Id}/")
             {
@@ -50,23 +50,27 @@ public class AdressevaelgerClient : IAddressLookupClient
             };
 
             var detail = await _httpClient.GetFromJsonAsync<DetailResult>(detailUri.Uri);
-            var coordinates = detail?.Husnummer.Adgangspunkt.Geometri.Coordinates;
+
+            if (detail is null)
+                return new FailedAddressResult("Adressen kunne ikke slås op via id.");
+
+            var coordinates = detail.Husnummer.Adgangspunkt.Geometri.Coordinates;
 
             if (coordinates is not { Length: 2 })
-                return null;
+                return new FailedAddressResult("Adressen har ingen koordinater.");
 
             var (latitude, longitude) = UtmConverter.ToLatLon(coordinates[0], coordinates[1], UtmZone, isNorthern: true);
 
-            return new AddressResult(
-                detail!.Husnummer.Vejnavn,
+            return new SuccessfulAddressResult(
+                detail.Husnummer.Vejnavn,
                 detail.Husnummer.Husnummertekst,
                 detail.Husnummer.Postnummer.Postnr,
                 latitude,
                 longitude);
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return new FailedAddressResult($"Uventet fejl under adresseopslag: {ex.Message}");
         }
     }
 

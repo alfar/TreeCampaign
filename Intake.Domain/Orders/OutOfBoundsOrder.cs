@@ -105,6 +105,11 @@ public class OutOfBoundsOrder : OrderBase
         return TransferredOrder.CreateFrom(this, territoryId);
     }
 
+    public UnwashableOrder MarkUnwashable()
+    {
+        return UnwashableOrder.CreateFrom(this);
+    }
+
 
     private OutOfBoundsOrder() { }
 }

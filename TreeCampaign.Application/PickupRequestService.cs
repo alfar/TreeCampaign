@@ -48,13 +48,13 @@ public class PickupRequestService(
             return null;
 
         var lookup = await addressLookupClient.GetAddress(street.Name, houseNumber, street.ZipCode.Value);
-        if (lookup is null)
+        if (lookup is not SuccessfulAddressResult success)
             return null;
 
         var address = new Address(
-            $"{lookup.Street} {lookup.HouseNumber}, {lookup.ZipCode}",
-            lookup.Latitude,
-            lookup.Longitude,
+            $"{success.Street} {success.HouseNumber}, {success.ZipCode}",
+            success.Latitude,
+            success.Longitude,
             StreetSectionRef.From(matchingSection.Id.Value));
 
         var stop = UnassignedStop.Create(campaignId, address, TreeCount.From(treeCount));

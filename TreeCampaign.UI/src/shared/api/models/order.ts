@@ -1,4 +1,14 @@
-export type OrderType = 'Incoming' | 'Unwashed' | 'Washed' | 'Validated' | 'OutOfBounds' | 'Transferred' | 'Settled';
+export type OrderType =
+  | 'Incoming'
+  | 'Unwashed'
+  | 'Washed'
+  | 'Validated'
+  | 'OutOfBounds'
+  | 'Transferred'
+  | 'Settled'
+  | 'Unwashable'
+  | 'Refunded'
+  | 'Donated';
 
 export interface Order {
   id: string;
