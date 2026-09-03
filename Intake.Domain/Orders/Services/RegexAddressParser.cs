@@ -15,7 +15,7 @@ public class RegexAddressParser : IAddressParser
     // "39i") but that's acceptable here - a bogus house number like that fails address validation
     // downstream rather than silently producing a wrong-but-plausible result.
     private static readonly Regex AddressPattern = new(
-        @"(?<street>[A-Za-zÆæØøÅå][A-Za-zÆæØøÅå\-\.]*(?:\s+[A-Za-zÆæØøÅå][A-Za-zÆæØøÅå\-\.]*)*)" +
+        @"(?<street>[A-Za-zÆæØøÅåé][A-Za-zÆæØøÅåé\-\.]*(?:\s+[A-Za-zÆæØøÅåé][A-Za-zÆæØøÅåé\-\.]*)*)" +
         @"\s+(?<number>\d+)(?:\s*(?<letter>[A-Za-zÆæØøÅå])\b)?",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );

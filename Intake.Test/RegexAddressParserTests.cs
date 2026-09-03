@@ -8,6 +8,7 @@ public class RegexAddressParserTests
     private readonly RegexAddressParser _parser = new();
 
     [Theory]
+    [InlineData("Birkeskrænten 35 Silkeborg", "Birkeskrænten", "35")]
     [InlineData("Hjortekæret 24, Virklund", "Hjortekæret", "24")]
     [InlineData("Remstrupvej 39 i Sydbyen. 2 stk 🌲", "Remstrupvej", "39i")]
     [InlineData("Skovbakken 2 Gjessø", "Skovbakken", "2")]
@@ -25,6 +26,8 @@ public class RegexAddressParserTests
     [InlineData("Lyngbygade 87 - tusind tak 😀", "Lyngbygade", "87")]
     [InlineData("Vestervænget 3 😍", "Vestervænget", "3")]
     [InlineData("Søvænget 7. - 2 stk", "Søvænget", "7")]
+    [InlineData("Vestre Allé 15, 8600 Silkeborg", "Vestre Allé", "15")]
+    [InlineData("Thorsø Allé 31, Virklund", "Thorsø Allé", "31")]
     public void TryParse_RealWorldMessages_ExtractsStreetAndHouseNumber(
         string message, string expectedStreet, string expectedHouseNumber)
     {
