@@ -106,10 +106,12 @@ internal static class OrderConfiguration
             .HasConversion(new HouseNumberValueConverter());
 
         modelBuilder.Entity<ValidatedOrder>()
-            .Property(o => o.Longitude);
+            .Property(o => o.Longitude)
+            .HasPrecision(9, 6);
 
         modelBuilder.Entity<ValidatedOrder>()
-            .Property(o => o.Latitude);
+            .Property(o => o.Latitude)
+            .HasPrecision(9, 6);
 
         modelBuilder.Entity<TransferredOrder>()
             .Property(o => o.TerritoryId)

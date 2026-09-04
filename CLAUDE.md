@@ -74,7 +74,7 @@ Street (separate aggregate — a street can span multiple neighborhoods)
 **Implementation notes:**
 - ID generation: All aggregates auto-generate GUIDs in their factory methods (e.g., `Territory.Create(name)` generates its own TerritoryId).
 - `Neighborhood._streetSections` is a backing field with EF Core field access mode; the public `StreetSections` property is read-only.
-- Direction enum stored as `byte` in SQLite for space efficiency.
+- Direction enum stored as `byte` for space efficiency.
 - Repository pattern: `TreeTerritoryContext` implements `ITreeTerritoryUnitOfWork` and `IRepository<T, TId>` for all aggregates.
 
 **Responsibilities:** validate a raw address against known streets and number ranges; return structured address data and sort metadata to callers; accept "add new street" commands triggered by Intake.
@@ -149,7 +149,7 @@ Triggered interactions between the contexts happen through domain events being p
 | `Access.Infrastructure` | Class Library | EF Core persistence for Access context |
 | `Access.Api` | Class Library | Endpoint extension methods for Access context (login/logout/me, user + scout group management) |
 | `TreeCampaign.Domain` | Class Library | Pure domain logic — no external dependencies |
-| `TreeCampaign.Infrastructure` | Class Library | EF Core + SQLite, dual DbContext pattern |
+| `TreeCampaign.Infrastructure` | Class Library | EF Core + SQL Server, dual DbContext pattern |
 | `TreeCampaign.Api` | Class Library | Endpoint extension methods for TreeCampaign context |
 | `TreeTerritory.Domain` | Class Library | Pure domain logic for Territory context |
 | `TreeTerritory.Infrastructure` | Class Library | EF Core persistence for Territory context |
@@ -261,7 +261,7 @@ Vite proxies `/api/*` to `:5006`.
 ## Technology Stack
 
 - **.NET 10** with C# 13
-- **EF Core 10.0.8** with SQLite
+- **EF Core 10.0.8** with SQL Server (LocalDB in development)
 - **Value Objects:** Configure all value object properties with either:
   1. **ValueConverter** (traditional): `builder.Property(s => s.ZipCode).HasConversion(new ZipCodeValueConverter())`
   2. **ComplexProperty** (EF Core 8+): `builder.ComplexProperty(s => s.Address, a => { a.Property(p => p.DisplayName).HasColumnName("AddressDisplayName"); })`
