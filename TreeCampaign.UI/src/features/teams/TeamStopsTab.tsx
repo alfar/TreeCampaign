@@ -1,48 +1,34 @@
 import { useParams } from "react-router-dom";
-import {
-  collectStop,
-  correctStop,
-  deliverLoad,
-  getCampaign,
-  getStopsForTeam,
-  getTeam,
-  markStopUnresolved,
-  reportTrailerFull,
-  retryStop,
-} from "../../shared/api/client";
+import { getCampaign, getTeam } from "../../shared/api/client";
 import { useEffect, useState } from "react";
 import type { Campaign } from "../../shared/api/models/campagin";
-import type { Stop } from "../../shared/api/models/stop";
 import type { Team } from "../../shared/api/models/team";
 import { PickupForm } from "./PickupForm";
 import Button from "../../components/Button";
+import { useTeamStops } from "../../shared/offline/useTeamStops";
+import { SignalSlashIcon } from "@heroicons/react/24/outline";
 
 export default function TeamStopsTab() {
   const params = useParams();
   const campaignId = params.campaignId!;
   const teamId = params.teamId!;
 
-  const [stops, setStops] = useState<Stop[]>([]);
+  const { stops, isTrailerFull, isOffline, pendingCount, queueAction, queueTeamAction, refresh } =
+    useTeamStops(campaignId, teamId);
   const [team, setTeam] = useState<Team | null>(null);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [activeStop, setActiveStop] = useState<string | null>(null);
   const [showPickupForm, setShowPickupForm] = useState(false);
+  const [showOfflineDetails, setShowOfflineDetails] = useState(false);
 
   useEffect(() => {
     if (campaignId) {
-      getStopsForTeam(campaignId, teamId).then(setStops);
       getTeam(campaignId, teamId).then(setTeam);
       getCampaign(campaignId).then(setCampaign);
     }
   }, [campaignId, teamId]);
 
-  function updateStop(stop: Stop) {
-    setStops((prevStops) =>
-      prevStops.map((s) => (s.id === stop.id ? stop : s)),
-    );
-  }
-
-  function getStopButtons(stop: Stop) {
+  function getStopButtons(stop: (typeof stops)[number]) {
     if (activeStop === stop.id) {
       if (stop.stopType === "Assigned") {
         return (
@@ -50,11 +36,7 @@ export default function TeamStopsTab() {
             <Button
               size="lg"
               className="flex-1 bg-green-600 hover:bg-green-700"
-              onClick={() =>
-                collectStop(campaignId, stop.id).then((newStop) =>
-                  updateStop(newStop),
-                )
-              }
+              onClick={() => queueAction(stop.id, "collect")}
             >
               Hentet
             </Button>
@@ -62,11 +44,7 @@ export default function TeamStopsTab() {
               variant="danger"
               size="lg"
               className="flex-1"
-              onClick={() =>
-                markStopUnresolved(campaignId, stop.id).then((newStop) =>
-                  updateStop(newStop),
-                )
-              }
+              onClick={() => queueAction(stop.id, "unresolved", "Ikke fundet")}
             >
               Ikke fundet
             </Button>
@@ -78,11 +56,7 @@ export default function TeamStopsTab() {
             <Button
               size="lg"
               className="flex-1 bg-green-600 hover:bg-green-700"
-              onClick={() =>
-                retryStop(campaignId, stop.id).then((newStop) =>
-                  updateStop(newStop),
-                )
-              }
+              onClick={() => queueAction(stop.id, "retry")}
             >
               Genoptag
             </Button>
@@ -95,11 +69,7 @@ export default function TeamStopsTab() {
               variant="danger"
               size="lg"
               className="flex-1"
-              onClick={() =>
-                correctStop(campaignId, stop.id).then((newStop) =>
-                  updateStop(newStop),
-                )
-              }
+              onClick={() => queueAction(stop.id, "correct")}
             >
               Fortryd
             </Button>
@@ -115,24 +85,41 @@ export default function TeamStopsTab() {
 
   return (
     <div className="m-4 flex flex-col gap-4">
+      {isOffline && (
+        <div className="relative flex justify-end">
+          <button
+            type="button"
+            onClick={() => setShowOfflineDetails((v) => !v)}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+            aria-label="Ingen forbindelse"
+          >
+            <SignalSlashIcon className="w-4 h-4" />
+          </button>
+          {showOfflineDetails && (
+            <div className="absolute top-9 right-0 rounded bg-yellow-100 text-yellow-800 text-sm px-3 py-2 shadow whitespace-nowrap">
+              Ingen forbindelse
+              {pendingCount > 0 &&
+                ` — ${pendingCount} handling${pendingCount === 1 ? "" : "er"} venter på at blive sendt`}
+            </div>
+          )}
+        </div>
+      )}
+
       {team?.kind === "Trailer" && (
         <div className="flex gap-2">
           <Button
             size="lg"
             className="flex-1 bg-orange-500 hover:bg-orange-600"
-            onClick={() => reportTrailerFull(campaignId, teamId)}
+            disabled={isTrailerFull === true}
+            onClick={() => queueTeamAction("reportTrailerFull")}
           >
-            Trailer fuld
+            {isTrailerFull ? "Trailer fuld ✓" : "Trailer fuld"}
           </Button>
           {hasCollected && (
             <Button
               size="lg"
               className="flex-1 bg-green-700 hover:bg-green-800"
-              onClick={() =>
-                deliverLoad(campaignId, teamId).then(() =>
-                  getStopsForTeam(campaignId, teamId).then(setStops),
-                )
-              }
+              onClick={() => queueTeamAction("deliverLoad")}
             >
               Lever last
             </Button>
@@ -153,8 +140,8 @@ export default function TeamStopsTab() {
       {showPickupForm && campaign && (
         <PickupForm
           campaign={campaign}
-          onCreated={(stop) => {
-            setStops((prev) => [...prev, stop]);
+          onCreated={() => {
+            refresh();
             setShowPickupForm(false);
           }}
         />

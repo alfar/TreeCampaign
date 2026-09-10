@@ -9,6 +9,25 @@ import type { Team, TeamKind, TrailerSize } from "./models/team";
 import type { Territory } from "./models/territory";
 import type { CurrentUser, User } from "./models/user";
 
+export class HttpError extends Error {
+  status: number;
+  body: string;
+
+  constructor(status: number, body: string) {
+    super(`Request failed with status ${status}`);
+    this.status = status;
+    this.body = body;
+  }
+}
+
+async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
+  const res = await fetch(input, init);
+  if (!res.ok) {
+    throw new HttpError(res.status, await res.text());
+  }
+  return res.json();
+}
+
 export async function login(email: string, password: string): Promise<Response> {
   return fetch('/api/auth/login', {
     method: 'POST',
@@ -313,8 +332,7 @@ export async function getStops(campaignId: string) : Promise<Stop[]> {
 }
 
 export async function getStopsForTeam(campaignId: string,teamId: string) : Promise<Stop[]> {
-  const res = await fetch(`/api/${campaignId}/stops?teamId=${teamId}`);
-  return res.json();
+  return fetchJson<Stop[]>(`/api/${campaignId}/stops?teamId=${teamId}`);
 }
 
 export async function getTeams(campaignId: string) : Promise<Team[]> {
@@ -362,31 +380,31 @@ export async function unassignStop(campaignId: string, stopId: string) : Promise
 }
 
 export async function collectStop(campaignId: string, stopId: string) : Promise<Stop> {
-  return await fetch(`/api/${campaignId}/stops/${stopId}/collect`, {
+  return fetchJson<Stop>(`/api/${campaignId}/stops/${stopId}/collect`, {
     method: 'POST'
-  }).then(res => res.json());
+  });
 }
 
 export async function correctStop(campaignId: string, stopId: string) : Promise<Stop> {
-  return await fetch(`/api/${campaignId}/stops/${stopId}/correct`, {
+  return fetchJson<Stop>(`/api/${campaignId}/stops/${stopId}/correct`, {
     method: 'POST'
-  }).then(res => res.json());
+  });
 }
 
 export async function retryStop(campaignId: string, stopId: string) : Promise<Stop> {
-  return await fetch(`/api/${campaignId}/stops/${stopId}/retry`, {
+  return fetchJson<Stop>(`/api/${campaignId}/stops/${stopId}/retry`, {
     method: 'POST'
-  }).then(res => res.json());
+  });
 }
 
 export async function markStopUnresolved(campaignId: string, stopId: string, reason: string = 'Ikke fundet') : Promise<Stop> {
-  return await fetch(`/api/${campaignId}/stops/${stopId}/unresolved`, {
+  return fetchJson<Stop>(`/api/${campaignId}/stops/${stopId}/unresolved`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ reason })
-  }).then(res => res.json());
+  });
 }
 
 export async function reopenStop(campaignId: string, stopId: string) : Promise<Stop> {
@@ -396,8 +414,7 @@ export async function reopenStop(campaignId: string, stopId: string) : Promise<S
 }
 
 export async function deliverLoad(campaignId: string, teamId: string): Promise<{ deliveredCount: number }> {
-  const res = await fetch(`/api/${campaignId}/teams/${teamId}/deliver-load`, { method: 'POST' });
-  return res.json();
+  return fetchJson(`/api/${campaignId}/teams/${teamId}/deliver-load`, { method: 'POST' });
 }
 
 export async function sendTeamOnBreak(campaignId: string, teamId: string): Promise<Team> {
@@ -406,8 +423,7 @@ export async function sendTeamOnBreak(campaignId: string, teamId: string): Promi
 }
 
 export async function reportTrailerFull(campaignId: string, teamId: string): Promise<Team> {
-  const res = await fetch(`/api/${campaignId}/teams/${teamId}/trailer-full`, { method: 'POST' });
-  return res.json();
+  return fetchJson(`/api/${campaignId}/teams/${teamId}/trailer-full`, { method: 'POST' });
 }
 
 export async function clearTrailerFull(campaignId: string, teamId: string): Promise<Team> {
