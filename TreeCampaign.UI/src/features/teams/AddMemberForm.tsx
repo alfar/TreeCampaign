@@ -1,20 +1,17 @@
 import { useState } from "react";
 
-export function AddMemberForm({ onAdd }: { onAdd: (name: string, phoneNumber?: string, scoutRelativeName?: string) => Promise<void>; }) {
+export function AddMemberForm({ onAdd }: { onAdd: (name: string, phoneNumber?: string, scoutRelativeName?: string) => void; }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [scout, setScout] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim()) return;
-    setLoading(true);
-    await onAdd(name.trim(), phone.trim() || undefined, scout.trim() || undefined);
+    onAdd(name.trim(), phone.trim() || undefined, scout.trim() || undefined);
     setName("");
     setPhone("");
     setScout("");
-    setLoading(false);
   };
 
   return (
@@ -38,10 +35,10 @@ export function AddMemberForm({ onAdd }: { onAdd: (name: string, phoneNumber?: s
         onChange={(e) => setScout(e.target.value)} />
       <button
         type="submit"
-        disabled={loading || !name.trim()}
+        disabled={!name.trim()}
         className="bg-blue-600 text-white rounded px-3 py-1 text-sm disabled:opacity-50"
       >
-        {loading ? "Tilføjer…" : "Tilføj"}
+        Tilføj
       </button>
     </form>
   );

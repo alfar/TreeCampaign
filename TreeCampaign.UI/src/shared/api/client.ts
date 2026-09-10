@@ -341,8 +341,7 @@ export async function getTeams(campaignId: string) : Promise<Team[]> {
 }
 
 export async function getTeam(campaignId: string, teamId: string) : Promise<Team> {
-  const res = await fetch(`/api/${campaignId}/teams/${teamId}`);
-  return res.json();
+  return fetchJson<Team>(`/api/${campaignId}/teams/${teamId}`);
 }
 
 export async function createTeam(campaignId: string, name: string, kind: TeamKind, trailerSize?: TrailerSize): Promise<Team> {
@@ -355,12 +354,11 @@ export async function createTeam(campaignId: string, name: string, kind: TeamKin
 }
 
 export async function updateTeam(campaignId: string, teamId: string, name: string, trailerSize?: TrailerSize): Promise<Team> {
-  const res = await fetch(`/api/${campaignId}/teams/${teamId}`, {
+  return fetchJson<Team>(`/api/${campaignId}/teams/${teamId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, trailerSize }),
   });
-  return res.json();
 }
 
 export async function assignStopToTeam(campaignId: string, stopId: string, teamId: string) : Promise<Stop> {
@@ -438,12 +436,11 @@ export async function addTeamMember(
   phoneNumber?: string,
   scoutRelativeName?: string,
 ): Promise<Team> {
-  const res = await fetch(`/api/${campaignId}/teams/${teamId}/members`, {
+  return fetchJson<Team>(`/api/${campaignId}/teams/${teamId}/members`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, scoutRelativeName, phoneNumber }),
   });
-  return res.json();
 }
 
 export async function removeTeamMember(
@@ -451,10 +448,9 @@ export async function removeTeamMember(
   teamId: string,
   memberId: string,
 ): Promise<Team> {
-  const res = await fetch(`/api/${campaignId}/teams/${teamId}/members/${memberId}`, {
+  return fetchJson<Team>(`/api/${campaignId}/teams/${teamId}/members/${memberId}`, {
     method: 'DELETE',
   });
-  return res.json();
 }
 
 export async function requestPickup(

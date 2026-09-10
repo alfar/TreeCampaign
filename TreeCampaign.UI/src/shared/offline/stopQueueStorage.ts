@@ -1,12 +1,11 @@
 import type { Stop } from "../api/models/stop";
+import type { Team, TrailerSize } from "../api/models/team";
 
 export type QueuedStopActionType =
   | "collect"
   | "unresolved"
   | "retry"
   | "correct";
-
-export type QueuedTeamActionType = "reportTrailerFull" | "deliverLoad";
 
 export interface QueuedStopAction {
   id: string;
@@ -17,25 +16,73 @@ export interface QueuedStopAction {
   queuedAt: string;
 }
 
-export interface QueuedTeamAction {
+export interface QueuedReportTrailerFullAction {
   id: string;
   scope: "team";
   teamId: string;
-  type: QueuedTeamActionType;
+  type: "reportTrailerFull";
   queuedAt: string;
 }
+
+export interface QueuedDeliverLoadAction {
+  id: string;
+  scope: "team";
+  teamId: string;
+  type: "deliverLoad";
+  queuedAt: string;
+}
+
+export interface QueuedUpdateTeamAction {
+  id: string;
+  scope: "team";
+  teamId: string;
+  type: "updateTeam";
+  name: string;
+  trailerSize?: TrailerSize;
+  queuedAt: string;
+}
+
+export interface QueuedAddMemberAction {
+  id: string;
+  scope: "team";
+  teamId: string;
+  type: "addMember";
+  tempMemberId: string;
+  name: string;
+  phoneNumber?: string;
+  scoutRelativeName?: string;
+  queuedAt: string;
+}
+
+export interface QueuedRemoveMemberAction {
+  id: string;
+  scope: "team";
+  teamId: string;
+  type: "removeMember";
+  memberId: string;
+  queuedAt: string;
+}
+
+export type QueuedTeamAction =
+  | QueuedReportTrailerFullAction
+  | QueuedDeliverLoadAction
+  | QueuedUpdateTeamAction
+  | QueuedAddMemberAction
+  | QueuedRemoveMemberAction;
+
+export type QueuedTeamActionType = QueuedTeamAction["type"];
 
 export type QueuedAction = QueuedStopAction | QueuedTeamAction;
 
 interface TeamStopsState {
   lastKnownStops: Stop[];
-  isTrailerFull: boolean | null;
+  lastKnownTeam: Team | null;
   queue: QueuedAction[];
 }
 
 const EMPTY_STATE: TeamStopsState = {
   lastKnownStops: [],
-  isTrailerFull: null,
+  lastKnownTeam: null,
   queue: [],
 };
 
@@ -53,7 +100,7 @@ export function loadTeamStopsState(
     const parsed = JSON.parse(raw);
     return {
       lastKnownStops: parsed.lastKnownStops ?? [],
-      isTrailerFull: parsed.isTrailerFull ?? null,
+      lastKnownTeam: parsed.lastKnownTeam ?? null,
       queue: parsed.queue ?? [],
     };
   } catch {

@@ -1,41 +1,19 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import QRCode from "react-qr-code";
-import { addTeamMember, getTeam, removeTeamMember } from "../../shared/api/client";
-import type { Team } from "../../shared/api/models/team";
 import UpdateTeamForm from "./UpdateTeamForm";
 import { AddMemberForm } from "./AddMemberForm";
 import { MemberRow } from "./MemberRow";
+import type { TeamScreenContext } from "./TeamScreen";
 
 export default function TeamInfoTab() {
-  const { campaignId, teamId } = useParams();
-  const [team, setTeam] = useState<Team | null>(null);
-
-  useEffect(() => {
-    if (campaignId && teamId) {
-      getTeam(campaignId, teamId).then(setTeam);
-    }
-  }, [campaignId, teamId]);
+  const { team, queueUpdateTeam, queueAddMember, queueRemoveMember } =
+    useOutletContext<TeamScreenContext>();
 
   if (!team) return null;
 
-  const handleAddMember = async (name: string, phoneNumber?: string, scoutRelativeName?: string) => {
-    const updated = await addTeamMember(campaignId!, teamId!, name, phoneNumber, scoutRelativeName);
-    setTeam(updated);
-  };
-
-  const handleRemoveMember = async (memberId: string) => {
-    const updated = await removeTeamMember(campaignId!, teamId!, memberId);
-    setTeam(updated);
-  };
-
   return (
     <div className="flex flex-col gap-4 p-4">
-      <UpdateTeamForm
-        campaignId={campaignId!}
-        team={team}
-        onUpdated={setTeam}
-      />
+      <UpdateTeamForm team={team} onUpdate={queueUpdateTeam} />
 
       <div>
         <h3 className="font-medium mb-2">Patruljemedlemmer</h3>
@@ -47,13 +25,13 @@ export default function TeamInfoTab() {
               <MemberRow
                 key={m.id}
                 member={m}
-                onRemove={() => handleRemoveMember(m.id)}
+                onRemove={() => queueRemoveMember(m.id)}
               />
             ))}
           </div>
         )}
         <div className="mt-2">
-          <AddMemberForm onAdd={handleAddMember} />
+          <AddMemberForm onAdd={queueAddMember} />
         </div>
       </div>
 

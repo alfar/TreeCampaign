@@ -1,43 +1,23 @@
 import { useState } from "react";
-import { updateTeam } from "../../shared/api/client";
 import { trailerSizeLabels, type Team, type TrailerSize } from "../../shared/api/models/team";
 
 interface UpdateTeamFormProps {
-  campaignId: string;
   team: Team;
-  onUpdated: (team: Team) => void;
+  onUpdate: (name: string, trailerSize?: TrailerSize) => void;
 }
 
-export default function UpdateTeamForm({ campaignId, team, onUpdated }: UpdateTeamFormProps) {
+export default function UpdateTeamForm({ team, onUpdate }: UpdateTeamFormProps) {
   const [name, setName] = useState(team.name);
   const [trailerSize, setTrailerSize] = useState<TrailerSize>(team.trailerSize ?? "Small");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const canSubmit =
     name.trim().length > 0 &&
-    (name !== team.name || trailerSize !== team.trailerSize) &&
-    !isSubmitting;
+    (name !== team.name || trailerSize !== team.trailerSize);
 
-  const handleSubmit = async (e: { preventDefault(): void }) => {
+  const handleSubmit = (e: { preventDefault(): void }) => {
     e.preventDefault();
     if (!canSubmit) return;
-
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      const updated = await updateTeam(
-        campaignId,
-        team.id,
-        name.trim(),
-        team.kind === "Trailer" ? trailerSize : undefined,
-      );
-      onUpdated(updated);
-    } catch {
-      setError("Noget gik galt. Prøv igen.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    onUpdate(name.trim(), team.kind === "Trailer" ? trailerSize : undefined);
   };
 
   return (
@@ -69,13 +49,12 @@ export default function UpdateTeamForm({ campaignId, team, onUpdated }: UpdateTe
           </div>
         </div>
       )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
         disabled={!canSubmit}
         className="bg-blue-600 text-white py-2 px-5 rounded disabled:opacity-40 self-start"
       >
-        {isSubmitting ? "Gemmer…" : "Gem ændringer"}
+        Gem ændringer
       </button>
     </form>
   );

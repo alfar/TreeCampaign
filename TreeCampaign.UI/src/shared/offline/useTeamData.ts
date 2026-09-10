@@ -1,26 +1,32 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  addTeamMember,
   collectStop,
   correctStop,
   deliverLoad,
   getStopsForTeam,
   getTeam,
   markStopUnresolved,
+  removeTeamMember,
   reportTrailerFull,
   retryStop,
+  updateTeam,
 } from "../api/client";
 // HttpError (thrown by client.ts on non-2xx responses) is a real server reply and never
 // treated as a connectivity failure — only a fetch-level TypeError means "offline."
 import type { Stop } from "../api/models/stop";
+import type { Team, TrailerSize } from "../api/models/team";
 import {
   loadTeamStopsState,
   saveTeamStopsState,
   type QueuedAction,
   type QueuedStopActionType,
-  type QueuedTeamActionType,
 } from "./stopQueueStorage";
 import {
+  applyOptimisticAddMember,
   applyOptimisticDelivery,
+  applyOptimisticRemoveMember,
+  applyOptimisticTeamUpdate,
   applyOptimisticTransition,
   isActionAllowed,
 } from "./stopTransitions";
@@ -29,7 +35,7 @@ const POLL_INTERVAL_MS = 30_000;
 
 type ActionResult =
   | { kind: "stop"; stop: Stop }
-  | { kind: "trailerFull"; isTrailerFull: boolean }
+  | { kind: "team"; team: Team }
   | { kind: "delivered" };
 
 async function runAction(
@@ -38,13 +44,32 @@ async function runAction(
 ): Promise<ActionResult> {
   if (action.scope === "team") {
     switch (action.type) {
-      case "reportTrailerFull": {
-        const team = await reportTrailerFull(campaignId, action.teamId);
-        return { kind: "trailerFull", isTrailerFull: team.isTrailerFull ?? false };
-      }
+      case "reportTrailerFull":
+        return { kind: "team", team: await reportTrailerFull(campaignId, action.teamId) };
       case "deliverLoad":
         await deliverLoad(campaignId, action.teamId);
         return { kind: "delivered" };
+      case "updateTeam":
+        return {
+          kind: "team",
+          team: await updateTeam(campaignId, action.teamId, action.name, action.trailerSize),
+        };
+      case "addMember":
+        return {
+          kind: "team",
+          team: await addTeamMember(
+            campaignId,
+            action.teamId,
+            action.name,
+            action.phoneNumber,
+            action.scoutRelativeName,
+          ),
+        };
+      case "removeMember":
+        return {
+          kind: "team",
+          team: await removeTeamMember(campaignId, action.teamId, action.memberId),
+        };
     }
   }
   switch (action.type) {
@@ -65,28 +90,26 @@ function isNetworkError(err: unknown): boolean {
   return err instanceof TypeError;
 }
 
-export function useTeamStops(campaignId: string, teamId: string) {
+export function useTeamData(campaignId: string, teamId: string) {
   const initial = loadTeamStopsState(campaignId, teamId);
   const [stops, setStops] = useState<Stop[]>(initial.lastKnownStops);
-  const [isTrailerFull, setIsTrailerFull] = useState<boolean | null>(
-    initial.isTrailerFull,
-  );
+  const [team, setTeam] = useState<Team | null>(initial.lastKnownTeam);
   const [queue, setQueue] = useState<QueuedAction[]>(initial.queue);
   const [isOffline, setIsOffline] = useState(false);
   const draining = useRef(false);
 
   const stopsRef = useRef(stops);
   stopsRef.current = stops;
-  const trailerFullRef = useRef(isTrailerFull);
-  trailerFullRef.current = isTrailerFull;
+  const teamRef = useRef(team);
+  teamRef.current = team;
   const queueRef = useRef(queue);
   queueRef.current = queue;
 
   const persist = useCallback(
-    (nextStops: Stop[], nextTrailerFull: boolean | null, nextQueue: QueuedAction[]) => {
+    (nextStops: Stop[], nextTeam: Team | null, nextQueue: QueuedAction[]) => {
       saveTeamStopsState(campaignId, teamId, {
         lastKnownStops: nextStops,
-        isTrailerFull: nextTrailerFull,
+        lastKnownTeam: nextTeam,
         queue: nextQueue,
       });
     },
@@ -137,13 +160,13 @@ export function useTeamStops(campaignId: string, teamId: string) {
           ? (stopsRef.current.find((s) => s.id === serverStop.id) ?? serverStop)
           : serverStop,
       );
-      const mergedTrailerFull = hasPendingTeamAction()
-        ? trailerFullRef.current
-        : serverTeam.isTrailerFull;
+      // While a team action is still queued, our optimistic local team is more current
+      // than whatever the server last reported — keep it until the action actually lands.
+      const mergedTeam = hasPendingTeamAction() ? teamRef.current : serverTeam;
 
       setStops(mergedStops);
-      setIsTrailerFull(mergedTrailerFull);
-      persist(mergedStops, mergedTrailerFull, queueRef.current);
+      setTeam(mergedTeam);
+      persist(mergedStops, mergedTeam, queueRef.current);
     } catch (err) {
       if (isNetworkError(err)) {
         setIsOffline(true);
@@ -169,16 +192,19 @@ export function useTeamStops(campaignId: string, teamId: string) {
             );
             stopsRef.current = merged;
             setStops(merged);
-            persist(merged, trailerFullRef.current, rest);
-          } else if (result.kind === "trailerFull") {
-            trailerFullRef.current = result.isTrailerFull;
-            setIsTrailerFull(result.isTrailerFull);
-            persist(stopsRef.current, result.isTrailerFull, rest);
+            persist(merged, teamRef.current, rest);
+          } else if (result.kind === "team") {
+            teamRef.current = result.team;
+            setTeam(result.team);
+            persist(stopsRef.current, result.team, rest);
           } else {
             // deliverLoad succeeded: server already applied the bulk transition and cleared trailer-full.
-            trailerFullRef.current = false;
-            setIsTrailerFull(false);
-            persist(stopsRef.current, false, rest);
+            const nextTeam = teamRef.current
+              ? { ...teamRef.current, isTrailerFull: false }
+              : teamRef.current;
+            teamRef.current = nextTeam;
+            setTeam(nextTeam);
+            persist(stopsRef.current, nextTeam, rest);
           }
         } catch (err) {
           if (isNetworkError(err)) {
@@ -188,7 +214,7 @@ export function useTeamStops(campaignId: string, teamId: string) {
           // Non-network failure (e.g. 409 from a stale state transition): drop the action rather than retry forever.
           queueRef.current = rest;
           setQueue(rest);
-          persist(stopsRef.current, trailerFullRef.current, rest);
+          persist(stopsRef.current, teamRef.current, rest);
         }
       }
     } finally {
@@ -220,6 +246,18 @@ export function useTeamStops(campaignId: string, teamId: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaignId, teamId]);
 
+  const enqueue = useCallback(
+    (action: QueuedAction, applyOptimistic: () => void) => {
+      const nextQueue = [...queueRef.current, action];
+      queueRef.current = nextQueue;
+      setQueue(nextQueue);
+      applyOptimistic();
+      persist(stopsRef.current, teamRef.current, nextQueue);
+      drainQueue();
+    },
+    [persist, drainQueue],
+  );
+
   const queueAction = useCallback(
     (stopId: string, type: QueuedStopActionType, reason?: string) => {
       const stop = stopsRef.current.find((s) => s.id === stopId);
@@ -234,26 +272,21 @@ export function useTeamStops(campaignId: string, teamId: string) {
         queuedAt: new Date().toISOString(),
       };
 
-      const nextQueue = [...queueRef.current, action];
-      queueRef.current = nextQueue;
-      setQueue(nextQueue);
-
-      const nextStops = stopsRef.current.map((s) =>
-        s.id === stopId
-          ? { ...s, stopType: applyOptimisticTransition(s.stopType, type) }
-          : s,
-      );
-      stopsRef.current = nextStops;
-      setStops(nextStops);
-      persist(nextStops, trailerFullRef.current, nextQueue);
-
-      drainQueue();
+      enqueue(action, () => {
+        const nextStops = stopsRef.current.map((s) =>
+          s.id === stopId
+            ? { ...s, stopType: applyOptimisticTransition(s.stopType, type) }
+            : s,
+        );
+        stopsRef.current = nextStops;
+        setStops(nextStops);
+      });
     },
-    [persist, drainQueue],
+    [enqueue],
   );
 
   const queueTeamAction = useCallback(
-    (type: QueuedTeamActionType) => {
+    (type: "reportTrailerFull" | "deliverLoad") => {
       const action: QueuedAction = {
         id: crypto.randomUUID(),
         scope: "team",
@@ -262,35 +295,124 @@ export function useTeamStops(campaignId: string, teamId: string) {
         queuedAt: new Date().toISOString(),
       };
 
-      const nextQueue = [...queueRef.current, action];
-      queueRef.current = nextQueue;
-      setQueue(nextQueue);
+      enqueue(action, () => {
+        if (!teamRef.current) return;
+        if (type === "reportTrailerFull") {
+          const nextTeam = { ...teamRef.current, isTrailerFull: true };
+          teamRef.current = nextTeam;
+          setTeam(nextTeam);
+        } else {
+          const nextStops = applyOptimisticDelivery(stopsRef.current);
+          stopsRef.current = nextStops;
+          setStops(nextStops);
+          const nextTeam = { ...teamRef.current, isTrailerFull: false };
+          teamRef.current = nextTeam;
+          setTeam(nextTeam);
+        }
+      });
+    },
+    [enqueue, teamId],
+  );
 
-      if (type === "reportTrailerFull") {
-        trailerFullRef.current = true;
-        setIsTrailerFull(true);
-        persist(stopsRef.current, true, nextQueue);
-      } else {
-        const nextStops = applyOptimisticDelivery(stopsRef.current);
-        stopsRef.current = nextStops;
-        trailerFullRef.current = false;
-        setStops(nextStops);
-        setIsTrailerFull(false);
-        persist(nextStops, false, nextQueue);
+  const queueUpdateTeam = useCallback(
+    (name: string, trailerSize?: TrailerSize) => {
+      const action: QueuedAction = {
+        id: crypto.randomUUID(),
+        scope: "team",
+        teamId,
+        type: "updateTeam",
+        name,
+        trailerSize,
+        queuedAt: new Date().toISOString(),
+      };
+
+      enqueue(action, () => {
+        if (!teamRef.current) return;
+        const nextTeam = applyOptimisticTeamUpdate(teamRef.current, action);
+        teamRef.current = nextTeam;
+        setTeam(nextTeam);
+      });
+    },
+    [enqueue, teamId],
+  );
+
+  const queueAddMember = useCallback(
+    (name: string, phoneNumber?: string, scoutRelativeName?: string) => {
+      const action: QueuedAction = {
+        id: crypto.randomUUID(),
+        scope: "team",
+        teamId,
+        type: "addMember",
+        tempMemberId: crypto.randomUUID(),
+        name,
+        phoneNumber,
+        scoutRelativeName,
+        queuedAt: new Date().toISOString(),
+      };
+
+      enqueue(action, () => {
+        if (!teamRef.current) return;
+        const nextTeam = applyOptimisticAddMember(teamRef.current, action);
+        teamRef.current = nextTeam;
+        setTeam(nextTeam);
+      });
+    },
+    [enqueue, teamId],
+  );
+
+  const queueRemoveMember = useCallback(
+    (memberId: string) => {
+      // If the member being removed is still only a queued, not-yet-sent addMember
+      // (a temp id), just drop that queued add — there's nothing on the server to remove yet.
+      const pendingAdd = queueRef.current.find(
+        (a): a is Extract<QueuedAction, { type: "addMember" }> =>
+          a.scope === "team" && a.type === "addMember" && a.tempMemberId === memberId,
+      );
+      if (pendingAdd) {
+        const nextQueue = queueRef.current.filter((a) => a.id !== pendingAdd.id);
+        queueRef.current = nextQueue;
+        setQueue(nextQueue);
+        if (teamRef.current) {
+          const nextTeam = {
+            ...teamRef.current,
+            members: teamRef.current.members.filter((m) => m.id !== memberId),
+          };
+          teamRef.current = nextTeam;
+          setTeam(nextTeam);
+          persist(stopsRef.current, nextTeam, nextQueue);
+        }
+        return;
       }
 
-      drainQueue();
+      const action: QueuedAction = {
+        id: crypto.randomUUID(),
+        scope: "team",
+        teamId,
+        type: "removeMember",
+        memberId,
+        queuedAt: new Date().toISOString(),
+      };
+
+      enqueue(action, () => {
+        if (!teamRef.current) return;
+        const nextTeam = applyOptimisticRemoveMember(teamRef.current, action);
+        teamRef.current = nextTeam;
+        setTeam(nextTeam);
+      });
     },
-    [persist, drainQueue, teamId],
+    [enqueue, persist, teamId],
   );
 
   return {
     stops,
-    isTrailerFull,
+    team,
     isOffline,
     pendingCount: queue.length,
     queueAction,
     queueTeamAction,
+    queueUpdateTeam,
+    queueAddMember,
+    queueRemoveMember,
     refresh: poll,
   };
 }

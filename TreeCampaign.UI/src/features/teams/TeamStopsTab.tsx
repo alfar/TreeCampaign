@@ -1,32 +1,14 @@
-import { useParams } from "react-router-dom";
-import { getCampaign, getTeam } from "../../shared/api/client";
-import { useEffect, useState } from "react";
-import type { Campaign } from "../../shared/api/models/campagin";
-import type { Team } from "../../shared/api/models/team";
+import { useOutletContext } from "react-router-dom";
+import { useState } from "react";
 import { PickupForm } from "./PickupForm";
 import Button from "../../components/Button";
-import { useTeamStops } from "../../shared/offline/useTeamStops";
-import { SignalSlashIcon } from "@heroicons/react/24/outline";
+import type { TeamScreenContext } from "./TeamScreen";
 
 export default function TeamStopsTab() {
-  const params = useParams();
-  const campaignId = params.campaignId!;
-  const teamId = params.teamId!;
-
-  const { stops, isTrailerFull, isOffline, pendingCount, queueAction, queueTeamAction, refresh } =
-    useTeamStops(campaignId, teamId);
-  const [team, setTeam] = useState<Team | null>(null);
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const { stops, team, campaign, queueAction, queueTeamAction, refresh } =
+    useOutletContext<TeamScreenContext>();
   const [activeStop, setActiveStop] = useState<string | null>(null);
   const [showPickupForm, setShowPickupForm] = useState(false);
-  const [showOfflineDetails, setShowOfflineDetails] = useState(false);
-
-  useEffect(() => {
-    if (campaignId) {
-      getTeam(campaignId, teamId).then(setTeam);
-      getCampaign(campaignId).then(setCampaign);
-    }
-  }, [campaignId, teamId]);
 
   function getStopButtons(stop: (typeof stops)[number]) {
     if (activeStop === stop.id) {
@@ -85,35 +67,15 @@ export default function TeamStopsTab() {
 
   return (
     <div className="m-4 flex flex-col gap-4">
-      {isOffline && (
-        <div className="relative flex justify-end">
-          <button
-            type="button"
-            onClick={() => setShowOfflineDetails((v) => !v)}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
-            aria-label="Ingen forbindelse"
-          >
-            <SignalSlashIcon className="w-4 h-4" />
-          </button>
-          {showOfflineDetails && (
-            <div className="absolute top-9 right-0 rounded bg-yellow-100 text-yellow-800 text-sm px-3 py-2 shadow whitespace-nowrap">
-              Ingen forbindelse
-              {pendingCount > 0 &&
-                ` — ${pendingCount} handling${pendingCount === 1 ? "" : "er"} venter på at blive sendt`}
-            </div>
-          )}
-        </div>
-      )}
-
       {team?.kind === "Trailer" && (
         <div className="flex gap-2">
           <Button
             size="lg"
             className="flex-1 bg-orange-500 hover:bg-orange-600"
-            disabled={isTrailerFull === true}
+            disabled={team.isTrailerFull === true}
             onClick={() => queueTeamAction("reportTrailerFull")}
           >
-            {isTrailerFull ? "Trailer fuld ✓" : "Trailer fuld"}
+            {team.isTrailerFull ? "Trailer fuld ✓" : "Trailer fuld"}
           </Button>
           {hasCollected && (
             <Button

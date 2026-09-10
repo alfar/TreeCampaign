@@ -1,5 +1,11 @@
 import type { Stop } from "../api/models/stop";
-import type { QueuedStopActionType } from "./stopQueueStorage";
+import type { Team } from "../api/models/team";
+import type {
+  QueuedAddMemberAction,
+  QueuedRemoveMemberAction,
+  QueuedStopActionType,
+  QueuedUpdateTeamAction,
+} from "./stopQueueStorage";
 
 // Mirrors the subset of the backend's Stop state machine reachable from the team screen.
 // Keep in sync with TreeCampaign.Domain's Assigned/Unresolved/Collected stop classes.
@@ -36,4 +42,43 @@ export function applyOptimisticDelivery(stops: Stop[]): Stop[] {
   return stops.map((s) =>
     s.stopType === "Collected" ? { ...s, stopType: "Delivered" } : s,
   );
+}
+
+export function applyOptimisticTeamUpdate(
+  team: Team,
+  action: QueuedUpdateTeamAction,
+): Team {
+  return {
+    ...team,
+    name: action.name,
+    trailerSize: action.trailerSize ?? team.trailerSize,
+  };
+}
+
+export function applyOptimisticAddMember(
+  team: Team,
+  action: QueuedAddMemberAction,
+): Team {
+  return {
+    ...team,
+    members: [
+      ...team.members,
+      {
+        id: action.tempMemberId,
+        name: action.name,
+        phoneNumber: action.phoneNumber,
+        scoutRelativeName: action.scoutRelativeName,
+      },
+    ],
+  };
+}
+
+export function applyOptimisticRemoveMember(
+  team: Team,
+  action: QueuedRemoveMemberAction,
+): Team {
+  return {
+    ...team,
+    members: team.members.filter((m) => m.id !== action.memberId),
+  };
 }

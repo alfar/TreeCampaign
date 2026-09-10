@@ -3,7 +3,10 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { http, HttpResponse } from "msw";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
+import TeamScreen from "./TeamScreen";
 import TeamStopsTab from "./TeamStopsTab";
+import TeamInfoTab from "./TeamInfoTab";
+import TeamMapTab from "./TeamMapTab";
 import type { Stop } from "../../shared/api/models/stop";
 import type { Team } from "../../shared/api/models/team";
 import type { Campaign } from "../../shared/api/models/campagin";
@@ -59,15 +62,18 @@ const meta = {
     layout: "fullscreen",
   },
   decorators: [
-    (Story) => (
+    (_Story, { parameters }) => (
       <MemoryRouter
-        initialEntries={[`/campaigns/${campaignId}/teams/${teamId}/stops`]}
+        initialEntries={[
+          `/campaigns/${campaignId}/teams/${teamId}/${parameters.initialTab ?? "stops"}`,
+        ]}
       >
         <Routes>
-          <Route
-            path="/campaigns/:campaignId/teams/:teamId/stops"
-            element={<Story />}
-          />
+          <Route path="/campaigns/:campaignId/teams/:teamId" element={<TeamScreen />}>
+            <Route path="stops" element={<TeamStopsTab />} />
+            <Route path="map" element={<TeamMapTab />} />
+            <Route path="info" element={<TeamInfoTab />} />
+          </Route>
         </Routes>
       </MemoryRouter>
     ),
@@ -223,6 +229,79 @@ export const ReportTrailerFullQueuesOffline: Story = {
     );
     await waitFor(() =>
       expect(canvas.getByLabelText("Ingen forbindelse")).toBeInTheDocument(),
+    );
+  },
+};
+
+export const AddMemberQueuesOfflineOnInfoTab: Story = {
+  name: "Adding a patrol member queues offline and appears immediately",
+  parameters: { initialTab: "info" },
+  beforeEach: ({ msw }) => {
+    localStorage.removeItem(storageKey);
+    msw.use(
+      ...baseHandlers(initialStops),
+      http.post(`/api/${campaignId}/teams/${teamId}/members`, () => {
+        return HttpResponse.error();
+      }),
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByPlaceholderText("Navn")).toBeInTheDocument(),
+    );
+
+    await userEvent.type(canvas.getByPlaceholderText("Navn"), "Anders And");
+    await userEvent.click(canvas.getByText("Tilføj"));
+
+    // Optimistic UI: the new member appears immediately under a temporary local id,
+    // even though the request above is failing — the addition is queued for later.
+    await waitFor(() =>
+      expect(canvas.getByText("Anders And")).toBeInTheDocument(),
+    );
+    await waitFor(() =>
+      expect(canvas.getByLabelText("Ingen forbindelse")).toBeInTheDocument(),
+    );
+  },
+};
+
+export const RemovingPendingMemberCancelsQueuedAdd: Story = {
+  name: "Removing a not-yet-sent member cancels the queued add",
+  parameters: { initialTab: "info" },
+  beforeEach: ({ msw }) => {
+    localStorage.removeItem(storageKey);
+    msw.use(
+      ...baseHandlers(initialStops),
+      http.post(`/api/${campaignId}/teams/${teamId}/members`, () => {
+        return HttpResponse.error();
+      }),
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByPlaceholderText("Navn")).toBeInTheDocument(),
+    );
+
+    await userEvent.type(canvas.getByPlaceholderText("Navn"), "Anders And");
+    await userEvent.click(canvas.getByText("Tilføj"));
+
+    await waitFor(() =>
+      expect(canvas.getByText("Anders And")).toBeInTheDocument(),
+    );
+    await waitFor(() =>
+      expect(canvas.getByLabelText("Ingen forbindelse")).toBeInTheDocument(),
+    );
+
+    // The member was never sent to the server (still offline), so removing it should
+    // just cancel the queued add locally — nothing left to retry, offline icon clears.
+    await userEvent.click(canvas.getByText("Fjern"));
+
+    await waitFor(() =>
+      expect(canvas.queryByText("Anders And")).not.toBeInTheDocument(),
+    );
+    await waitFor(() =>
+      expect(canvas.queryByLabelText("Ingen forbindelse")).not.toBeInTheDocument(),
     );
   },
 };

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import {
   CircleMarker,
   MapContainer,
@@ -7,8 +7,8 @@ import {
   TileLayer,
   useMap,
 } from "react-leaflet";
-import { getStopsForTeam } from "../../shared/api/client";
 import type { Stop } from "../../shared/api/models/stop";
+import type { TeamScreenContext } from "./TeamScreen";
 
 const SILKEBORG_CENTER: [number, number] = [56.1697, 9.5451];
 
@@ -34,17 +34,7 @@ function FitBoundsToStops({ stops }: { stops: Stop[] }) {
 }
 
 export default function TeamMapTab() {
-  const params = useParams();
-  const campaignId = params.campaignId!;
-  const teamId = params.teamId!;
-
-  const [stops, setStops] = useState<Stop[]>([]);
-
-  useEffect(() => {
-    if (campaignId) {
-      getStopsForTeam(campaignId, teamId).then(setStops);
-    }
-  }, [campaignId, teamId]);
+  const { stops } = useOutletContext<TeamScreenContext>();
 
   const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
 
