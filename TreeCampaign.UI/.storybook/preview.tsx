@@ -4,6 +4,8 @@ import { mswLoader } from 'msw-storybook-addon/csf3';
 // Ignore missing type declarations for CSS side-effect import in Storybook
 // @ts-ignore
 import '../src/index.css';
+// @ts-ignore
+import 'leaflet/dist/leaflet.css';
 
 const preview: Preview = {
   loaders: [mswLoader()],

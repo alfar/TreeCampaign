@@ -1,6 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import { useState } from "react";
 import { PickupForm } from "./PickupForm";
+import { StopActionButtons } from "./StopActionButtons";
 import Button from "../../components/Button";
 import type { TeamScreenContext } from "./TeamScreen";
 
@@ -9,58 +10,6 @@ export default function TeamStopsTab() {
     useOutletContext<TeamScreenContext>();
   const [activeStop, setActiveStop] = useState<string | null>(null);
   const [showPickupForm, setShowPickupForm] = useState(false);
-
-  function getStopButtons(stop: (typeof stops)[number]) {
-    if (activeStop === stop.id) {
-      if (stop.stopType === "Assigned") {
-        return (
-          <div className="flex gap-2 mt-4">
-            <Button
-              size="lg"
-              className="flex-1 bg-green-600 hover:bg-green-700"
-              onClick={() => queueAction(stop.id, "collect")}
-            >
-              Hentet
-            </Button>
-            <Button
-              variant="danger"
-              size="lg"
-              className="flex-1"
-              onClick={() => queueAction(stop.id, "unresolved", "Ikke fundet")}
-            >
-              Ikke fundet
-            </Button>
-          </div>
-        );
-      } else if (stop.stopType === "Unresolved") {
-        return (
-          <div className="flex gap-2 mt-4">
-            <Button
-              size="lg"
-              className="flex-1 bg-green-600 hover:bg-green-700"
-              onClick={() => queueAction(stop.id, "retry")}
-            >
-              Genoptag
-            </Button>
-          </div>
-        );
-      } else if (stop.stopType === "Collected") {
-        return (
-          <div className="flex gap-2 mt-4">
-            <Button
-              variant="danger"
-              size="lg"
-              className="flex-1"
-              onClick={() => queueAction(stop.id, "correct")}
-            >
-              Fortryd
-            </Button>
-          </div>
-        );
-      }
-    }
-    return null;
-  }
 
   const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
   const hasCollected = stops.some((s) => s.stopType === "Collected");
@@ -126,7 +75,9 @@ export default function TeamStopsTab() {
                 {stop.address.displayName}
               </h2>
               <p>{stop.amount}</p>
-              {getStopButtons(stop)}
+              {activeStop === stop.id && (
+                <StopActionButtons stop={stop} queueAction={queueAction} />
+              )}
             </li>
           ))}
         {visibleStops
@@ -145,7 +96,9 @@ export default function TeamStopsTab() {
                 {stop.address.displayName}
               </h2>
               <p>{stop.amount}</p>
-              {getStopButtons(stop)}
+              {activeStop === stop.id && (
+                <StopActionButtons stop={stop} queueAction={queueAction} />
+              )}
             </li>
           ))}
       </ol>

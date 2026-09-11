@@ -306,6 +306,41 @@ export const RemovingPendingMemberCancelsQueuedAdd: Story = {
   },
 };
 
+export const CollectStopFromMapPopup: Story = {
+  name: "Collecting a stop from the map popup",
+  parameters: { initialTab: "map" },
+  beforeEach: ({ msw }) => {
+    localStorage.removeItem(storageKey);
+    msw.use(
+      ...baseHandlers(initialStops),
+      http.post(
+        `/api/${campaignId}/stops/stop-1/collect`,
+        () => HttpResponse.json(stop({ id: "stop-1", stopType: "Collected" })),
+      ),
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Click the stop's marker on the map to open its popup.
+    await waitFor(() =>
+      expect(canvasElement.querySelector("path.leaflet-interactive")).toBeTruthy(),
+    );
+    const marker = canvasElement.querySelector("path.leaflet-interactive") as SVGPathElement;
+    await userEvent.click(marker);
+
+    // The popup shows the same collect/not-found/retry/correct buttons as the stops list.
+    await waitFor(() =>
+      expect(canvas.getByText("Hentet")).toBeInTheDocument(),
+    );
+    await userEvent.click(canvas.getByText("Hentet"));
+
+    await waitFor(() =>
+      expect(canvas.queryByLabelText("Ingen forbindelse")).not.toBeInTheDocument(),
+    );
+  },
+};
+
 export const DeliverLoadQueuesOffline: Story = {
   name: "Deliver load queues offline and clears collected stops",
   beforeEach: ({ msw }) => {

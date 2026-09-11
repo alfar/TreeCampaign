@@ -9,6 +9,7 @@ import {
 } from "react-leaflet";
 import type { Stop } from "../../shared/api/models/stop";
 import type { TeamScreenContext } from "./TeamScreen";
+import { StopActionButtons } from "./StopActionButtons";
 
 const SILKEBORG_CENTER: [number, number] = [56.1697, 9.5451];
 
@@ -34,7 +35,7 @@ function FitBoundsToStops({ stops }: { stops: Stop[] }) {
 }
 
 export default function TeamMapTab() {
-  const { stops } = useOutletContext<TeamScreenContext>();
+  const { stops, queueAction } = useOutletContext<TeamScreenContext>();
 
   const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
 
@@ -61,10 +62,11 @@ export default function TeamMapTab() {
               fillOpacity: 0.8,
             }}
           >
-            <Popup>
+            <Popup minWidth={200}>
               <div className="font-semibold">{stop.address.displayName}</div>
               <div>{stop.amount} træer</div>
               <div>{stop.stopType}</div>
+              <StopActionButtons stop={stop} queueAction={queueAction} />
             </Popup>
           </CircleMarker>
         ))}
