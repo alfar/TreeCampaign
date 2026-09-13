@@ -85,9 +85,13 @@ async function runAction(
 }
 
 function isNetworkError(err: unknown): boolean {
-  // fetch() rejects with TypeError only for network failures (offline, DNS, timeout via AbortController),
-  // never for HTTP error statuses — those resolve normally and are handled by the caller.
-  return err instanceof TypeError;
+  // fetch() rejects with TypeError for network failures (offline, DNS) — never for HTTP
+  // error statuses, those resolve normally and are handled by the caller. AbortSignal.timeout()
+  // (see client.ts's fetchJson) rejects with a DOMException named "TimeoutError" instead —
+  // a request that hung because the connection died counts as offline too, not a hard failure.
+  if (err instanceof TypeError) return true;
+  if (err instanceof DOMException && err.name === "TimeoutError") return true;
+  return false;
 }
 
 export function useTeamData(campaignId: string, teamId: string) {
@@ -146,34 +150,6 @@ export function useTeamData(campaignId: string, teamId: string) {
     [],
   );
 
-  const poll = useCallback(async () => {
-    try {
-      const [serverStops, serverTeam] = await Promise.all([
-        getStopsForTeam(campaignId, teamId),
-        getTeam(campaignId, teamId),
-      ]);
-      setIsOffline(false);
-
-      const stillPending = pendingStopIds();
-      const mergedStops = serverStops.map((serverStop) =>
-        stillPending.has(serverStop.id)
-          ? (stopsRef.current.find((s) => s.id === serverStop.id) ?? serverStop)
-          : serverStop,
-      );
-      // While a team action is still queued, our optimistic local team is more current
-      // than whatever the server last reported — keep it until the action actually lands.
-      const mergedTeam = hasPendingTeamAction() ? teamRef.current : serverTeam;
-
-      setStops(mergedStops);
-      setTeam(mergedTeam);
-      persist(mergedStops, mergedTeam, queueRef.current);
-    } catch (err) {
-      if (isNetworkError(err)) {
-        setIsOffline(true);
-      }
-    }
-  }, [campaignId, teamId, persist, pendingStopIds, hasPendingTeamAction]);
-
   const drainQueue = useCallback(async () => {
     if (draining.current) return;
     draining.current = true;
@@ -221,6 +197,41 @@ export function useTeamData(campaignId: string, teamId: string) {
       draining.current = false;
     }
   }, [campaignId, persist]);
+
+  const poll = useCallback(async () => {
+    try {
+      const [serverStops, serverTeam] = await Promise.all([
+        getStopsForTeam(campaignId, teamId),
+        getTeam(campaignId, teamId),
+      ]);
+      setIsOffline(false);
+
+      const stillPending = pendingStopIds();
+      const mergedStops = serverStops.map((serverStop) =>
+        stillPending.has(serverStop.id)
+          ? (stopsRef.current.find((s) => s.id === serverStop.id) ?? serverStop)
+          : serverStop,
+      );
+      // While a team action is still queued, our optimistic local team is more current
+      // than whatever the server last reported — keep it until the action actually lands.
+      const mergedTeam = hasPendingTeamAction() ? teamRef.current : serverTeam;
+
+      setStops(mergedStops);
+      setTeam(mergedTeam);
+      persist(mergedStops, mergedTeam, queueRef.current);
+
+      // A successful poll proves the network is back up — this is the primary signal that
+      // wakes a stalled queue, since mobile browsers don't reliably fire "online" when
+      // connectivity actually returns (e.g. toggling airplane mode).
+      if (queueRef.current.length > 0) {
+        drainQueue();
+      }
+    } catch (err) {
+      if (isNetworkError(err)) {
+        setIsOffline(true);
+      }
+    }
+  }, [campaignId, teamId, persist, pendingStopIds, hasPendingTeamAction, drainQueue]);
 
   useEffect(() => {
     poll();
@@ -380,6 +391,11 @@ export function useTeamData(campaignId: string, teamId: string) {
           teamRef.current = nextTeam;
           setTeam(nextTeam);
           persist(stopsRef.current, nextTeam, nextQueue);
+        }
+        // Cancelling a queued add doesn't prove connectivity is back — but if nothing
+        // else is pending, there's nothing left that "offline" should be blocking either.
+        if (nextQueue.length === 0) {
+          setIsOffline(false);
         }
         return;
       }

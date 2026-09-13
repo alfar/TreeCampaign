@@ -258,6 +258,15 @@ Vite proxies `/api/*` to `:5006`.
 
 **Manual washing UI**: when displaying `UnwashedOrder` records, the frontend calls the TreeTerritory.Api to let the operator select the correct StreetId, StreetSectionId and NeighborhoodId. The operator submits those refs and a house number to the backend via `POST /api/intake/orders/{id}/wash`; the backend then validates the refs against Territory and fetches coordinates from DAWA.
 
+### Frontend Testing (Storybook + MSW)
+
+Interaction tests for React features (e.g. the team offline-queue behavior in `TeamStopsTab.stories.tsx`) are written as Storybook stories with a `play` function, using `msw` + `msw-storybook-addon` (CSF3 API: `mswLoader()` in `.storybook/preview.tsx`, per-story `beforeEach({ msw }) { msw.use(...) }`) to mock `client.ts`'s `fetch` calls — no real backend needed to verify offline/queue/optimistic-UI behavior.
+
+- **Port**: run Storybook on a port other than the default 6006 during a session (`npx storybook dev -p <port> --ci`) to avoid colliding with an instance already running from a previous turn or the user's own terminal. Always kill the dev server process when done rather than leaving it running.
+- **Don't restart for story-only edits**: Storybook's Vite dev server picks up changes to `.stories.tsx` files (and most source files) via HMR — editing a story and re-running the headless check against the *same* running instance is enough. Only restart when `.storybook/main.ts` or `.storybook/preview.tsx` changes (addon registration, global decorators/loaders).
+- **MSW handler gotcha**: `msw.use(...handlerA, ...handlerB)` matches in array order — first match wins. If a shared `baseHandlers()` helper and a per-story override both register a handler for the same route in one call, the shared one (listed first) always wins and the override is silently ignored. Parameterize the shared helper to accept an override function instead of appending a second handler for the same route.
+- **Verifying a story actually passed**: a browser `pageerror` listener does *not* catch a Testing-Library assertion failure thrown inside `play` — those surface as `console.error` (e.g. `TestingLibraryElementError`, `JestExtendError`). Check `console` output, not just `pageerror`, when confirming a story's `play` function succeeded. Also take a screenshot to eyeball the actual rendered end state — a fixed `waitForTimeout` before screenshotting can land either before or after `play` finishes, so don't treat "no error" alone as proof of the expected final UI state.
+
 ## Technology Stack
 
 - **.NET 10** with C# 13

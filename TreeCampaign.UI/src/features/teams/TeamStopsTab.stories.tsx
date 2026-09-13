@@ -47,9 +47,11 @@ function stop(overrides: Partial<Stop>): Stop {
 
 const initialStops: Stop[] = [stop({ id: "stop-1" })];
 
-function baseHandlers(stops: Stop[]) {
+function baseHandlers(stops: Stop[], getTeamResponse?: () => Team) {
   return [
-    http.get(`/api/${campaignId}/teams/${teamId}`, () => HttpResponse.json(team)),
+    http.get(`/api/${campaignId}/teams/${teamId}`, () =>
+      HttpResponse.json(getTeamResponse ? getTeamResponse() : team),
+    ),
     http.get(`/api/campaigns/${campaignId}`, () => HttpResponse.json(campaign)),
     http.get(`/api/${campaignId}/stops`, () => HttpResponse.json(stops)),
   ];
@@ -200,6 +202,49 @@ export const DrainsQueueWhenBackOnline: Story = {
   },
 };
 
+export const DrainsQueueViaManualRefresh: Story = {
+  name: "Drains the queue via manual refresh, without an online event",
+  beforeEach: ({ msw }) => {
+    localStorage.removeItem(storageKey);
+    let attempt = 0;
+    msw.use(
+      ...baseHandlers(initialStops),
+      http.post(`/api/${campaignId}/stops/stop-1/collect`, () => {
+        attempt += 1;
+        // First attempt simulates a dropped connection; the retry via manual refresh succeeds —
+        // this reproduces the reported bug where connectivity returned but nothing ever
+        // retried the queue until the tab was backgrounded and reopened.
+        if (attempt === 1) return HttpResponse.error();
+        return HttpResponse.json(stop({ id: "stop-1", stopType: "Collected" }));
+      }),
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByText("Eksempelvej 12")).toBeInTheDocument(),
+    );
+
+    await userEvent.click(canvas.getByText("Eksempelvej 12"));
+    await userEvent.click(canvas.getByText("Hentet"));
+
+    await waitFor(() =>
+      expect(canvas.getByLabelText("Ingen forbindelse")).toBeInTheDocument(),
+    );
+
+    // Deliberately no "online" event and no visibilitychange — only the manual
+    // refresh button, which drives the same poll()-triggers-drainQueue() path.
+    await userEvent.click(canvas.getByLabelText("Opdater"));
+
+    await waitFor(() =>
+      expect(canvas.queryByLabelText("Ingen forbindelse")).not.toBeInTheDocument(),
+    );
+    await waitFor(() =>
+      expect(canvas.getByText("Fortryd")).toBeInTheDocument(),
+    );
+  },
+};
+
 export const ReportTrailerFullQueuesOffline: Story = {
   name: "Trailer full report queues while offline",
   beforeEach: ({ msw }) => {
@@ -338,6 +383,71 @@ export const CollectStopFromMapPopup: Story = {
     await waitFor(() =>
       expect(canvas.queryByLabelText("Ingen forbindelse")).not.toBeInTheDocument(),
     );
+  },
+};
+
+export const InfoTabPicksUpNameFromPoll: Story = {
+  name: "Team name updates from a poll when the form is untouched",
+  parameters: { initialTab: "info" },
+  beforeEach: ({ msw }) => {
+    localStorage.removeItem(storageKey);
+    // First call (initial mount) returns the original name; the manual refresh's
+    // call returns the rename, simulating another device having renamed the team.
+    let attempt = 0;
+    msw.use(
+      ...baseHandlers(initialStops, () => ({
+        ...team,
+        name: (attempt += 1) === 1 ? "Ulverne" : "Ræverne",
+      })),
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByDisplayValue("Ulverne")).toBeInTheDocument(),
+    );
+
+    // Simulate another device having renamed the team — the next poll (via manual
+    // refresh here) picks it up since the form hasn't been touched.
+    await userEvent.click(canvas.getByLabelText("Opdater"));
+
+    await waitFor(() =>
+      expect(canvas.getByDisplayValue("Ræverne")).toBeInTheDocument(),
+    );
+  },
+};
+
+export const InfoTabKeepsUnsavedEditThroughPoll: Story = {
+  name: "In-progress name edit survives a poll",
+  parameters: { initialTab: "info" },
+  beforeEach: ({ msw }) => {
+    localStorage.removeItem(storageKey);
+    let attempt = 0;
+    msw.use(
+      ...baseHandlers(initialStops, () => ({
+        ...team,
+        name: (attempt += 1) === 1 ? "Ulverne" : "Ræverne",
+      })),
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const nameInput = await waitFor(() =>
+      canvas.getByDisplayValue("Ulverne") as HTMLInputElement,
+    );
+
+    // Start editing, but don't submit — an in-progress, unsaved edit.
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, "Mine Ulve");
+
+    // A poll lands (another device renamed the team to "Ræverne" server-side),
+    // but since this form is dirty, the in-progress edit must not be overwritten.
+    await userEvent.click(canvas.getByLabelText("Opdater"));
+
+    await waitFor(() =>
+      expect(canvas.getByDisplayValue("Mine Ulve")).toBeInTheDocument(),
+    );
+    expect(canvas.queryByDisplayValue("Ræverne")).not.toBeInTheDocument();
   },
 };
 

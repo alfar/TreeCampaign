@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { SignalSlashIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, SignalSlashIcon } from "@heroicons/react/24/outline";
 import { getCampaign } from "../../shared/api/client";
 import type { Campaign } from "../../shared/api/models/campagin";
 import { useTeamData } from "../../shared/offline/useTeamData";
@@ -16,6 +16,16 @@ export default function TeamScreen() {
   const teamData = useTeamData(campaignId!, teamId!);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [showOfflineDetails, setShowOfflineDetails] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await teamData.refresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (campaignId) {
@@ -45,6 +55,15 @@ export default function TeamScreen() {
           <NavLink to={`${base}/info`} className={navLink}>
             Info
           </NavLink>
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center justify-center w-8 h-8 mr-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+            aria-label="Opdater"
+          >
+            <ArrowPathIcon className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          </button>
           {teamData.isOffline && (
             <div className="relative flex items-center pr-3">
               <button

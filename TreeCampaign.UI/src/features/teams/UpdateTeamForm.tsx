@@ -9,6 +9,18 @@ interface UpdateTeamFormProps {
 export default function UpdateTeamForm({ team, onUpdate }: UpdateTeamFormProps) {
   const [name, setName] = useState(team.name);
   const [trailerSize, setTrailerSize] = useState<TrailerSize>(team.trailerSize ?? "Small");
+  const [dirty, setDirty] = useState(false);
+  const [prevTeam, setPrevTeam] = useState(team);
+
+  // Sync from a poll's fresh team data, but only while the user hasn't started
+  // editing — otherwise a poll landing mid-edit would silently discard their input.
+  if (team !== prevTeam) {
+    setPrevTeam(team);
+    if (!dirty) {
+      setName(team.name);
+      setTrailerSize(team.trailerSize ?? "Small");
+    }
+  }
 
   const canSubmit =
     name.trim().length > 0 &&
@@ -18,6 +30,7 @@ export default function UpdateTeamForm({ team, onUpdate }: UpdateTeamFormProps) 
     e.preventDefault();
     if (!canSubmit) return;
     onUpdate(name.trim(), team.kind === "Trailer" ? trailerSize : undefined);
+    setDirty(false);
   };
 
   return (
@@ -28,7 +41,10 @@ export default function UpdateTeamForm({ team, onUpdate }: UpdateTeamFormProps) 
         <input
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setDirty(true);
+            setName(e.target.value);
+          }}
           className="w-full border rounded px-3 py-2 text-sm"
         />
       </div>
@@ -40,7 +56,10 @@ export default function UpdateTeamForm({ team, onUpdate }: UpdateTeamFormProps) 
               <button
                 key={size}
                 type="button"
-                onClick={() => setTrailerSize(size)}
+                onClick={() => {
+                  setDirty(true);
+                  setTrailerSize(size);
+                }}
                 className={`flex-1 py-2 rounded text-sm border ${trailerSize === size ? "bg-blue-600 text-white border-blue-600" : "border-gray-300"}`}
               >
                 {trailerSizeLabels[size]}

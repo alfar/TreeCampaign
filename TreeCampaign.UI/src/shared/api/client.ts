@@ -20,8 +20,12 @@ export class HttpError extends Error {
   }
 }
 
+const REQUEST_TIMEOUT_MS = 15_000;
+
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
-  const res = await fetch(input, init);
+  // A dead mobile radio can leave fetch() pending indefinitely instead of rejecting —
+  // this bounds every request so a stuck one can't wedge the offline queue's drain loop.
+  const res = await fetch(input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   if (!res.ok) {
     throw new HttpError(res.status, await res.text());
   }
