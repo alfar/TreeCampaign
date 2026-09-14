@@ -6,7 +6,7 @@ import Button from "../../components/Button";
 import type { TeamScreenContext } from "./TeamScreen";
 
 export default function TeamStopsTab() {
-  const { stops, team, campaign, queueAction, queueTeamAction, refresh } =
+  const { stops, team, campaign, queueAction, queueTeamAction, queueAdjustExtraTrees, refresh } =
     useOutletContext<TeamScreenContext>();
   const [activeStop, setActiveStop] = useState<string | null>(null);
   const [showPickupForm, setShowPickupForm] = useState(false);
@@ -16,6 +16,29 @@ export default function TeamStopsTab() {
 
   return (
     <div className="m-4 flex flex-col gap-4">
+      {team && (
+        <div className="flex items-center justify-center gap-4 border rounded-xl p-3 bg-gray-50">
+          <Button
+            size="lg"
+            className="px-4"
+            disabled={team.currentExtraTrees <= 0}
+            onClick={() => queueAdjustExtraTrees(-1)}
+          >
+            −
+          </Button>
+          <span className="text-lg font-semibold">
+            {team.currentExtraTrees} ekstra træer
+          </span>
+          <Button
+            size="lg"
+            className="px-4"
+            onClick={() => queueAdjustExtraTrees(1)}
+          >
+            +
+          </Button>
+        </div>
+      )}
+
       {team?.kind === "Trailer" && (
         <div className="flex gap-2">
           <Button
@@ -48,9 +71,10 @@ export default function TeamStopsTab() {
         </Button>
       )}
 
-      {showPickupForm && campaign && (
+      {showPickupForm && campaign && team && (
         <PickupForm
           campaign={campaign}
+          teamId={team.id}
           onCreated={() => {
             refresh();
             setShowPickupForm(false);

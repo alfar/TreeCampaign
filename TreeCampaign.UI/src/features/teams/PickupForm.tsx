@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { getTerritory, requestPickup } from "../../shared/api/client";
 import type { Campaign } from "../../shared/api/models/campagin";
 import type { Stop } from "../../shared/api/models/stop";
+import type { Team } from "../../shared/api/models/team";
 import { AddressPicker, type Address } from "../../shared/components/AddressPicker";
 
 export function PickupForm({
-  campaign, onCreated,
+  campaign, teamId, onCreated,
 }: {
   campaign: Campaign;
-  onCreated: (stop: Stop) => void;
+  teamId: string;
+  onCreated: (stop: Stop, team: Team) => void;
 }) {
   const [defaultZipCode, setDefaultZipCode] = useState("");
   const [address, setAddress] = useState<Address>({ zipCode: "", street: null, streetName: "", houseNumber: "", isValid: null });
@@ -30,13 +32,14 @@ export function PickupForm({
     setSubmitting(true);
     setError(null);
     try {
-      const stop = await requestPickup(
+      const { stop, team } = await requestPickup(
         campaign.id,
+        teamId,
         address.street.id,
         address.houseNumber,
         treeCount
       );
-      onCreated(stop);
+      onCreated(stop, team);
     } catch {
       setError("Adressen kunne ikke valideres. Prøv igen.");
     } finally {

@@ -89,6 +89,8 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
         public required TeamKind Kind { get; init; }
         public bool? IsTrailerFull { get; init; }
         public TrailerSize? TrailerSize { get; init; }
+        public required TreeCount CurrentExtraTrees { get; init; }
+        public required TreeCount TotalExtraTrees { get; init; }
 
         private List<TeamMember> _members = [];
         public IReadOnlyCollection<TeamMember> Members => _members;
@@ -105,6 +107,8 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
                 Kind = trailerTeam != null ? TeamKind.Trailer : TeamKind.Walking,
                 IsTrailerFull = trailerTeam?.IsTrailerFull,
                 TrailerSize = trailerTeam?.TrailerSize,
+                CurrentExtraTrees = team.CurrentExtraTrees,
+                TotalExtraTrees = team.TotalExtraTrees,
                 _members = team.Members.ToList(),
             };
         }
@@ -213,6 +217,14 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
             .Entity<TeamProjection>()
             .Property(t => t.TrailerSize)
             .HasConversion<byte?>();
+        modelBuilder
+            .Entity<TeamProjection>()
+            .Property(t => t.CurrentExtraTrees)
+            .HasConversion(new TreeCountValueConverter());
+        modelBuilder
+            .Entity<TeamProjection>()
+            .Property(t => t.TotalExtraTrees)
+            .HasConversion(new TreeCountValueConverter());
 
         modelBuilder.Entity<TeamMember>(m =>
         {

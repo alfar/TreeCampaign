@@ -32,6 +32,8 @@ internal static class TeamConfiguration
         builder.Property(t => t.Status)
             .HasConversion<byte>()
             .HasDefaultValue(TeamStatus.Active);
+        builder.Property(t => t.CurrentExtraTrees).HasConversion(new TreeCountValueConverter());
+        builder.Property(t => t.TotalExtraTrees).HasConversion(new TreeCountValueConverter());
 
         builder.HasMany<TeamMember>().WithOne().HasForeignKey(s => s.TeamId);
 

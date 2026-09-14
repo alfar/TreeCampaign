@@ -7,8 +7,9 @@ import {
   TileLayer,
   useMap,
 } from "react-leaflet";
-import { getStops } from "../../shared/api/client";
+import { getStops, getTeams } from "../../shared/api/client";
 import type { Stop } from "../../shared/api/models/stop";
+import type { Team } from "../../shared/api/models/team";
 import NavigationPage from "../../shared/components/NavigationPage";
 import ProgressBar from "../../components/ProgressBar";
 
@@ -57,10 +58,12 @@ export default function OverviewMapScreen() {
   const campaignId = params.campaignId!;
 
   const [stops, setStops] = useState<Stop[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
 
   useEffect(() => {
     if (campaignId) {
       getStops(campaignId).then(setStops);
+      getTeams(campaignId).then(setTeams);
     }
   }, [campaignId]);
 
@@ -111,6 +114,26 @@ export default function OverviewMapScreen() {
           assignedTeamId: undefined,
         }),
         StopRetried: patchStopFunc(data.id as string, { stopType: "Assigned" }),
+        TeamExtraTreesAdjusted: () => {
+          setTeams((prev) =>
+            prev.map((t) =>
+              t.id === data.id
+                ? {
+                    ...t,
+                    currentExtraTrees: data.currentExtraTrees as number,
+                    totalExtraTrees: data.totalExtraTrees as number,
+                  }
+                : t,
+            ),
+          );
+        },
+        TeamExtraTreesReset: () => {
+          setTeams((prev) =>
+            prev.map((t) =>
+              t.id === data.id ? { ...t, currentExtraTrees: 0 } : t,
+            ),
+          );
+        },
       };
 
       const action = actionByEvent[type];
@@ -145,6 +168,9 @@ export default function OverviewMapScreen() {
     { unassigned: 0,pending: 0, unresolved: 0, collected: 0, total: 0 },
   );
 
+  const extraTrees = teams.reduce((sum, t) => sum + t.totalExtraTrees, 0);
+  counts.total += extraTrees;
+
   return (
     <NavigationPage>
       <div className="h-[calc(100vh-2rem)] w-full flex flex-col gap-2">
@@ -154,6 +180,7 @@ export default function OverviewMapScreen() {
             { title: "Fejlet", amount: counts.unresolved, color: "#dc2626" },
             { title: "Tildelt", amount: counts.pending, color: "#2563eb" },
             { title: "Mangler", amount: counts.unassigned, color: "#ffffff" },
+            { title: "Ekstra", amount: extraTrees, color: "#f59e0b" },
           ]}
           textSize="text-3xl"
           total={counts.total}

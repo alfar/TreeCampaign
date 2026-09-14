@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Access.Api", "Access.Api\Ac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intake.Test", "Intake.Test\Intake.Test.csproj", "{205C8B8A-97AE-4B7B-A020-FCAC5AF006E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeCampaign.Test", "TreeCampaign.Test\TreeCampaign.Test.csproj", "{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -279,6 +281,18 @@ Global
 		{205C8B8A-97AE-4B7B-A020-FCAC5AF006E9}.Release|x64.Build.0 = Release|Any CPU
 		{205C8B8A-97AE-4B7B-A020-FCAC5AF006E9}.Release|x86.ActiveCfg = Release|Any CPU
 		{205C8B8A-97AE-4B7B-A020-FCAC5AF006E9}.Release|x86.Build.0 = Release|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Debug|x64.Build.0 = Debug|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Debug|x86.Build.0 = Debug|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Release|x64.ActiveCfg = Release|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Release|x64.Build.0 = Release|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Release|x86.ActiveCfg = Release|Any CPU
+		{5C209308-1C1F-40A9-89AA-AF8AECFB92EE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

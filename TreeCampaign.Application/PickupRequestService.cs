@@ -4,6 +4,8 @@ using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.ExternalReferences;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Stops.ValueObjects;
+using TreeCampaign.Domain.Teams;
+using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure;
 using TreeCampaign.Infrastructure.Queries;
 using TreeTerritory.Domain.Streets.ValueObjects;
@@ -14,6 +16,8 @@ using TerritoryHouseNumber = TreeTerritory.Domain.StreetSections.ValueObjects.Ho
 
 namespace TreeCampaign.Application;
 
+public record PickupRequestResult(ProjectionContext.StopProjection Stop, ProjectionContext.TeamProjection Team);
+
 public class PickupRequestService(
     ICampaignQueries campaignQueries,
     TreeTerritoryContext territoryContext,
@@ -21,13 +25,18 @@ public class PickupRequestService(
     IAddressLookupClient addressLookupClient,
     ITreeCampaignUnitOfWork unitOfWork)
 {
-    public async Task<ProjectionContext.StopProjection?> RequestPickupAsync(
+    public async Task<PickupRequestResult?> RequestPickupAsync(
         CampaignId campaignId,
+        TeamId teamId,
         Guid streetId,
         string houseNumber,
         int treeCount,
         CancellationToken cancellationToken)
     {
+        var team = await unitOfWork.GetRepository<TeamBase, TeamId>().TryFindAsync(teamId, cancellationToken);
+        if (team is null || team.CampaignId != campaignId)
+            return null;
+
         var campaign = await campaignQueries.GetByIdAsync(campaignId, cancellationToken);
         if (campaign?.TerritoryId is null)
             return null;
@@ -59,8 +68,11 @@ public class PickupRequestService(
 
         var stop = UnassignedStop.Create(campaignId, address, TreeCount.From(treeCount));
         unitOfWork.GetRepository<UnassignedStop, StopId>().Add(stop);
+
+        team.ResetCurrentExtraTrees();
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ProjectionContext.StopProjection.From(stop);
+        return new PickupRequestResult(ProjectionContext.StopProjection.From(stop), ProjectionContext.TeamProjection.FromTeam(team));
     }
 }

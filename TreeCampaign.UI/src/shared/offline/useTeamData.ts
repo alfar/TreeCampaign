@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   addTeamMember,
+  adjustExtraTrees,
   collectStop,
   correctStop,
   deliverLoad,
@@ -69,6 +70,11 @@ async function runAction(
         return {
           kind: "team",
           team: await removeTeamMember(campaignId, action.teamId, action.memberId),
+        };
+      case "adjustExtraTrees":
+        return {
+          kind: "team",
+          team: await adjustExtraTrees(campaignId, action.teamId, action.delta),
         };
     }
   }
@@ -174,9 +180,10 @@ export function useTeamData(campaignId: string, teamId: string) {
             setTeam(result.team);
             persist(stopsRef.current, result.team, rest);
           } else {
-            // deliverLoad succeeded: server already applied the bulk transition and cleared trailer-full.
+            // deliverLoad succeeded: server already applied the bulk transition, cleared trailer-full,
+            // and reset the team's current extra trees count.
             const nextTeam = teamRef.current
-              ? { ...teamRef.current, isTrailerFull: false }
+              ? { ...teamRef.current, isTrailerFull: false, currentExtraTrees: 0 }
               : teamRef.current;
             teamRef.current = nextTeam;
             setTeam(nextTeam);
@@ -316,10 +323,34 @@ export function useTeamData(campaignId: string, teamId: string) {
           const nextStops = applyOptimisticDelivery(stopsRef.current);
           stopsRef.current = nextStops;
           setStops(nextStops);
-          const nextTeam = { ...teamRef.current, isTrailerFull: false };
+          const nextTeam = { ...teamRef.current, isTrailerFull: false, currentExtraTrees: 0 };
           teamRef.current = nextTeam;
           setTeam(nextTeam);
         }
+      });
+    },
+    [enqueue, teamId],
+  );
+
+  const queueAdjustExtraTrees = useCallback(
+    (delta: number) => {
+      const action: QueuedAction = {
+        id: crypto.randomUUID(),
+        scope: "team",
+        teamId,
+        type: "adjustExtraTrees",
+        delta,
+        queuedAt: new Date().toISOString(),
+      };
+
+      enqueue(action, () => {
+        if (!teamRef.current) return;
+        const nextTeam = {
+          ...teamRef.current,
+          currentExtraTrees: Math.max(0, teamRef.current.currentExtraTrees + delta),
+        };
+        teamRef.current = nextTeam;
+        setTeam(nextTeam);
       });
     },
     [enqueue, teamId],
@@ -426,6 +457,7 @@ export function useTeamData(campaignId: string, teamId: string) {
     pendingCount: queue.length,
     queueAction,
     queueTeamAction,
+    queueAdjustExtraTrees,
     queueUpdateTeam,
     queueAddMember,
     queueRemoveMember,

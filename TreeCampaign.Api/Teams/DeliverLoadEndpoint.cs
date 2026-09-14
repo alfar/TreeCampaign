@@ -24,7 +24,12 @@ internal class DeliverLoadEndpoint
             .ToListAsync(cancellationToken);
 
         if (collectedStops.Count == 0)
+        {
+            team.ClearTrailerFull();
+            team.ResetCurrentExtraTrees();
+            await context.SaveChangesAsync(cancellationToken);
             return TypedResults.Ok(new { deliveredCount = 0 });
+        }
 
         var deliveredStops = collectedStops.Select(s => s.Deliver()).ToList();
 
@@ -35,6 +40,7 @@ internal class DeliverLoadEndpoint
         }
 
         team.ClearTrailerFull();
+        team.ResetCurrentExtraTrees();
 
         await context.SaveChangesAsync(cancellationToken);
 

@@ -63,12 +63,22 @@ export interface QueuedRemoveMemberAction {
   queuedAt: string;
 }
 
+export interface QueuedAdjustExtraTreesAction {
+  id: string;
+  scope: "team";
+  teamId: string;
+  type: "adjustExtraTrees";
+  delta: number;
+  queuedAt: string;
+}
+
 export type QueuedTeamAction =
   | QueuedReportTrailerFullAction
   | QueuedDeliverLoadAction
   | QueuedUpdateTeamAction
   | QueuedAddMemberAction
-  | QueuedRemoveMemberAction;
+  | QueuedRemoveMemberAction
+  | QueuedAdjustExtraTreesAction;
 
 export type QueuedTeamActionType = QueuedTeamAction["type"];
 

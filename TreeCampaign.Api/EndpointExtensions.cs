@@ -28,6 +28,7 @@ public static class EndpointExtensions
         services.ConfigureHttpJsonOptions(options =>
         {
             options.SerializerOptions.Converters.Add(new TreeCountJsonConverter());
+            options.SerializerOptions.Converters.Add(new TreeCountDeltaJsonConverter());
             options.SerializerOptions.Converters.Add(new StopIdJsonConverter());
             options.SerializerOptions.Converters.Add(new TeamIdJsonConverter());
             options.SerializerOptions.Converters.Add(new TeamMemberIdJsonConverter());
@@ -43,6 +44,7 @@ public static class EndpointExtensions
         services.Configure<SseJsonOptions>(options =>
         {
             options.SerializerOptions.Converters.Add(new TreeCountJsonConverter());
+            options.SerializerOptions.Converters.Add(new TreeCountDeltaJsonConverter());
             options.SerializerOptions.Converters.Add(new StopIdJsonConverter());
             options.SerializerOptions.Converters.Add(new TeamIdJsonConverter());
             options.SerializerOptions.Converters.Add(new TeamMemberIdJsonConverter());

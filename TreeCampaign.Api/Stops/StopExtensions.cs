@@ -17,7 +17,6 @@ public static class StopExtensions
         group.MapPost("/{stopId}/reopen", ReopenStopEndpoint.Handle);
         group.MapPost("/{stopId}/correct", CorrectStopEndpoint.Handle);
         group.MapPost("/{stopId}/retry", RetryStopEndpoint.Handle);
-        group.MapPost("/pickup-request", RequestPickupEndpoint.Handle);
 
         return app;
     }

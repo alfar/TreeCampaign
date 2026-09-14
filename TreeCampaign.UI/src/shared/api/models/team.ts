@@ -34,5 +34,7 @@ export interface Team {
     kind: TeamKind;
     isTrailerFull: boolean | null;
     trailerSize: TrailerSize | null;
+    currentExtraTrees: number;
+    totalExtraTrees: number;
     members: TeamMember[];
 }

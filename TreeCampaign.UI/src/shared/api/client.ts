@@ -433,6 +433,14 @@ export async function clearTrailerFull(campaignId: string, teamId: string): Prom
   return res.json();
 }
 
+export async function adjustExtraTrees(campaignId: string, teamId: string, delta: number): Promise<Team> {
+  return fetchJson<Team>(`/api/${campaignId}/teams/${teamId}/extra-trees`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ delta }),
+  });
+}
+
 export async function addTeamMember(
   campaignId: string,
   teamId: string,
@@ -459,14 +467,14 @@ export async function removeTeamMember(
 
 export async function requestPickup(
   campaignId: string,
+  teamId: string,
   streetId: string,
   houseNumber: string,
   treeCount: number,
-): Promise<Stop> {
-  const res = await fetch(`/api/${campaignId}/stops/pickup-request`, {
+): Promise<{ stop: Stop; team: Team }> {
+  return fetchJson(`/api/${campaignId}/teams/${teamId}/pickup-request`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ streetId, houseNumber, treeCount }),
   });
-  return res.json();
 }

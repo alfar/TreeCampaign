@@ -19,6 +19,8 @@ public static class TeamExtensions
         group.MapPost("/{teamId:guid}/trailer-full", ReportTrailerFullEndpoint.Handle);
         group.MapDelete("/{teamId:guid}/trailer-full", ClearTrailerFullEndpoint.Handle);
         group.MapPost("/{teamId:guid}/deliver-load", DeliverLoadEndpoint.Handle);
+        group.MapPost("/{teamId:guid}/extra-trees", AdjustExtraTreesEndpoint.Handle);
+        group.MapPost("/{teamId:guid}/pickup-request", RequestPickupEndpoint.Handle);
 
         return app;
     }
