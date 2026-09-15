@@ -415,6 +415,12 @@ export async function reopenStop(campaignId: string, stopId: string) : Promise<S
   }).then(res => res.json());
 }
 
+export async function abandonStop(campaignId: string, stopId: string) : Promise<Stop> {
+  return fetchJson<Stop>(`/api/${campaignId}/stops/${stopId}/abandon`, {
+    method: 'POST'
+  });
+}
+
 export async function deliverLoad(campaignId: string, teamId: string): Promise<{ deliveredCount: number }> {
   return fetchJson(`/api/${campaignId}/teams/${teamId}/deliver-load`, { method: 'POST' });
 }

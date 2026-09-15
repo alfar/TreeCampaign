@@ -22,6 +22,7 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, 
         IRepository<CollectedStop, StopId>,
         IRepository<UnresolvedStop, StopId>,
         IRepository<DeliveredStop, StopId>,
+        IRepository<AbandonedStop, StopId>,
         IRepository<TeamBase, TeamId>,
         IRepository<WalkingTeam, TeamId>,
         IRepository<TrailerTeam, TeamId>
@@ -34,6 +35,7 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, 
     public DbSet<CollectedStop> CollectedStops { get; set; }
     public DbSet<UnresolvedStop> UnresolvedStops { get; set; }
     public DbSet<DeliveredStop> DeliveredStops { get; set; }
+    public DbSet<AbandonedStop> AbandonedStops { get; set; }
     public DbSet<TeamBase> Teams { get; set; }
     public DbSet<WalkingTeam> WalkingTeams { get; set; }
     public DbSet<TrailerTeam> TrailerTeams { get; set; }
@@ -86,6 +88,13 @@ public class TreeCampaignContext(DbContextOptions<TreeCampaignContext> options, 
 
     async Task<DeliveredStop?> IRepository<DeliveredStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken) =>
         await DeliveredStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
+
+    public void Add(AbandonedStop aggregate) => AbandonedStops.Add(aggregate);
+
+    public void Delete(AbandonedStop aggregate) => AbandonedStops.Remove(aggregate);
+
+    async Task<AbandonedStop?> IRepository<AbandonedStop, StopId>.TryFindAsync(StopId key, CancellationToken cancellationToken) =>
+        await AbandonedStops.FirstOrDefaultAsync(s => s.Id == key, cancellationToken);
 
     public void Add(TeamBase aggregate) => Teams.Add(aggregate);
 

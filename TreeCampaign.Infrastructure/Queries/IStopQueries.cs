@@ -21,5 +21,6 @@ public interface IStopQueries
         Collected,
         Unresolved,
         Delivered,
+        Abandoned,
     }
 }

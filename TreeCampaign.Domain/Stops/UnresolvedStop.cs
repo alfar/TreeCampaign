@@ -22,6 +22,11 @@ public class UnresolvedStop : ReopenableStop
         return AssignedStop.CreateFrom(this, teamId);
     }
 
+    public AbandonedStop Abandon()
+    {
+        return AbandonedStop.CreateFrom(this);
+    }
+
     internal static UnresolvedStop CreateFrom(AssignedStop assignedStop, ReasonText reason)
     {
         var result = new UnresolvedStop

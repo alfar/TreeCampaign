@@ -1,11 +1,12 @@
 import Button from "../../components/Button";
-import { reopenStop, unassignStop } from "../../shared/api/client";
+import { abandonStop, reopenStop, unassignStop } from "../../shared/api/client";
 import type { Stop } from "../../shared/api/models/stop";
 import {
   CheckIcon,
   ExclamationTriangleIcon,
   MapPinIcon,
   QuestionMarkCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 
 interface StopCardProps {
@@ -40,6 +41,8 @@ export default function StopCard({
         return <CheckIcon className="w-8 h-8 text-green-600" />;
       case "Delivered":
         return <CheckIcon className="w-8 h-8 text-gray-200" />;
+      case "Abandoned":
+        return <XCircleIcon className="w-8 h-8 text-gray-400" />;
       default:
         return null;
     }
@@ -57,6 +60,24 @@ export default function StopCard({
       );
     } else if (stop.stopType === "Unresolved") {
       return (
+        <div className="flex gap-2">
+          <Button
+            className="flex-1 bg-green-600 hover:bg-green-700"
+            onClick={() => reopenStop(campaignId, stop.id).then(onUpdateStop)}
+          >
+            Genåbn
+          </Button>
+          <Button
+            variant="danger"
+            className="flex-1"
+            onClick={() => abandonStop(campaignId, stop.id).then(onUpdateStop)}
+          >
+            Opgiv
+          </Button>
+        </div>
+      );
+    } else if (stop.stopType === "Collected") {
+      return (
         <Button
           className="flex-1 bg-green-600 hover:bg-green-700"
           onClick={() => reopenStop(campaignId, stop.id).then(onUpdateStop)}
@@ -64,7 +85,7 @@ export default function StopCard({
           Genåbn
         </Button>
       );
-    } else if (stop.stopType === "Collected") {
+    } else if (stop.stopType === "Abandoned") {
       return (
         <Button
           className="flex-1 bg-green-600 hover:bg-green-700"

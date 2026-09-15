@@ -16,6 +16,12 @@ internal static class StopConfiguration
             .HasColumnName("AssignedTeamId");
 
         modelBuilder
+            .Entity<AbandonedStop>()
+            .Property<Guid?>("AssignedTeamId")
+            .HasValueGenerator<NullValueGenerator<Guid>>()
+            .HasColumnName("AssignedTeamId");
+
+        modelBuilder
             .Entity<AssignedStop>()
             .Property(s => s.AssignedTeamId)
             .HasConversion(new TeamIdValueConverter())
@@ -75,7 +81,8 @@ internal static class StopConfiguration
             .HasValue<AssignedStop>("Assigned")
             .HasValue<CollectedStop>("Collected")
             .HasValue<UnresolvedStop>("Unresolved")
-            .HasValue<DeliveredStop>("Delivered");
+            .HasValue<DeliveredStop>("Delivered")
+            .HasValue<AbandonedStop>("Abandoned");
 
         return builder;
     }
