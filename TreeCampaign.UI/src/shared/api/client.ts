@@ -424,6 +424,11 @@ export async function sendTeamOnBreak(campaignId: string, teamId: string): Promi
   return res.json();
 }
 
+export async function returnFromBreak(campaignId: string, teamId: string): Promise<Team> {
+  const res = await fetch(`/api/${campaignId}/teams/${teamId}/break`, { method: 'DELETE' });
+  return res.json();
+}
+
 export async function reportTrailerFull(campaignId: string, teamId: string): Promise<Team> {
   return fetchJson(`/api/${campaignId}/teams/${teamId}/trailer-full`, { method: 'POST' });
 }

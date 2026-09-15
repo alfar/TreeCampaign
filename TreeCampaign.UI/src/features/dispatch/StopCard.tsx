@@ -11,6 +11,7 @@ import {
 interface StopCardProps {
   campaignId: string;
   stop: Stop;
+  teamName?: string;
   assignMode: boolean;
   selected?: boolean;
   onToggleSelect?: (stopId: string) => any;
@@ -20,11 +21,13 @@ interface StopCardProps {
 export default function StopCard({
   campaignId,
   stop,
+  teamName,
   selected,
   assignMode,
   onToggleSelect,
   onUpdateStop,
 }: StopCardProps) {
+
   const getStopIcon = (stopType: string) => {
     switch (stopType) {
       case "Unassigned":
@@ -85,6 +88,9 @@ export default function StopCard({
           <h2 className="text-sm">{stop.address.displayName}</h2>
           <div className="text-sm">{stop.amount}</div>
         </div>
+        {teamName && (
+          <div className="text-xs text-gray-500">{teamName}</div>
+        )}
         <div>{getStopButtons(stop)}</div>
       </div>
     </>

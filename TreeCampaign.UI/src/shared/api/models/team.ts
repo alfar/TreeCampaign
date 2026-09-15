@@ -7,12 +7,12 @@ export interface TeamMember {
 
 export type TeamStatus = 'Active' | 'OnBreak';
 export type TeamKind = 'Walking' | 'Trailer';
-export type TrailerSize = 'Small' | 'Large' | 'Boogie';
+export type TrailerSize = 'Small' | 'Boogie' | 'Large';
 
 export const trailerSizeLabels: Record<TrailerSize, string> = {
     Small: 'Lille havetrailer',
     Boogie: 'Boogietrailer',
-    Large: 'Stor havetrailer',
+    Large: 'Stor trailer',
 };
 
 export const trailerCapacity: Record<TrailerSize, number> = {

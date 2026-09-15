@@ -14,8 +14,9 @@ import {
   Bars4Icon,
   UsersIcon,
   PauseIcon,
+  PlayIcon,
 } from "@heroicons/react/24/outline";
-import { clearTrailerFull, sendTeamOnBreak } from "../../shared/api/client";
+import { clearTrailerFull, returnFromBreak, sendTeamOnBreak } from "../../shared/api/client";
 import Button from "../../components/Button";
 
 interface TeamCardProps {
@@ -102,6 +103,13 @@ export default function TeamCard({
     );
   };
 
+  const handleResume = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    returnFromBreak(campaignId, team.id).then((updated) =>
+      onUpdateTeam?.(updated),
+    );
+  };
+
   const handleClearTrailerFull = (e: React.MouseEvent) => {
     e.stopPropagation();
     clearTrailerFull(campaignId, team.id).then((updated) =>
@@ -163,9 +171,13 @@ export default function TeamCard({
               Nulstil trailer fuld
             </Button>
           )}
-          {team.status === "Active" && (
+          {team.status === "Active" ? (
             <Button variant="secondary" onClick={handleBreak}>
               <PauseIcon className="w-5 h-5" />
+            </Button>
+          ) : (
+            <Button variant="secondary" onClick={handleResume}>
+              <PlayIcon className="w-5 h-5" />
             </Button>
           )}
           <Button

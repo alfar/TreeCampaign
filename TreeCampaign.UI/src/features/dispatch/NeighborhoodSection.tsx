@@ -6,6 +6,7 @@ import StopCard from "./StopCard";
 interface NeighborhoodSectionProps {
   name: string;
   stops: Stop[];
+  getTeamName: (teamId: string | undefined) => string | undefined;
   selectedStopIds: Set<string>;
   toggleStop: (stopId: string) => void;
   campaignId: string;
@@ -14,6 +15,7 @@ interface NeighborhoodSectionProps {
 export default function NeighborhoodSection({
   name,
   stops,
+  getTeamName,
   selectedStopIds,
   toggleStop,
   campaignId,
@@ -29,6 +31,7 @@ export default function NeighborhoodSection({
             key={stop.id}
             campaignId={campaignId}
             stop={stop}
+            teamName={getTeamName(stop.assignedTeamId)}
             assignMode={true}
             selected={selectedStopIds.has(stop.id)}
             onToggleSelect={toggleStop}

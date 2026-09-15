@@ -8,7 +8,13 @@ import {
 } from "../../shared/api/client";
 import { useEffect, useState } from "react";
 import type { Neighborhood } from "../../shared/api/models/neighborhood";
-import { trailerSizeOrder, type Team, type TeamKind, type TeamStatus, type TrailerSize } from "../../shared/api/models/team";
+import {
+  trailerSizeOrder,
+  type Team,
+  type TeamKind,
+  type TeamStatus,
+  type TrailerSize,
+} from "../../shared/api/models/team";
 import type { Stop } from "../../shared/api/models/stop";
 import TeamCard from "./TeamCard";
 import StopCard from "./StopCard";
@@ -54,57 +60,83 @@ export default function DispatchScreen() {
     const es = new EventSource(`/api/${campaignId}/events`);
 
     es.addEventListener("campaign-update", (e: MessageEvent) => {
-      const { type, data } = JSON.parse(e.data) as { type: string; data: Record<string, unknown> };
+      const { type, data } = JSON.parse(e.data) as {
+        type: string;
+        data: Record<string, unknown>;
+      };
 
-      const patchTeamFunc = (teamId: string, patch: Record<string, unknown>) => {
+      const patchTeamFunc = (
+        teamId: string,
+        patch: Record<string, unknown>,
+      ) => {
         return () => {
           setTeams((prev) =>
             prev.map((t) => (t.id === teamId ? { ...t, ...patch } : t)),
           );
-        }
-      }
+        };
+      };
 
       const patchStopFunc = (stopId: string, patch: Partial<Stop>) => {
         return () => {
           setStops((prev) =>
             prev.map((s) => (s.id === stopId ? { ...s, ...patch } : s)),
           );
-        }
-      }
+        };
+      };
 
       const actionByEvent: Record<string, () => void> = {
         TeamCreated: () => {
-          setTeams((prev) => [...prev, {
-            id: data.id as string,
-            name: data.name as string,
-            kind: data.kind as TeamKind,
-            status: "Active" as TeamStatus,
-            isTrailerFull: false,
-            trailerSize: null,
-            currentExtraTrees: 0,
-            totalExtraTrees: 0,
-            members: []
-          }]);
+          setTeams((prev) => [
+            ...prev,
+            {
+              id: data.id as string,
+              name: data.name as string,
+              kind: data.kind as TeamKind,
+              status: "Active" as TeamStatus,
+              isTrailerFull: false,
+              trailerSize: null,
+              currentExtraTrees: 0,
+              totalExtraTrees: 0,
+              members: [],
+            },
+          ]);
         },
-        TeamNameUpdated: patchTeamFunc(data.id as string, { name: data.name as string }),
-        TeamTrailerSizeUpdated: patchTeamFunc(data.id as string, { trailerSize: data.trailerSize as string | null }),
-        TeamWentOnBreak: patchTeamFunc(data.id as string, { status: "OnBreak" }),
-        TeamResumedFromBreak: patchTeamFunc(data.id as string, { status: "Active" }),
-        TeamReportedTrailerFull: patchTeamFunc(data.id as string, { isTrailerFull: true }),
-        TeamTrailerCleared: patchTeamFunc(data.id as string, { isTrailerFull: false }),
+        TeamNameUpdated: patchTeamFunc(data.id as string, {
+          name: data.name as string,
+        }),
+        TeamTrailerSizeUpdated: patchTeamFunc(data.id as string, {
+          trailerSize: data.trailerSize as string | null,
+        }),
+        TeamWentOnBreak: patchTeamFunc(data.id as string, {
+          status: "OnBreak",
+        }),
+        TeamResumedFromBreak: patchTeamFunc(data.id as string, {
+          status: "Active",
+        }),
+        TeamReportedTrailerFull: patchTeamFunc(data.id as string, {
+          isTrailerFull: true,
+        }),
+        TeamTrailerCleared: patchTeamFunc(data.id as string, {
+          isTrailerFull: false,
+        }),
         TeamExtraTreesAdjusted: patchTeamFunc(data.id as string, {
           currentExtraTrees: data.currentExtraTrees as number,
           totalExtraTrees: data.totalExtraTrees as number,
         }),
-        TeamExtraTreesReset: patchTeamFunc(data.id as string, { currentExtraTrees: 0 }),
+        TeamExtraTreesReset: patchTeamFunc(data.id as string, {
+          currentExtraTrees: 0,
+        }),
         StopCreated: () => {
-          setStops((prev) => [...prev, {
-            id: data.id as string,
-            address: data.address as Stop["address"],
-            amount: data.amount as number,
-            stopType: "Unassigned",
-            assignedTeamId: undefined,
-          }]);
+          setStops((prev) => [
+            ...prev,
+            {
+              id: data.id as string,
+              address: data.address as Stop["address"],
+              amount: data.amount as number,
+              stopType: "Unassigned",
+              assignedTeamId: undefined,
+            },
+          ]);
         },
         StopAssigned: patchStopFunc(data.id as string, {
           stopType: "Assigned",
@@ -114,10 +146,18 @@ export default function DispatchScreen() {
           stopType: "Unassigned",
           assignedTeamId: undefined,
         }),
-        StopCollected: patchStopFunc(data.id as string, { stopType: "Collected" }),
-        StopCollectionCorrected: patchStopFunc(data.id as string, { stopType: "Assigned" }),
-        StopDelivered: patchStopFunc(data.id as string, { stopType: "Delivered" }),
-        StopMarkedUnresolved: patchStopFunc(data.id as string, { stopType: "Unresolved" }),
+        StopCollected: patchStopFunc(data.id as string, {
+          stopType: "Collected",
+        }),
+        StopCollectionCorrected: patchStopFunc(data.id as string, {
+          stopType: "Assigned",
+        }),
+        StopDelivered: patchStopFunc(data.id as string, {
+          stopType: "Delivered",
+        }),
+        StopMarkedUnresolved: patchStopFunc(data.id as string, {
+          stopType: "Unresolved",
+        }),
         StopReassigned: patchStopFunc(data.id as string, {
           stopType: "Assigned",
           assignedTeamId: data.assignedTeamId as string,
@@ -152,7 +192,7 @@ export default function DispatchScreen() {
         )
       : stops;
 
-  const sortedStops = filteredStops.sort((a, b) => {
+  const sortedStops = filteredStops.toSorted((a, b) => {
     const sA = sectionById.get(a.address.streetSectionId);
     const sB = sectionById.get(b.address.streetSectionId);
     if (!sA && !sB) return 0;
@@ -165,6 +205,9 @@ export default function DispatchScreen() {
   });
 
   const stopsByNeighborhood = neighborhoods
+    .toSorted((a, b) =>
+      a.streetSections[0].sortOrder < b.streetSections[0].sortOrder ? -1 : 1,
+    )
     .map((n) => ({
       neighborhood: n,
       stops: sortedStops.filter(
@@ -181,11 +224,18 @@ export default function DispatchScreen() {
 
   const maxTrailerSizeForSelection = Array.from(selectedStopIds)
     .map((stopId) => stops.find((s) => s.id === stopId))
-    .map((stop) => (stop ? sectionById.get(stop.address.streetSectionId)?.maxTrailerSize : undefined))
+    .map((stop) =>
+      stop
+        ? sectionById.get(stop.address.streetSectionId)?.maxTrailerSize
+        : undefined,
+    )
     .filter((size): size is TrailerSize => size !== undefined)
     .reduce<TrailerSize | undefined>(
       (smallest, size) =>
-        smallest === undefined || trailerSizeOrder[size] < trailerSizeOrder[smallest] ? size : smallest,
+        smallest === undefined ||
+        trailerSizeOrder[size] < trailerSizeOrder[smallest]
+          ? size
+          : smallest,
       undefined,
     );
 
@@ -193,7 +243,8 @@ export default function DispatchScreen() {
     team.kind === "Trailer" &&
     !!team.trailerSize &&
     !!maxTrailerSizeForSelection &&
-    trailerSizeOrder[team.trailerSize] > trailerSizeOrder[maxTrailerSizeForSelection];
+    trailerSizeOrder[team.trailerSize] >
+      trailerSizeOrder[maxTrailerSizeForSelection];
 
   const teamRank = (team: Team) => {
     if (team.kind === "Trailer" && team.isTrailerFull) return 0;
@@ -205,8 +256,11 @@ export default function DispatchScreen() {
     return hasAssignedStops ? 2 : 1;
   };
 
-  const sortedTeams = [...teams].sort((a, b) => teamRank(a) - teamRank(b));
-
+  const sortedTeams = teams.toSorted((a, b) => teamRank(a) - teamRank(b));
+  const teamsById = new Map(teams.map((t) => [t.id, t]));
+  const getTeamName = (teamId: string | undefined) =>
+    teamId ? teamsById.get(teamId)?.name ?? "Ukendt hold" : undefined;
+  
   const toggleStop = (stopId: string) => {
     setSelectedStopIds((prev) => {
       const newSet = new Set(prev);
@@ -226,7 +280,9 @@ export default function DispatchScreen() {
   };
 
   const updateTeam = (updatedTeam: Team) => {
-    setTeams((prev) => prev.map((t) => (t.id === updatedTeam.id ? updatedTeam : t)));
+    setTeams((prev) =>
+      prev.map((t) => (t.id === updatedTeam.id ? updatedTeam : t)),
+    );
   };
 
   const clickTeam = (team: Team) => {
@@ -280,6 +336,7 @@ export default function DispatchScreen() {
                 key={neighborhood.id}
                 name={neighborhood.name}
                 stops={nStops}
+                getTeamName={getTeamName}
                 campaignId={campaignId}
                 selectedStopIds={selectedStopIds}
                 toggleStop={toggleStop}
@@ -290,6 +347,7 @@ export default function DispatchScreen() {
                 key={stop.id}
                 campaignId={campaignId}
                 stop={stop}
+                teamName={getTeamName(stop.assignedTeamId)}
                 assignMode={true}
                 selected={selectedStopIds.has(stop.id)}
                 onToggleSelect={toggleStop}
@@ -322,7 +380,9 @@ export default function DispatchScreen() {
                 campaignId={campaignId}
                 team={team}
                 stops={stops.filter(
-                  (stop) => stop.assignedTeamId === team.id && stop.stopType !== "Delivered",
+                  (stop) =>
+                    stop.assignedTeamId === team.id &&
+                    stop.stopType !== "Delivered",
                 )}
                 assignMode={selectedStopIds.size > 0}
                 blocked={selectedStopIds.size > 0 && teamExceedsSelection(team)}
