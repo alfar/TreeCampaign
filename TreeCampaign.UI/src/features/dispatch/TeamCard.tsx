@@ -66,7 +66,7 @@ export default function TeamCard({
     team.kind === "Trailer" && team.trailerSize
       ? trailerCapacity[team.trailerSize]
       : null;
-  const estimatedLoad = counts.assigned + counts.collected;
+  const estimatedLoad = counts.assigned + counts.collected + team.currentExtraTrees;
   const remainingRoom =
     estimatedCapacity !== null ? estimatedCapacity - estimatedLoad : null;
   const isNearOrOverCapacity = remainingRoom !== null && remainingRoom <= 0;
@@ -182,15 +182,22 @@ export default function TeamCard({
           </Button>
         </span>
       </h2>
-      <div className="mt-2 cursor-pointer">
-        <ProgressBar
-          parts={[
-            { title: "Opsamlet", amount: counts.collected, color: "#006600" },
-            { title: "Fejlet", amount: counts.unresolved, color: "#ff0000" },
-          ]}
-          total={counts.total - counts.delivered}
-          onClick={() => setExpanded(!expanded)}
-        />
+      <div className="mt-2 flex items-center gap-2 cursor-pointer">
+        <div className="flex-1">
+          <ProgressBar
+            parts={[
+              { title: "Opsamlet", amount: counts.collected, color: "#006600" },
+              { title: "Fejlet", amount: counts.unresolved, color: "#ff0000" },
+            ]}
+            total={counts.total - counts.delivered}
+            onClick={() => setExpanded(!expanded)}
+          />
+        </div>
+        {team.currentExtraTrees > 0 && (
+          <span className="text-sm font-semibold text-amber-700">
+            +{team.currentExtraTrees}
+          </span>
+        )}
       </div>
       {expanded && (
         <div

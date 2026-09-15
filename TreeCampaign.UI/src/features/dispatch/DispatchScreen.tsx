@@ -81,6 +81,8 @@ export default function DispatchScreen() {
             status: "Active" as TeamStatus,
             isTrailerFull: false,
             trailerSize: null,
+            currentExtraTrees: 0,
+            totalExtraTrees: 0,
             members: []
           }]);
         },
@@ -90,6 +92,11 @@ export default function DispatchScreen() {
         TeamResumedFromBreak: patchTeamFunc(data.id as string, { status: "Active" }),
         TeamReportedTrailerFull: patchTeamFunc(data.id as string, { isTrailerFull: true }),
         TeamTrailerCleared: patchTeamFunc(data.id as string, { isTrailerFull: false }),
+        TeamExtraTreesAdjusted: patchTeamFunc(data.id as string, {
+          currentExtraTrees: data.currentExtraTrees as number,
+          totalExtraTrees: data.totalExtraTrees as number,
+        }),
+        TeamExtraTreesReset: patchTeamFunc(data.id as string, { currentExtraTrees: 0 }),
         StopCreated: () => {
           setStops((prev) => [...prev, {
             id: data.id as string,

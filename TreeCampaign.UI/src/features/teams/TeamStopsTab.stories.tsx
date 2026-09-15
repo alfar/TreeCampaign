@@ -21,6 +21,8 @@ const team: Team = {
   kind: "Trailer",
   isTrailerFull: false,
   trailerSize: "Large",
+  currentExtraTrees: 0,
+  totalExtraTrees: 0,
   members: [],
 };
 

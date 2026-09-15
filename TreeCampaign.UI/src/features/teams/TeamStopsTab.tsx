@@ -12,65 +12,10 @@ export default function TeamStopsTab() {
   const [showPickupForm, setShowPickupForm] = useState(false);
 
   const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
-  const hasCollected = stops.some((s) => s.stopType === "Collected");
+  const hasCollected = stops.some((s) => s.stopType === "Collected") || (team?.currentExtraTrees ?? 0) > 0;
 
   return (
-    <div className="m-4 flex flex-col gap-4">
-      {team && (
-        <div className="flex items-center justify-center gap-4 border rounded-xl p-3 bg-gray-50">
-          <Button
-            size="lg"
-            className="px-4"
-            disabled={team.currentExtraTrees <= 0}
-            onClick={() => queueAdjustExtraTrees(-1)}
-          >
-            −
-          </Button>
-          <span className="text-lg font-semibold">
-            {team.currentExtraTrees} ekstra træer
-          </span>
-          <Button
-            size="lg"
-            className="px-4"
-            onClick={() => queueAdjustExtraTrees(1)}
-          >
-            +
-          </Button>
-        </div>
-      )}
-
-      {team?.kind === "Trailer" && (
-        <div className="flex gap-2">
-          <Button
-            size="lg"
-            className="flex-1 bg-orange-500 hover:bg-orange-600"
-            disabled={team.isTrailerFull === true}
-            onClick={() => queueTeamAction("reportTrailerFull")}
-          >
-            {team.isTrailerFull ? "Trailer fuld ✓" : "Trailer fuld"}
-          </Button>
-          {hasCollected && (
-            <Button
-              size="lg"
-              className="flex-1 bg-green-700 hover:bg-green-800"
-              onClick={() => queueTeamAction("deliverLoad")}
-            >
-              Lever last
-            </Button>
-          )}
-        </div>
-      )}
-
-      {team?.kind === "Walking" && (
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={() => setShowPickupForm((v) => !v)}
-        >
-          {showPickupForm ? "Annuller afhentning" : "Anmod om afhentning"}
-        </Button>
-      )}
-
+    <div className="m-4 mb-40 flex flex-col gap-4">
       {showPickupForm && campaign && team && (
         <PickupForm
           campaign={campaign}
@@ -126,6 +71,63 @@ export default function TeamStopsTab() {
             </li>
           ))}
       </ol>
+
+      {team && (
+        <div className="fixed bottom-0 left-0 right-0 flex flex-col gap-2 p-3 bg-white">
+          <div className="flex items-center justify-center gap-4">
+            <Button
+              size="lg"
+              className="px-4"
+              disabled={team.currentExtraTrees <= 0}
+              onClick={() => queueAdjustExtraTrees(-1)}
+            >
+              −
+            </Button>
+            <span className="text-lg font-semibold">
+              {team.currentExtraTrees} ekstra træer
+            </span>
+            <Button
+              size="lg"
+              className="px-4"
+              onClick={() => queueAdjustExtraTrees(1)}
+            >
+              +
+            </Button>
+          </div>
+
+          {team.kind === "Trailer" && (
+            <div className="flex gap-2">
+              <Button
+                size="lg"
+                className="flex-1 bg-orange-500 hover:bg-orange-600"
+                disabled={team.isTrailerFull === true}
+                onClick={() => queueTeamAction("reportTrailerFull")}
+              >
+                {team.isTrailerFull ? "Trailer fuld ✓" : "Trailer fuld"}
+              </Button>
+              {hasCollected && (
+                <Button
+                  size="lg"
+                  className="flex-1 bg-green-700 hover:bg-green-800"
+                  onClick={() => queueTeamAction("deliverLoad")}
+                >
+                  Lever last
+                </Button>
+              )}
+            </div>
+          )}
+
+          {team.kind === "Walking" && (
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => setShowPickupForm((v) => !v)}
+            >
+              {showPickupForm ? "Annuller afhentning" : "Anmod om afhentning"}
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
