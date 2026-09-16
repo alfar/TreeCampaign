@@ -3,13 +3,14 @@ import { useState } from "react";
 
 interface SectionProps {
   icon: React.ReactNode;
-  title: React.ReactNode;
+  title?: string;
+  titleNode?: React.ReactNode;
   actions?: React.ReactNode;
   defaultExpanded?: boolean;
   children: React.ReactNode;
 }
 
-export default function Section({ icon, title, actions, defaultExpanded = true, children }: SectionProps) {
+export default function Section({ icon, title, titleNode, actions, defaultExpanded = true, children }: SectionProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
@@ -21,9 +22,9 @@ export default function Section({ icon, title, actions, defaultExpanded = true, 
         }
         onClick={() => setExpanded(!expanded)}
       >
-        <div className="flex gap-2 items-center">
+        <div className="flex grow gap-2 items-center">
           <div className="rounded-full bg-blue-100 p-1">{icon}</div>
-          <h2 className="text-lg text-gray-600">{title}</h2>
+          {titleNode ? titleNode : <h2 className="text-lg text-gray-600">{title}</h2>}
         </div>
         <div className="flex items-center gap-2">
           {actions && (

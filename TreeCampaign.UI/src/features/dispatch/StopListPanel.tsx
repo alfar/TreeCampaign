@@ -34,13 +34,18 @@ export default function StopListPanel({
 }: StopListPanelProps) {
   return (
     <div className="w-8/12 flex flex-col gap-2 border border-gray-300 rounded-lg p-4">
-      <div className="flex items-center h-11">
-        <h2 className="text-base font-semibold">
+      <div className="flex items-center align-center h-11">
+        <h2 className="text-base">
           {filter.length > 0
             ? `Stop, der starter med '${filter}' `
             : "Stop "}
           - {sortedStops.length} stop
         </h2>
+        {selectedStopIds.size > 0 && (
+          <>
+            &nbsp;-&nbsp;<span className="text-xl rounded-sm inline-block w-9 text-center bg-blue-500 text-white p-1">{sortedStops.reduce((sum, stop) => sum + (selectedStopIds.has(stop.id) ? stop.amount : 0), 0)}</span>&nbsp;træer valgt
+          </>
+        )}
       </div>
       <div className="flex gap-4 flex-wrap">
         <div className="flex border rounded-sm p-2 border-gray-200 w-6/12 items-center">

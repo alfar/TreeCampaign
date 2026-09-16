@@ -156,6 +156,7 @@ export default function OverviewMapScreen() {
           acc.pending += stop.amount;
           break;
         case "Unresolved":
+        case "Abandoned":
           acc.unresolved += stop.amount;
           break;
         case "Collected":

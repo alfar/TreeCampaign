@@ -125,3 +125,19 @@ export const Empty: Story = {
     toggleStop: () => {},
   },
 };
+export const SelectionCount: Story = {
+  args: {
+    campaignId: "00000000-0000-0000-0000-000000000000",
+    selectedStopTypes: new Set(["Unassigned", "Assigned"]),
+    setSelectedStopTypes: () => {},
+    filter: "",
+    setFilter: () => {},
+    sortedStops: stops,
+    stopsByNeighborhood: [{ neighborhood: neighborhoods[0], stops }],
+    ungroupedStops: [],
+    getTeamName,
+    selectedStopIds: new Set<string>(["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002"]),
+    toggleStop: () => {},
+  },
+};
+
