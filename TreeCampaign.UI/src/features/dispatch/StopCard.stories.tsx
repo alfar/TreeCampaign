@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import StopCard from '../features/dispatch/StopCard';
+import StopCard from './StopCard';
 
 const meta = {
   title: 'Dispatch/StopCard',

@@ -130,6 +130,9 @@ export function useDispatchData(campaignId: string) {
         StopMarkedUnresolved: patchStopFunc(data.id as string, {
           stopType: "Unresolved",
         }),
+        StopAbandoned: patchStopFunc(data.id as string, {
+          stopType: "Abandoned",
+        }),
         StopReassigned: patchStopFunc(data.id as string, {
           stopType: "Assigned",
           assignedTeamId: data.assignedTeamId as string,

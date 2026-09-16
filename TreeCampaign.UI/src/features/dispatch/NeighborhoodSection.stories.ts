@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import NeighborhoodSection from "../features/dispatch/NeighborhoodSection";
+import NeighborhoodSection from "./NeighborhoodSection";
 
 const meta = {
   title: "Dispatch/NeighborhoodSection",

@@ -1,5 +1,5 @@
 import type { Neighborhood } from "../../shared/api/models/neighborhood";
-import type { Stop } from "../../shared/api/models/stop";
+import type { Stop, StopType } from "../../shared/api/models/stop";
 import { trailerSizeOrder, type Team, type TrailerSize } from "../../shared/api/models/team";
 
 function parseHouseNumber(displayName: string): number {
@@ -12,7 +12,7 @@ interface UseDispatchDerivedStateArgs {
   teams: Team[];
   neighborhoods: Neighborhood[];
   selectedStopIds: Set<string>;
-  onlyUnassigned: boolean;
+  selectedStopTypes: Set<StopType>;
   filter: string;
 }
 
@@ -21,22 +21,19 @@ export function useDispatchDerivedState({
   teams,
   neighborhoods,
   selectedStopIds,
-  onlyUnassigned,
+  selectedStopTypes,
   filter,
 }: UseDispatchDerivedStateArgs) {
   const streetSections = neighborhoods.flatMap((n) => n.streetSections);
   const sectionById = new Map(streetSections.map((s) => [s.id, s]));
 
-  const filteredStops =
-    onlyUnassigned || filter !== ""
-      ? stops.filter(
-          (s) =>
-            (!onlyUnassigned || s.stopType === "Unassigned") &&
-            s.address.displayName
-              .toLocaleLowerCase()
-              .startsWith(filter.toLocaleLowerCase()),
-        )
-      : stops;
+  const filteredStops = stops.filter(
+    (s) =>
+      selectedStopTypes.has(s.stopType as StopType) &&
+      s.address.displayName
+        .toLocaleLowerCase()
+        .startsWith(filter.toLocaleLowerCase()),
+  );
 
   const sortedStops = filteredStops.toSorted((a, b) => {
     const sA = sectionById.get(a.address.streetSectionId);

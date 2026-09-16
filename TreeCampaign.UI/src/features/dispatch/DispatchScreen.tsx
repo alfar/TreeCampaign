@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { assignStopToTeam } from "../../shared/api/client";
 import { useState } from "react";
+import type { StopType } from "../../shared/api/models/stop";
 import type { Team } from "../../shared/api/models/team";
 import NavigationPage from "../../shared/components/NavigationPage";
 import { useDispatchData } from "./useDispatchData";
@@ -16,7 +17,9 @@ export default function DispatchScreen() {
   const [selectedStopIds, setSelectedStopIds] = useState<Set<string>>(
     new Set(),
   );
-  const [onlyUnassigned, setOnlyUnassigned] = useState(true);
+  const [selectedStopTypes, setSelectedStopTypes] = useState<Set<StopType>>(
+    new Set(["Unassigned"]),
+  );
   const [filter, setFilter] = useState("");
 
   const {
@@ -31,7 +34,7 @@ export default function DispatchScreen() {
     teams,
     neighborhoods,
     selectedStopIds,
-    onlyUnassigned,
+    selectedStopTypes,
     filter,
   });
 
@@ -63,8 +66,8 @@ export default function DispatchScreen() {
         <div className="flex gap-4 mt-4 items-start">
           <StopListPanel
             campaignId={campaignId}
-            onlyUnassigned={onlyUnassigned}
-            setOnlyUnassigned={setOnlyUnassigned}
+            selectedStopTypes={selectedStopTypes}
+            setSelectedStopTypes={setSelectedStopTypes}
             filter={filter}
             setFilter={setFilter}
             sortedStops={sortedStops}
