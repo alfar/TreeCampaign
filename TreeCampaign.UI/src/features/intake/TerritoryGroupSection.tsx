@@ -32,7 +32,7 @@ export default function TerritoryGroupSection({
   return (
     <Section
       icon={<BuildingOffice2Icon className="h-5 w-5 text-blue-600" />}
-      title={
+      titleNode={
         <>
           {name} ({orders.length})
           {unsettledAmount > 0 && (

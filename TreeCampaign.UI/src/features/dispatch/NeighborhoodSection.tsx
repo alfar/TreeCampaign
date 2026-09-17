@@ -13,14 +13,6 @@ interface NeighborhoodSectionProps {
   campaignId: string;
 }
 
-const STOP_COLORS: Record<string, string> = {
-  Unassigned: "#2563eb",
-  Assigned: "#2563eb",
-  Collected: "#16a34a",
-  Delivered: "#16a34a",
-  Unresolved: "#dc2626",
-};
-
 export default function NeighborhoodSection({
   name,
   stops,
