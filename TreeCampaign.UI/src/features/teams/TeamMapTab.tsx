@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
 import {
   CircleMarker,
@@ -11,6 +11,7 @@ import type { Stop } from "../../shared/api/models/stop";
 import type { TeamScreenContext } from "./TeamScreen";
 import { StopActionButtons } from "./StopActionButtons";
 import Button from "../../components/Button";
+import { ViewfinderCircleIcon } from "@heroicons/react/24/outline";
 
 const SILKEBORG_CENTER: [number, number] = [56.1697, 9.5451];
 
@@ -20,30 +21,39 @@ const STOP_COLORS: Record<string, string> = {
   Collected: "#16a34a",
 };
 
-function FitBoundsToStops({ stops }: { stops: Stop[] }) {
+function stopsToBounds(stops: Stop[]): [number, number][] {
+  return stops.map((s) => [s.address.latitude, s.address.longitude]);
+}
+
+function FitBoundsOnce({ stops }: { stops: Stop[] }) {
   const map = useMap();
+  const hasFitOnce = useRef(false);
 
   useEffect(() => {
     if (stops.length === 0) return;
-    const bounds: [number, number][] = stops.map((s) => [
-      s.address.latitude,
-      s.address.longitude,
-    ]);
-    map.fitBounds(bounds, { padding: [32, 32] });
+    if (hasFitOnce.current) return;
+    hasFitOnce.current = true;
+    map.fitBounds(stopsToBounds(stops), { padding: [32, 32] });
   }, [stops, map]);
 
   return null;
 }
 
-export default function TeamMapTab() {
-  const { stops, team, queueAdjustExtraTrees, queueAction } = useOutletContext<TeamScreenContext>();
-
-  const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
+function TopControls({
+  stops,
+  team,
+  queueAdjustExtraTrees,
+}: {
+  stops: Stop[];
+  team: TeamScreenContext["team"];
+  queueAdjustExtraTrees: TeamScreenContext["queueAdjustExtraTrees"];
+}) {
+  const map = useMap();
 
   return (
-    <div className="relative h-[calc(100vh-4rem)] w-full">
+    <div className="absolute z-1000 top-3 left-1/2 -translate-x-1/2 flex items-center gap-3 border rounded-xl px-3 py-2 bg-white shadow">
       {team && (
-        <div className="absolute z-1000 top-3 left-1/2 -translate-x-1/2 flex items-center gap-3 border rounded-xl px-3 py-2 bg-white shadow">
+        <>
           <Button
             size="md"
             className="px-3"
@@ -58,8 +68,29 @@ export default function TeamMapTab() {
           <Button size="md" className="px-3" onClick={() => queueAdjustExtraTrees(1)}>
             +
           </Button>
-        </div>
+          <span className="w-px self-stretch bg-gray-200" />
+        </>
       )}
+      <Button
+        size="md"
+        className="px-3"
+        disabled={stops.length === 0}
+        onClick={() => map.fitBounds(stopsToBounds(stops), { padding: [32, 32] })}
+        title="Centrer kort"
+      >
+        <ViewfinderCircleIcon className="h-5 w-5" />
+      </Button>
+    </div>
+  );
+}
+
+export default function TeamMapTab() {
+  const { stops, team, queueAdjustExtraTrees, queueAction } = useOutletContext<TeamScreenContext>();
+
+  const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
+
+  return (
+    <div className="relative h-[calc(100vh-4rem)] w-full">
       <MapContainer
         center={SILKEBORG_CENTER}
         zoom={13}
@@ -69,7 +100,12 @@ export default function TeamMapTab() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <FitBoundsToStops stops={visibleStops} />
+        <FitBoundsOnce stops={visibleStops} />
+        <TopControls
+          stops={visibleStops}
+          team={team}
+          queueAdjustExtraTrees={queueAdjustExtraTrees}
+        />
         {visibleStops.map((stop) => (
           <CircleMarker
             key={stop.id}

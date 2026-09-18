@@ -419,6 +419,36 @@ export const InfoTabPicksUpNameFromPoll: Story = {
   },
 };
 
+export const MapKeepsViewportThroughPoll: Story = {
+  name: "Map: pan/zoom, then poll, then recenter (manual)",
+  parameters: { initialTab: "map" },
+  beforeEach: ({ msw }) => {
+    localStorage.removeItem(storageKey);
+    msw.use(
+      ...baseHandlers([
+        stop({ id: "stop-1" }),
+        stop({
+          id: "stop-2",
+          address: {
+            displayName: "Andet Sted 4",
+            latitude: 56.18,
+            longitude: 9.56,
+            streetSectionId: "33333333-3333-3333-3333-333333333333",
+          },
+        }),
+      ]),
+    );
+  },
+  play: async ({ canvasElement }) => {
+    // Manual test: pan/zoom the map, then click "Opdater" (top-right refresh icon)
+    // to simulate a poll landing. The viewport should NOT jump back to fit the
+    // stops. Then click "Centrer kort" (bottom-right) to confirm it re-fits on demand.
+    await waitFor(() =>
+      expect(canvasElement.querySelector(".leaflet-container")).toBeTruthy(),
+    );
+  },
+};
+
 export const InfoTabKeepsUnsavedEditThroughPoll: Story = {
   name: "In-progress name edit survives a poll",
   parameters: { initialTab: "info" },
