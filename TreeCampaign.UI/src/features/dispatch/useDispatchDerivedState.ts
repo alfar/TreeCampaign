@@ -7,6 +7,40 @@ function parseHouseNumber(displayName: string): number {
   return parseInt(lastToken, 10) || 0;
 }
 
+export interface NeighborhoodStopCounts {
+  unassigned: number;
+  pending: number;
+  unresolved: number;
+  collected: number;
+  total: number;
+}
+
+function countStops(stops: Stop[]): NeighborhoodStopCounts {
+  return stops.reduce(
+    (acc, stop) => {
+      acc.total += stop.amount;
+      switch (stop.stopType) {
+        case "Unassigned":
+          acc.unassigned += stop.amount;
+          break;
+        case "Assigned":
+          acc.pending += stop.amount;
+          break;
+        case "Unresolved":
+        case "Abandoned":
+          acc.unresolved += stop.amount;
+          break;
+        case "Collected":
+        case "Delivered":
+          acc.collected += stop.amount;
+          break;
+      }
+      return acc;
+    },
+    { unassigned: 0, pending: 0, unresolved: 0, collected: 0, total: 0 },
+  );
+}
+
 interface UseDispatchDerivedStateArgs {
   stops: Stop[];
   teams: Team[];
@@ -57,6 +91,13 @@ export function useDispatchDerivedState({
         (stop) =>
           sectionById.get(stop.address.streetSectionId)?.neighborhoodId ===
           n.id,
+      ),
+      counts: countStops(
+        stops.filter(
+          (stop) =>
+            sectionById.get(stop.address.streetSectionId)?.neighborhoodId ===
+            n.id,
+        ),
       ),
     }))
     .filter((group) => group.stops.length > 0);

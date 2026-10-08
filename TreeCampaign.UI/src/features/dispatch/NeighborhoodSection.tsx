@@ -3,10 +3,12 @@ import type { Stop } from "../../shared/api/models/stop";
 import Section from "../../shared/components/Section";
 import StopCard from "./StopCard";
 import ProgressBar from "../../components/ProgressBar";
+import type { NeighborhoodStopCounts } from "./useDispatchDerivedState";
 
 interface NeighborhoodSectionProps {
   name: string;
   stops: Stop[];
+  counts: NeighborhoodStopCounts;
   getTeamName: (teamId: string | undefined) => string | undefined;
   selectedStopIds: Set<string>;
   toggleStop: (stopId: string) => void;
@@ -16,36 +18,12 @@ interface NeighborhoodSectionProps {
 export default function NeighborhoodSection({
   name,
   stops,
+  counts,
   getTeamName,
   selectedStopIds,
   toggleStop,
   campaignId,
 }: NeighborhoodSectionProps) {
-
-  const counts = stops.reduce(
-    (acc, stop) => {
-      acc.total += stop.amount;
-      switch (stop.stopType) {
-        case "Unassigned":
-          acc.unassigned += stop.amount;
-          break;
-        case "Assigned":
-          acc.pending += stop.amount;
-          break;
-        case "Unresolved":
-        case "Abandoned":
-          acc.unresolved += stop.amount;
-          break;
-        case "Collected":
-        case "Delivered":
-          acc.collected += stop.amount;
-          break;
-      }
-      return acc;
-    },
-    { unassigned: 0,pending: 0, unresolved: 0, collected: 0, total: 0 },
-  );
-
   const progressParts = [
             { title: "Opsamlet", amount: counts.collected, color: "#16a34a" },
             { title: "Fejlet", amount: counts.unresolved, color: "#dc2626" },
@@ -62,7 +40,7 @@ export default function NeighborhoodSection({
           <div className="w-1/3 mr-5">
             <ProgressBar
               parts={progressParts}
-              total={stops.length}
+              total={counts.total}
               textSize="text-xs"
             />
           </div>

@@ -86,7 +86,13 @@ export const WithStops: Story = {
     filter: "",
     setFilter: () => {},
     sortedStops: stops,
-    stopsByNeighborhood: [{ neighborhood: neighborhoods[0], stops }],
+    stopsByNeighborhood: [
+      {
+        neighborhood: neighborhoods[0],
+        stops,
+        counts: { unassigned: 0, pending: 0, unresolved: 0, collected: 0, total: 0 },
+      },
+    ],
     ungroupedStops: [],
     getTeamName,
     selectedStopIds: new Set<string>(),
@@ -133,7 +139,13 @@ export const SelectionCount: Story = {
     filter: "",
     setFilter: () => {},
     sortedStops: stops,
-    stopsByNeighborhood: [{ neighborhood: neighborhoods[0], stops }],
+    stopsByNeighborhood: [
+      {
+        neighborhood: neighborhoods[0],
+        stops,
+        counts: { unassigned: 0, pending: 0, unresolved: 0, collected: 0, total: 0 },
+      },
+    ],
     ungroupedStops: [],
     getTeamName,
     selectedStopIds: new Set<string>(["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002"]),

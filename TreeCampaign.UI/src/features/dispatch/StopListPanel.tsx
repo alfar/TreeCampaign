@@ -4,6 +4,7 @@ import type { Stop, StopType } from "../../shared/api/models/stop";
 import NeighborhoodSection from "./NeighborhoodSection";
 import StopCard from "./StopCard";
 import StopTypeFilter from "./StopTypeFilter";
+import type { NeighborhoodStopCounts } from "./useDispatchDerivedState";
 
 interface StopListPanelProps {
   campaignId: string;
@@ -12,7 +13,11 @@ interface StopListPanelProps {
   filter: string;
   setFilter: (value: string) => void;
   sortedStops: Stop[];
-  stopsByNeighborhood: { neighborhood: Neighborhood; stops: Stop[] }[];
+  stopsByNeighborhood: {
+    neighborhood: Neighborhood;
+    stops: Stop[];
+    counts: NeighborhoodStopCounts;
+  }[];
   ungroupedStops: Stop[];
   getTeamName: (teamId: string | undefined) => string | undefined;
   selectedStopIds: Set<string>;
@@ -63,11 +68,12 @@ export default function StopListPanel({
           setSelectedStopTypes={setSelectedStopTypes}
         />
       </div>
-      {stopsByNeighborhood.map(({ neighborhood, stops: nStops }) => (
+      {stopsByNeighborhood.map(({ neighborhood, stops: nStops, counts }) => (
         <NeighborhoodSection
           key={neighborhood.id}
           name={neighborhood.name}
           stops={nStops}
+          counts={counts}
           getTeamName={getTeamName}
           campaignId={campaignId}
           selectedStopIds={selectedStopIds}
