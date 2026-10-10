@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { getTerritory, requestPickup } from "../../shared/api/client";
-import type { Campaign } from "../../shared/api/models/campagin";
+import { getTerritorySummary, requestPickup, type CampaignSummary } from "../../shared/api/client";
 import type { Stop } from "../../shared/api/models/stop";
 import type { Team } from "../../shared/api/models/team";
 import { AddressPicker, type Address } from "../../shared/components/AddressPicker";
@@ -8,7 +7,7 @@ import { AddressPicker, type Address } from "../../shared/components/AddressPick
 export function PickupForm({
   campaign, teamId, onCreated,
 }: {
-  campaign: Campaign;
+  campaign: CampaignSummary;
   teamId: string;
   onCreated: (stop: Stop, team: Team) => void;
 }) {
@@ -20,8 +19,8 @@ export function PickupForm({
 
   useEffect(() => {
     if (campaign.territoryId) {
-      getTerritory(campaign.territoryId).then((territory) =>
-        setDefaultZipCode(territory.defaultZipCode),
+      getTerritorySummary(campaign.territoryId).then((territory) =>
+        setDefaultZipCode(territory.defaultZipCode ?? ""),
       );
     }
   }, [campaign.territoryId]);

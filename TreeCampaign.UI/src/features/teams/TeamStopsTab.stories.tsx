@@ -9,7 +9,7 @@ import TeamInfoTab from "./TeamInfoTab";
 import TeamMapTab from "./TeamMapTab";
 import type { Stop } from "../../shared/api/models/stop";
 import type { Team } from "../../shared/api/models/team";
-import type { Campaign } from "../../shared/api/models/campagin";
+import type { CampaignSummary } from "../../shared/api/client";
 
 const campaignId = "11111111-1111-1111-1111-111111111111";
 const teamId = "22222222-2222-2222-2222-222222222222";
@@ -26,9 +26,9 @@ const team: Team = {
   members: [],
 };
 
-const campaign: Campaign = {
+const campaign: CampaignSummary = {
   id: campaignId,
-  season: 2026,
+  territoryId: null,
 };
 
 function stop(overrides: Partial<Stop>): Stop {
@@ -54,7 +54,7 @@ function baseHandlers(stops: Stop[], getTeamResponse?: () => Team) {
     http.get(`/api/${campaignId}/teams/${teamId}`, () =>
       HttpResponse.json(getTeamResponse ? getTeamResponse() : team),
     ),
-    http.get(`/api/campaigns/${campaignId}`, () => HttpResponse.json(campaign)),
+    http.get(`/api/campaigns/${campaignId}/summary`, () => HttpResponse.json(campaign)),
     http.get(`/api/${campaignId}/stops`, () => HttpResponse.json(stops)),
   ];
 }

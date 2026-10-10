@@ -13,6 +13,11 @@ public static class TerritoryExtensions
 
         group.MapPost("/", CreateTerritoryEndpoint.Handle);
 
+        // Unauthenticated: the team detail route needs this to prefill the pickup form's zip code for scouts in the field who aren't logged in.
+        app.MapGroup("/territories")
+            .WithTags("Territories")
+            .MapGet("/{territoryId:guid}/summary", GetTerritorySummaryEndpoint.Handle);
+
         return app;
     }
 }

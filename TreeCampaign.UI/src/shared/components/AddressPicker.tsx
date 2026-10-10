@@ -140,8 +140,8 @@ export function AddressPicker({
   );
 
   return (
-    <div className="flex gap-3">
-      <div className="flex-1 relative">
+    <div className="flex flex-wrap gap-3">
+      <div className="w-full sm:flex-1 relative">
         <label className="text-sm font-medium text-gray-700 block mb-1">Gadenavn</label>
         <input
           type="text"
@@ -172,7 +172,7 @@ export function AddressPicker({
         )}
       </div>
 
-      <div className="w-28 relative">
+      <div className="flex-1 sm:flex-none sm:w-28 relative">
         <label className="text-sm font-medium text-gray-700 block mb-1">Husnummer</label>
         <input
           type="text"
@@ -197,7 +197,7 @@ export function AddressPicker({
         {isValid === true && <p className="text-xs text-green-600 mt-1">Adresse fundet</p>}
       </div>
 
-      <div className="w-24">
+      <div className="flex-1 sm:flex-none sm:w-24">
         <label className="text-sm font-medium text-gray-700 block mb-1">Postnr.</label>
         <input
           type="text"

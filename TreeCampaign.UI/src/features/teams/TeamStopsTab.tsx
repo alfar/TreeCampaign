@@ -73,7 +73,7 @@ export default function TeamStopsTab() {
       </ol>
 
       {team && (
-        <div className="fixed bottom-0 left-0 right-0 flex flex-col gap-2 p-3 bg-white">
+        <div className="fixed bottom-0 left-0 right-0 z-10 flex flex-col gap-2 p-3 bg-white" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
           <div className="flex items-center justify-center gap-4">
             <Button
               size="lg"

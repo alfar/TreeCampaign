@@ -203,6 +203,16 @@ export async function getCampaign(campaignId: string): Promise<Campaign> {
   return res.json();
 }
 
+export interface CampaignSummary {
+  id: string;
+  territoryId: string | null;
+}
+
+// Unauthenticated: used by the team detail route, which scouts in the field can open without logging in.
+export async function getCampaignSummary(campaignId: string): Promise<CampaignSummary> {
+  return fetchJson(`/api/campaigns/${campaignId}/summary`);
+}
+
 export async function createCampaign(year: number, territoryId?: string): Promise<Campaign> {
   const res = await fetch('/api/campaigns', {
     method: 'POST',
@@ -229,6 +239,16 @@ export async function getTerritories(): Promise<Territory[]> {
 export async function getTerritory(territoryId: string): Promise<Territory> {
   const res = await fetch(`/api/territories/${territoryId}`);
   return res.json();
+}
+
+export interface TerritorySummary {
+  id: string;
+  defaultZipCode: string | null;
+}
+
+// Unauthenticated: used by the team detail route, which scouts in the field can open without logging in.
+export async function getTerritorySummary(territoryId: string): Promise<TerritorySummary> {
+  return fetchJson(`/api/territories/${territoryId}/summary`);
 }
 
 export async function createTerritory(name: string, defaultZipCode: string): Promise<Territory> {

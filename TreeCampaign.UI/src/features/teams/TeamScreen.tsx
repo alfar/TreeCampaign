@@ -1,12 +1,11 @@
 import { NavLink, Outlet, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowPathIcon, SignalSlashIcon } from "@heroicons/react/24/outline";
-import { getCampaign } from "../../shared/api/client";
-import type { Campaign } from "../../shared/api/models/campagin";
+import { getCampaignSummary, type CampaignSummary } from "../../shared/api/client";
 import { useTeamData } from "../../shared/offline/useTeamData";
 
 export interface TeamScreenContext extends ReturnType<typeof useTeamData> {
-  campaign: Campaign | null;
+  campaign: CampaignSummary | null;
 }
 
 export default function TeamScreen() {
@@ -14,7 +13,7 @@ export default function TeamScreen() {
   const base = `/campaigns/${campaignId}/teams/${teamId}`;
 
   const teamData = useTeamData(campaignId!, teamId!);
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [campaign, setCampaign] = useState<CampaignSummary | null>(null);
   const [showOfflineDetails, setShowOfflineDetails] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -28,8 +27,9 @@ export default function TeamScreen() {
   };
 
   useEffect(() => {
+    // Unauthenticated endpoint: this route must work for scouts in the field who aren't logged in.
     if (campaignId) {
-      getCampaign(campaignId).then(setCampaign);
+      getCampaignSummary(campaignId).then(setCampaign);
     }
   }, [campaignId]);
 

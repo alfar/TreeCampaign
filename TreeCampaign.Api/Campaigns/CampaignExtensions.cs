@@ -15,6 +15,11 @@ public static class CampaignExtensions
 
         group.MapPut("/{campaignId:guid}", UpdateCampaignEndpoint.Handle);
 
+        // Unauthenticated: the team detail route needs this to show the pickup form for scouts in the field who aren't logged in.
+        app.MapGroup("/campaigns")
+            .WithTags("Campaigns")
+            .MapGet("/{campaignId:guid}/summary", GetCampaignSummaryEndpoint.Handle);
+
         return app;
     }
 }
