@@ -23,4 +23,12 @@ public static class OrderExtensions
 
         return app;
     }
+
+    public static IEndpointRouteBuilder MapPublicOrderEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/orders").WithTags("Orders");
+        group.MapPost("/pending/", CreatePendingOrderEndpoint.Handle);
+        return app;
+    }
+
 }

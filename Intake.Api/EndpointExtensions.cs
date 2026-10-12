@@ -46,10 +46,15 @@ public static class EndpointExtensions
 
     public static IEndpointRouteBuilder MapIntakeEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGroup("/campaigns/{campaignId:guid}")
+        var group = app.MapGroup("/campaigns/{campaignId:guid}");
+
+        group
             .RequireAuthorization(AuthPolicies.ScoutGroupMember)
             .MapOrderEndpoints()
             .MapIntakeSseEndpoint();
+
+        group
+            .MapPublicOrderEndpoints();
 
         return app;
     }

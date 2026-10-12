@@ -33,6 +33,28 @@ public class WashedOrder : OrderBase
         return order;
     }
 
+    public static WashedOrder CreateFrom(PendingOrder pendingOrder)
+    {
+        var order = new WashedOrder
+        {
+            Id = pendingOrder.Id,
+            CampaignId = pendingOrder.CampaignId,
+            Sender = pendingOrder.Sender,
+            Amount = pendingOrder.Amount,
+            OrderDate = pendingOrder.OrderDate,
+            Message = pendingOrder.Message,
+            TransactionId = pendingOrder.TransactionId,
+            StreetId = pendingOrder.StreetId,
+            StreetSectionId = pendingOrder.StreetSectionId,
+            NeighborhoodId = pendingOrder.NeighborhoodId,
+            HouseNumber = pendingOrder.HouseNumber
+        };
+
+        order.Raise(new Events.OrderWashed(order.Id, order.CampaignId));
+
+        return order;
+    }
+
     public OutOfBoundsOrder MarkOutOfBounds()
     {
         return OutOfBoundsOrder.CreateFrom(this, StreetId);
