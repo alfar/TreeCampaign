@@ -1,5 +1,6 @@
 export type OrderType =
   | 'Incoming'
+  | 'Pending'
   | 'Unwashed'
   | 'Washed'
   | 'Validated'

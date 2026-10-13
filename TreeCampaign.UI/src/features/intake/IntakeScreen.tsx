@@ -25,7 +25,7 @@ export default function IntakeScreen() {
   const [territories, setTerritories] = useState<Territory[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<"pending" | "transferred" | "unusable">("pending");
+  const [activeTab, setActiveTab] = useState<"processing" | "pending" | "transferred" | "unusable">("processing");
   const [oobAction, setOobAction] = useState<"section" | "transfer" | "unwashable">("section");
   const [bulkSettling, setBulkSettling] = useState<Record<string, boolean>>({});
   const [bulkError, setBulkError] = useState<Record<string, string | undefined>>({});
@@ -93,6 +93,9 @@ export default function IntakeScreen() {
             },
           ]);
         },
+        OrderPending: patchOrderFunc(data.id as string, {
+          orderType: "Pending",
+        }),
         OrderMarkedUnwashed: patchOrderFunc(data.id as string, {
           orderType: "Unwashed",
           errorMessage: data.errorMessage as string | undefined,
@@ -285,12 +288,17 @@ export default function IntakeScreen() {
     }
   };
 
-  const handleSelectTab = (tab: "pending" | "transferred" | "unusable") => {
+  const handleSelectTab = (tab: "processing" | "pending" | "transferred" | "unusable") => {
     setSelectedOrderId(null);
     setShowCreateForm(false);
     setShowImportForm(false);
     setActiveTab(tab);
   };
+
+  const pendingOrders = orders.filter((o) => o.orderType === "Pending");
+  const processingOrders = orders.filter(
+    (o) => o.orderType === "Unwashed" || o.orderType === "OutOfBounds" || o.id === selectedOrderId,
+  );
 
   return (
     <NavigationPage>
@@ -311,10 +319,19 @@ export default function IntakeScreen() {
         </div>
         <div className="flex gap-2 mb-4 border-b">
           <button
+            onClick={() => handleSelectTab("processing")}
+            className={`text-sm py-2 px-4 border-b-2 -mb-px ${activeTab === "processing" ? "border-blue-600 text-blue-600 font-medium" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          >
+            Behandling
+          </button>
+          <button
             onClick={() => handleSelectTab("pending")}
             className={`text-sm py-2 px-4 border-b-2 -mb-px ${activeTab === "pending" ? "border-blue-600 text-blue-600 font-medium" : "border-transparent text-gray-500 hover:text-gray-700"}`}
           >
-            Til behandling
+            Afventer betaling
+            {pendingOrders.length > 0 && (
+              <span className="ml-1 text-gray-500">({pendingOrders.length})</span>
+            )}
           </button>
           <button
             onClick={() => handleSelectTab("transferred")}
@@ -339,15 +356,16 @@ export default function IntakeScreen() {
           className={`flex gap-6 items-start ${showSidePanel ? "flex-col md:flex-row" : ""}`}
         >
           <div className={showSidePanel ? "w-full md:w-1/2" : "w-full"}>
-            {activeTab === "pending" ? (
+            {activeTab === "processing" ? (
               <OrderList
-                orders={orders
-                  .filter(
-                    (o) =>
-                      o.orderType === "Unwashed" ||
-                      o.orderType === "OutOfBounds" ||
-                      o.id === selectedOrderId,
-                  )}
+                orders={processingOrders}
+                selectedOrderId={selectedOrderId ?? undefined}
+                onSelectOrder={handleSelectOrder}
+                territoryNameById={territoryNameById}
+              />
+            ) : activeTab === "pending" ? (
+              <OrderList
+                orders={pendingOrders}
                 selectedOrderId={selectedOrderId ?? undefined}
                 onSelectOrder={handleSelectOrder}
                 territoryNameById={territoryNameById}

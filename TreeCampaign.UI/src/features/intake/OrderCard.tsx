@@ -27,6 +27,11 @@ const STATE_CONFIG: Record<
     icon: <ClockIcon className="w-5 h-5 text-gray-500" />,
     borderColor: "border-gray-300",
   },
+  Pending: {
+    label: "Afventer betaling",
+    icon: <ClockIcon className="w-5 h-5 text-orange-500" />,
+    borderColor: "border-orange-400",
+  },
   Unwashed: {
     label: "Ubehandlet",
     icon: <ExclamationTriangleIcon className="w-5 h-5 text-amber-500" />,
