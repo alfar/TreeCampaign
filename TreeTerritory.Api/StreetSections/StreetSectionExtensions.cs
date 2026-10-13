@@ -6,7 +6,13 @@ public static class StreetSectionExtensions
 {
     public static IEndpointRouteBuilder MapStreetSectionEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/streets/{streetId:guid}").WithTags("StreetSections").RequireAuthorization(AuthPolicies.ScoutGroupMember);
+        app.MapGroup("/territories/{territoryId:guid}")
+            .WithTags("StreetSections")
+            .MapGet("/street-sections/resolve", ResolveStreetSectionEndpoint.Handle);
+
+        var group = app.MapGroup("/streets/{streetId:guid}")
+            .WithTags("StreetSections")
+            .RequireAuthorization(AuthPolicies.ScoutGroupMember);
 
         group.MapGet("/sections", GetStreetSectionsEndpoint.Handle);
 

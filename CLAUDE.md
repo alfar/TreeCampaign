@@ -86,6 +86,10 @@ Turns raw payment messages into validated orders submitted to TreeCampaign.
 **Domain model — type-based state machine** (same Zoran Horvat style as Stops):
 
 ```
+PendingOrder
+  └─ ConfirmPaid()                   → WashedOrder
+
+
 IncomingOrder
   ├─ Accept(ValidationSuccess)       → ValidatedOrder
   ├─ MarkUnwashed()                  → UnwashedOrder      (street not found, or parse failed)
@@ -286,3 +290,10 @@ Interaction tests for React features (e.g. the team offline-queue behavior in `T
 - Domain-layer unit tests live in per-context `*.Test` projects (XUnit 3 via the `xunit.v3.mtp-v2` package — `OutputType=Exe`, `TestingPlatformDotnetTestSupport=true`, single `ProjectReference` to the matching `*.Domain` project, plain `Assert.*` — no FluentAssertions, `[Theory]`/`[InlineData]` for table-driven cases). `Intake.Test` and `TreeCampaign.Test` exist so far; follow this shape when adding domain logic elsewhere. Run with `dotnet test --project <Project>.Test/<Project>.Test.csproj`.
 - **No local SQL Server is set up in this dev environment** — `Host.Api` cannot be run or smoke-tested via Scalar UI locally; the developer verifies backend changes manually on their own machine. Prefer adding/extending automated domain tests (see above) over proposing a local run for backend verification. EF migrations can still be generated locally (`dotnet ef migrations add <Name> --project <Context>.Infrastructure --startup-project Host.Api --context <ContextName>Context`) since that only builds the model, no live connection needed.
 - Favor practical usability over theoretical optimality; explicit modeling over clever abstraction.
+
+## Public intake
+
+To minimize people booking pick up in a neighborhood we don't support, we have decided to add a public intake system, where people can enter their address and have it validated before sending us money.
+Because MobilePay doesn't support auto-filling message and amount at the price range we're interested in paying, we have devised a work-around where the customer is presented with a code that they have to enter in the message field in MobilePay when sending the money.
+The 4-character code is generated from the order id and stored in the Message property on the PendingOrder. 
+The public intake UI in `TreeCampaign.UI/src/features/public-intake/` uses `src/shared/api/client.ts` helpers and shows the generated payment code plus the MobilePay QR image.

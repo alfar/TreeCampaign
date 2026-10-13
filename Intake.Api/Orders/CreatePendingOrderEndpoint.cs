@@ -10,16 +10,19 @@ namespace Intake.Api.Orders;
 internal class CreatePendingOrderEndpoint
 {
     public record CreatePendingOrderRequest(
-        DateTimeOffset OrderDate,
-        string SenderName,
+        string? SenderName,
         string? SenderPhoneNumber,
         MoneyAmount Amount,
-        string Message,
-        TransactionId TransactionId,
         StreetRef StreetId,
         StreetSectionRef StreetSectionId,
         NeighborhoodRef NeighborhoodId,
         string HouseNumber);
+
+    public record PendingOrderCreatedResponse(
+        OrderId Id,
+        string PaymentCode,
+        MoneyAmount Amount,
+        DateTimeOffset OrderDate);
 
     public static async Task<IResult> Handle(
         IIntakeUnitOfWork unitOfWork,
@@ -29,12 +32,21 @@ internal class CreatePendingOrderEndpoint
         ICurrentUserAccessor currentUser,
         CancellationToken cancellationToken)
     {
-        var order = PendingOrder.Create(campaignId, new Sender(request.SenderName, request.SenderPhoneNumber), request.Amount, request.OrderDate, request.Message, request.TransactionId, request.StreetId, request.StreetSectionId, request.NeighborhoodId, HouseNumber.Parse(request.HouseNumber));
+        var order = PendingOrder.Create(
+            campaignId,
+            new Sender(request.SenderName ?? "Anonym", request.SenderPhoneNumber),
+            request.Amount,
+            request.StreetId,
+            request.StreetSectionId,
+            request.NeighborhoodId,
+            HouseNumber.Parse(request.HouseNumber));
 
         unitOfWork.GetRepository<PendingOrder, OrderId>().Add(order);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Results.Created($"/campaigns/{campaignId.Value}/orders/{order.Id.Value}", new { Id = order.Id });
+        return Results.Created(
+            $"/campaigns/{campaignId.Value}/orders/{order.Id.Value}",
+            new PendingOrderCreatedResponse(order.Id, order.Message, order.Amount, order.OrderDate));
     }
 }
 

@@ -13,6 +13,7 @@ internal static class OrderConfiguration
 
         orderBase.ToTable("Orders").HasKey(o => o.Id);
         orderBase.HasDiscriminator<string>("OrderType")
+            .HasValue<PendingOrder>("Pending")
             .HasValue<IncomingOrder>("Incoming")
             .HasValue<UnwashedOrder>("Unwashed")
             .HasValue<WashedOrder>("Washed")
@@ -81,6 +82,26 @@ internal static class OrderConfiguration
             .HasConversion(new NeighborhoodRefValueConverter());
 
         modelBuilder.Entity<WashedOrder>()
+            .Property(o => o.HouseNumber)
+            .HasColumnName("HouseNumber")
+            .HasConversion(new HouseNumberValueConverter());
+
+        modelBuilder.Entity<PendingOrder>()
+            .Property(o => o.StreetId)
+            .HasColumnName("StreetId")
+            .HasConversion(new StreetRefValueConverter());
+
+        modelBuilder.Entity<PendingOrder>()
+            .Property(o => o.StreetSectionId)
+            .HasColumnName("StreetSectionId")
+            .HasConversion(new StreetSectionRefValueConverter());
+
+        modelBuilder.Entity<PendingOrder>()
+            .Property(o => o.NeighborhoodId)
+            .HasColumnName("NeighborhoodId")
+            .HasConversion(new NeighborhoodRefValueConverter());
+
+        modelBuilder.Entity<PendingOrder>()
             .Property(o => o.HouseNumber)
             .HasColumnName("HouseNumber")
             .HasConversion(new HouseNumberValueConverter());

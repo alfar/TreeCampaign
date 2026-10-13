@@ -13,6 +13,7 @@ import UserManagementScreen from "../features/users/UserManagementScreen";
 import LoginScreen from "../features/auth/LoginScreen";
 import RegisterScreen from "../features/auth/RegisterScreen";
 import RequireAuth from "./RequireAuth";
+import PublicIntakePage from "../features/public-intake/PublicIntakePage";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterScreen />
+  },
+  {
+    path: "/campaigns/:campaignId/public-intake",
+    element: <PublicIntakePage />
   },
   {
     path: "/campaigns/:campaignId/teams/:teamId",

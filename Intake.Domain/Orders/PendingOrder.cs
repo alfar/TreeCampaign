@@ -1,3 +1,4 @@
+using System.Numerics;
 using Intake.Domain.ExternalReferences;
 using Intake.Domain.Orders.Services;
 using Intake.Domain.Orders.ValueObjects;
@@ -15,20 +16,22 @@ public class PendingOrder : OrderBase
         CampaignRef campaignId,
         Sender sender,
         MoneyAmount amount,
-        DateTimeOffset orderDate,
-        string message,
-        TransactionId? transactionId,
-         StreetRef streetId, StreetSectionRef streetSectionId, NeighborhoodRef neighborhoodId, HouseNumber houseNumber)
+        StreetRef streetId,
+        StreetSectionRef streetSectionId,
+        NeighborhoodRef neighborhoodId,
+        HouseNumber houseNumber)
     {
+        var orderId = OrderId.From(Guid.NewGuid());
+        var paymentCode = GeneratePaymentCode(orderId);
+
         var order = new PendingOrder
         {
-            Id = OrderId.From(Guid.NewGuid()),
+            Id = orderId,
             CampaignId = campaignId,
             Sender = sender,
             Amount = amount,
-            OrderDate = orderDate,
-            Message = message,
-            TransactionId = transactionId,
+            OrderDate = DateTimeOffset.UtcNow,
+            Message = paymentCode,
             StreetId = streetId,
             StreetSectionId = streetSectionId,
             NeighborhoodId = neighborhoodId,
@@ -38,6 +41,27 @@ public class PendingOrder : OrderBase
         order.Raise(new Events.OrderPending(order.Id, order.CampaignId));
 
         return order;
+    }
+
+    internal static string GeneratePaymentCode(OrderId orderId)
+    {
+        const string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        var value = new BigInteger(orderId.Value.ToByteArray(), isUnsigned: true, isBigEndian: true);
+
+        if (value < 0)
+        {
+            value = BigInteger.Abs(value);
+        }
+
+        var chars = new char[4];
+        for (var i = 0; i < chars.Length; i++)
+        {
+            var index = (int)(value % alphabet.Length);
+            chars[i] = alphabet[index];
+            value /= alphabet.Length;
+        }
+
+        return new string(chars.Reverse().ToArray());
     }
 
     public WashedOrder ConfirmPaid()

@@ -208,9 +208,58 @@ export interface CampaignSummary {
   territoryId: string | null;
 }
 
+export interface ResolvedStreetSectionAddress {
+  territoryId: string;
+  streetId: string;
+  streetSectionId: string;
+  neighborhoodId: string;
+  houseNumber: string;
+}
+
+export interface PendingOrderResult {
+  id: string;
+  paymentCode: string;
+  amount: number;
+  orderDate: string;
+}
+
 // Unauthenticated: used by the team detail route, which scouts in the field can open without logging in.
 export async function getCampaignSummary(campaignId: string): Promise<CampaignSummary> {
   return fetchJson(`/api/campaigns/${campaignId}/summary`);
+}
+
+export async function getTerritoryStreets(territoryId: string): Promise<Street[]> {
+  return fetchJson<Street[]>(`/api/territories/${territoryId}/streets`);
+}
+
+export async function resolveStreetSectionForAddress(
+  territoryId: string,
+  streetId: string,
+  houseNumber: string,
+): Promise<ResolvedStreetSectionAddress> {
+  const encodedHouseNumber = encodeURIComponent(houseNumber.trim());
+  return fetchJson<ResolvedStreetSectionAddress>(
+    `/api/territories/${territoryId}/street-sections/resolve?streetId=${streetId}&houseNumber=${encodedHouseNumber}`,
+  );
+}
+
+export async function createPendingOrder(
+  campaignId: string,
+  data: {
+    senderName: string;
+    senderPhoneNumber?: string | null;
+    amount: number;
+    streetId: string;
+    streetSectionId: string;
+    neighborhoodId: string;
+    houseNumber: string;
+  },
+): Promise<PendingOrderResult> {
+  return fetchJson<PendingOrderResult>(`/api/campaigns/${campaignId}/orders/pending`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 }
 
 export async function createCampaign(year: number, territoryId?: string): Promise<Campaign> {
@@ -239,16 +288,6 @@ export async function getTerritories(): Promise<Territory[]> {
 export async function getTerritory(territoryId: string): Promise<Territory> {
   const res = await fetch(`/api/territories/${territoryId}`);
   return res.json();
-}
-
-export interface TerritorySummary {
-  id: string;
-  defaultZipCode: string | null;
-}
-
-// Unauthenticated: used by the team detail route, which scouts in the field can open without logging in.
-export async function getTerritorySummary(territoryId: string): Promise<TerritorySummary> {
-  return fetchJson(`/api/territories/${territoryId}/summary`);
 }
 
 export async function createTerritory(name: string, defaultZipCode: string): Promise<Territory> {
@@ -508,4 +547,14 @@ export async function requestPickup(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ streetId, houseNumber, treeCount }),
   });
+}
+
+export interface TerritorySummary {
+  id: string;
+  defaultZipCode: string | null;
+}
+
+// Unauthenticated: used by the team detail route, which scouts in the field can open without logging in.
+export async function getTerritorySummary(territoryId: string): Promise<TerritorySummary> {
+  return fetchJson(`/api/territories/${territoryId}/summary`);
 }
