@@ -33,7 +33,7 @@ public class WashedOrder : OrderBase
         return order;
     }
 
-    public static WashedOrder CreateFrom(PendingOrder pendingOrder)
+    public static WashedOrder CreateFrom(PendingOrder pendingOrder, TransactionId? transactionId = null)
     {
         var order = new WashedOrder
         {
@@ -43,7 +43,7 @@ public class WashedOrder : OrderBase
             Amount = pendingOrder.Amount,
             OrderDate = pendingOrder.OrderDate,
             Message = pendingOrder.Message,
-            TransactionId = pendingOrder.TransactionId,
+            TransactionId = transactionId ?? pendingOrder.TransactionId,
             StreetId = pendingOrder.StreetId,
             StreetSectionId = pendingOrder.StreetSectionId,
             NeighborhoodId = pendingOrder.NeighborhoodId,

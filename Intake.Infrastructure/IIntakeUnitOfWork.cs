@@ -12,4 +12,5 @@ public interface IIntakeUnitOfWork : IUnitOfWork
     IQueryable<TransferredOrder> GetTransferredOrdersByTerritory(CampaignRef campaignId, TerritoryRef territoryId);
     Task<OrderBase?> FindOrderByIdAsync(OrderId orderId, CancellationToken cancellationToken);
     Task<IReadOnlySet<TransactionId>> GetExistingTransactionIdsAsync(IEnumerable<TransactionId> transactionIds, CancellationToken cancellationToken);
+    Task<PendingOrder?> FindPendingOrderByPaymentCodeAsync(CampaignRef campaignId, string paymentCode, CancellationToken cancellationToken);
 }

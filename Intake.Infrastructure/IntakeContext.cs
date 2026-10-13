@@ -14,6 +14,7 @@ namespace Intake.Infrastructure;
 public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWriter<EventDispatchSignal> eventDispatcher)
     : OutboxDbContext(options, eventDispatcher),
       IIntakeUnitOfWork,
+      IRepository<PendingOrder, OrderId>,
       IRepository<IncomingOrder, OrderId>,
       IRepository<UnwashedOrder, OrderId>,
       IRepository<WashedOrder, OrderId>,
@@ -26,6 +27,7 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
       IRepository<DonatedOrder, OrderId>
 {
     internal DbSet<OrderBase> Orders { get; set; }
+    public DbSet<PendingOrder> PendingOrders { get; set; }
     public DbSet<IncomingOrder> IncomingOrders { get; set; }
     public DbSet<UnwashedOrder> UnwashedOrders { get; set; }
     public DbSet<WashedOrder> WashedOrders { get; set; }
@@ -128,6 +130,18 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public void Add(DonatedOrder aggregate) => DonatedOrders.Add(aggregate);
 
     public void Delete(DonatedOrder aggregate) => DonatedOrders.Remove(aggregate);
+
+    public async Task<PendingOrder?> FindPendingOrderByPaymentCodeAsync(CampaignRef campaignId, string paymentCode, CancellationToken cancellationToken)
+        => await Orders
+            .OfType<PendingOrder>()
+            .FirstOrDefaultAsync(o => o.CampaignId == campaignId && o.Message == paymentCode, cancellationToken);
+
+    async Task<PendingOrder?> IRepository<PendingOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken cancellationToken = default) =>
+        await Orders.OfType<PendingOrder>().FirstOrDefaultAsync(o => o.Id == key, cancellationToken);
+  
+    public void Add(PendingOrder aggregate) => PendingOrders.Add(aggregate);
+
+    public void Delete(PendingOrder aggregate) => PendingOrders.Remove(aggregate);
 }
 
 public class IntakeContextFactory : IDesignTimeDbContextFactory<IntakeContext>

@@ -64,9 +64,9 @@ public class PendingOrder : OrderBase
         return new string(chars.Reverse().ToArray());
     }
 
-    public WashedOrder ConfirmPaid()
+    public WashedOrder ConfirmPaid(TransactionId? transactionId = null)
     {
-        return WashedOrder.CreateFrom(this);
+        return WashedOrder.CreateFrom(this, transactionId ?? TransactionId);
     }
 
     private PendingOrder() { }
