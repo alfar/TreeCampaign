@@ -180,7 +180,7 @@ export default function OverviewMapScreen() {
             { title: "Opsamlet", amount: counts.collected, color: "#16a34a" },
             { title: "Fejlet", amount: counts.unresolved, color: "#dc2626" },
             { title: "Tildelt", amount: counts.pending, color: "#2563eb" },
-            { title: "Mangler", amount: counts.unassigned, color: "#ffffff" },
+            { title: "Mangler", amount: counts.unassigned, color: "#ffffff", textColor: "#000000" },
             { title: "Ekstra", amount: extraTrees, color: "#f59e0b" },
           ]}
           textSize="text-3xl"

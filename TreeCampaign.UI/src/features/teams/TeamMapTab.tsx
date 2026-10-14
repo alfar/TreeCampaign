@@ -89,6 +89,14 @@ export default function TeamMapTab() {
 
   const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
 
+  if (team?.status === "OnBreak") {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)] text-3xl font-semibold text-gray-400">
+        Pause
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-[calc(100vh-4rem)] w-full">
       <MapContainer

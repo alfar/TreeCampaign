@@ -2,6 +2,7 @@ interface ProgressSection {
   title: string;
   amount: number;
   color: string;
+  textColor?: string;
 }
 
 interface ProgressBarProps {
@@ -24,7 +25,8 @@ export default ({ parts, total, onClick, textSize = "text-xs" }: ProgressBarProp
             style={{
               width: `calc(${part.amount} / ${totalCalc} * 100%)`,
               backgroundColor: part.color,
-            }}
+              color: part.textColor,
+            }}            
           >{part.amount}</div>
         ) : null,
       )}
