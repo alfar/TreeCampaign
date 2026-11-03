@@ -1,4 +1,5 @@
 using Common.Infrastructure.Auth;
+using TreeTerritory.Api.Streets;
 
 namespace TreeTerritory.Api.StreetSections;
 
@@ -6,9 +7,14 @@ public static class StreetSectionExtensions
 {
     public static IEndpointRouteBuilder MapStreetSectionEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGroup("/territories/{territoryId:guid}")
+        var territoryGroup = app.MapGroup("/territories/{territoryId:guid}");
+
+        territoryGroup.MapGroup("/street-sections")
             .WithTags("StreetSections")
-            .MapGet("/street-sections/resolve", ResolveStreetSectionEndpoint.Handle);
+            .MapGet("/resolve", ResolveStreetSectionEndpoint.Handle);
+
+        territoryGroup.MapGet("/streets", GetTerritoryStreetsEndpoint.Handle)
+            .WithTags("Streets");
 
         var group = app.MapGroup("/streets/{streetId:guid}")
             .WithTags("StreetSections")

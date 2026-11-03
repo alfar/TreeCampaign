@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useImperativeHandle, type Ref } from "react";
 import { getStreetsByZipCode } from "../api/client";
 import { searchStreets, searchHouseNumbers, type StreetCandidate, type HouseNumberCandidate } from "../api/adressevaelger";
 import type { Street } from "../api/models/street";
@@ -11,16 +11,23 @@ export interface Address {
   isValid: boolean | null;
 }
 
+export interface AddressPickerHandle {
+  /** Restores zip code, street and house number to the default* props and focuses the street field. */
+  reset: () => void;
+}
+
 export function AddressPicker({
   defaultZipCode = "",
   defaultStreetName = "",
   defaultHouseNumber = "",
   onChange,
+  ref,
 }: {
   defaultZipCode?: string;
   defaultStreetName?: string;
   defaultHouseNumber?: string;
   onChange: (address: Address) => void;
+  ref?: Ref<AddressPickerHandle>;
 }) {
   const [zipCode, setZipCode] = useState(defaultZipCode);
   const [streetSearch, setStreetSearch] = useState(defaultStreetName);
@@ -29,6 +36,25 @@ export function AddressPicker({
   const [houseNumber, setHouseNumber] = useState(defaultHouseNumber);
   const [houseNumberCandidates, setHouseNumberCandidates] = useState<HouseNumberCandidate[]>([]);
   const [resolvedStreet, setResolvedStreet] = useState<Street | null>(null);
+
+  const houseNumberRef = useRef<HTMLInputElement>(null);
+  const streetRef = useRef<HTMLInputElement>(null);
+  const [activeStreetIndex, setActiveStreetIndex] = useState(0);
+
+  useImperativeHandle(ref, () => ({
+    reset() {
+      setZipCode(defaultZipCode);
+      setStreetSearch(defaultStreetName);
+      setSelectedStreetName(null);
+      setStreetCandidates([]);
+      setHouseNumber(defaultHouseNumber);
+      streetRef.current?.focus();
+    },
+  }));
+
+  useEffect(() => {
+    setActiveStreetIndex(0);
+  }, [streetCandidates]);
 
   const streetName = selectedStreetName ?? streetSearch;
 
@@ -139,11 +165,19 @@ export function AddressPicker({
   const filteredHouseNumbers = houseNumberCandidates.filter((c) => c.husnummer?.toLowerCase().startsWith(houseNumber.trim().toLowerCase())
   );
 
+  function selectStreet(candidate: StreetCandidate) {
+    setSelectedStreetName(candidate.vejnavn);
+    setStreetCandidates([]);
+    setHouseNumber("");
+    houseNumberRef.current?.focus();
+  }
+
   return (
     <div className="flex flex-wrap gap-3">
       <div className="w-full sm:flex-1 relative">
         <label className="text-sm font-medium text-gray-700 block mb-1">Gadenavn</label>
         <input
+          ref={streetRef}
           type="text"
           placeholder="Søg gade..."
           value={streetName}
@@ -152,18 +186,27 @@ export function AddressPicker({
             setSelectedStreetName(null);
             setHouseNumber("");
           }}
+          onKeyDown={(e) => {
+            if (selectedStreetName || streetCandidates.length === 0) return;
+
+            if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+              e.preventDefault();
+              const step = e.key === "ArrowDown" ? 1 : -1;
+              setActiveStreetIndex((i) => (i + step + streetCandidates.length) % streetCandidates.length);
+            } else if ((e.key === "Tab" && !e.shiftKey) || e.key === "Enter") {
+              e.preventDefault();
+              selectStreet(streetCandidates[activeStreetIndex] ?? streetCandidates[0]);
+            }
+          }}
           className="w-full border rounded-lg px-3 py-2" />
         {streetCandidates.length > 0 && !selectedStreetName && (
           <ul className="absolute z-10 w-full bg-white border rounded-lg mt-1 max-h-48 overflow-y-auto shadow">
-            {streetCandidates.map((c) => (
+            {streetCandidates.map((c, i) => (
               <li
                 key={c.id}
-                className="px-3 py-2 cursor-pointer hover:bg-blue-50"
-                onClick={() => {
-                  setSelectedStreetName(c.vejnavn);
-                  setStreetCandidates([]);
-                  setHouseNumber("");
-                }}
+                ref={i === activeStreetIndex ? (el) => el?.scrollIntoView?.({ block: "nearest" }) : undefined}
+                className={`px-3 py-2 cursor-pointer hover:bg-blue-50 ${i === activeStreetIndex ? "bg-blue-50" : ""}`}
+                onClick={() => selectStreet(c)}
               >
                 {c.vejnavn}
               </li>
@@ -175,6 +218,7 @@ export function AddressPicker({
       <div className="flex-1 sm:flex-none sm:w-28 relative">
         <label className="text-sm font-medium text-gray-700 block mb-1">Husnummer</label>
         <input
+          ref={houseNumberRef}
           type="text"
           placeholder="12A"
           value={houseNumber}

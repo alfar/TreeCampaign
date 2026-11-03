@@ -53,7 +53,8 @@ public static class EndpointExtensions
             .MapOrderEndpoints()
             .MapIntakeSseEndpoint();
 
-        group
+        var unauthedGroup = app.MapGroup("/campaigns/{campaignId:guid}");
+        unauthedGroup
             .MapPublicOrderEndpoints();
 
         return app;

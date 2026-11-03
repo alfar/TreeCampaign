@@ -28,8 +28,6 @@ internal class CreatePendingOrderEndpoint
         IIntakeUnitOfWork unitOfWork,
         CampaignRef campaignId,
         CreatePendingOrderRequest request,
-        ICampaignOwnershipService campaignOwnershipService,
-        ICurrentUserAccessor currentUser,
         CancellationToken cancellationToken)
     {
         var order = PendingOrder.Create(

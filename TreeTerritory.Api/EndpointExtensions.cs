@@ -13,11 +13,14 @@ public static class EndpointExtensions
 {
     public static IEndpointRouteBuilder MapTreeTerritoryEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapStreetEndpoints();
         app.MapTerritoryEndpoints();
-        app.MapGroup("/Territories/{territoryId:guid}")
+
+        app
+            .MapStreetEndpoints()
+            .MapStreetSectionEndpoints();
+
+        app.MapGroup("/territories/{territoryId:guid}")
             .MapNeighborhoodEndpoints()
-            .MapStreetSectionEndpoints()
             .MapPost("/import-street-sections", ImportStreetSectionsEndpoint.Handle)
             .WithTags("Territories")
             .RequireAuthorization(AuthPolicies.ScoutGroupMember)

@@ -29,7 +29,7 @@ builder.Services.AddIntake(connectionString);
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+/*using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     await services.GetRequiredService<StoredDomainEventContext>().Database.MigrateAsync();
@@ -38,7 +38,7 @@ using (var scope = app.Services.CreateScope())
     await services.GetRequiredService<TreeTerritoryContext>().Database.MigrateAsync();
     await services.GetRequiredService<IntakeContext>().Database.MigrateAsync();
 }
-
+*/
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
