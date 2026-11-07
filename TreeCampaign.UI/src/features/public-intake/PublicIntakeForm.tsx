@@ -452,8 +452,8 @@ export default function PublicIntakeForm({
                     </div>
                   </div>
 
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <div className="mt-2">
+                    <label className="mb-1 block text-lg font-medium text-gray-700 text-center">
                       Beløb: {amountDueLabel}
                     </label>
                   </div>
@@ -515,24 +515,40 @@ export default function PublicIntakeForm({
                   }}
                 />
 
-                <h2 className="flex text-xl font-bold text-gray-900">
+                <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
                   <CheckIcon className="h-6 w-6 shrink-0 text-green-500" />{" "}
                   Bestillingen er oprettet
                 </h2>
-                <p className="mt-2 text-sm text-gray-700">
-                  Betal {amountDueLabel} med MobilePay. Skriv koden{" "}
-                  <span className="font-mono font-bold">{paymentCode}</span> i
-                  betalingsbeskeden.
-                </p>
 
-                <div className="mt-6 flex justify-center">
-                  <div className="rounded-xl bg-white p-3 shadow-sm">
-                    <img
-                      src={mobilePayImageUrl}
-                      alt="MobilePay QR-kode"
-                      className="h-48 w-48 max-w-full"
-                    />
-                  </div>
+                <div className="mt-6 flex flex-col items-center">
+                  <p className="mt-2 text-lg text-gray-900">
+                    Betal {amountDueLabel} med MobilePay. Skriv koden{" "}
+                    <span className="font-mono text-xl font-bold">
+                      {paymentCode}
+                    </span>{" "}
+                    i betalingsbeskeden.
+                  </p>
+                  <p className="mt-2">
+                    <a
+                      href="https://qr.mobilepay.dk/vp/OJbdGYMcM"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={mobilePayImageUrl}
+                        alt="MobilePay QR-kode"
+                        className="h-48 w-48 max-w-full"
+                      />
+                    </a>
+                  </p>
+                  <p className="mt-2 text-center text-lg text-gray-900">
+                    Scan QR-koden med MobilePay - er du på mobilen, kan du
+                    trykke på billedet for at åbne MobilePay.
+                  </p>
+                  <p className="mt-2 text-center text-lg text-gray-900">
+                    Tak for din bestilling! Vi glæder os til at hente dine
+                    juletræer.
+                  </p>
                 </div>
 
                 <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row">

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { http, HttpResponse, delay } from "msw";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import PublicIntakeForm from "./PublicIntakeForm";
 import type { Street } from "../../shared/api/models/street";
@@ -111,6 +112,42 @@ type Story = StoryObj<typeof meta>;
 /** Full happy path: pick street → validate address (1–50) → set trees → create order → see payment code. */
 export const FullFlow: Story = {
   parameters: { msw: { handlers: handlers() } },
+};
+
+/** Drives step 1 automatically so the story opens on step 2 (Antal). */
+const goToStep2: Story["play"] = async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  // The form swaps AddressPicker out while territory/streets load, which would discard typed text.
+  await waitFor(() => expect(canvas.queryByText("Henter område…")).toBeNull());
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  await waitFor(() => expect(canvas.queryByText("Henter gader…")).toBeNull(), { timeout: 3000 });
+  await userEvent.type(await canvas.findByPlaceholderText("Søg gade..."), "Vester");
+  await userEvent.click(await canvas.findByText("Vestergade", {}, { timeout: 3000 }));
+  await userEvent.type(canvas.getByPlaceholderText("12A"), "12");
+  const check = canvas.getByRole("button", { name: "Check adresse" });
+  await waitFor(() => expect(check).toBeEnabled());
+  await userEvent.click(check);
+  await canvas.findByText("Antal træer", { selector: "label" });
+};
+
+/** Opens directly on step 2: choose number of trees and optional contact info. */
+export const Step2Quantity: Story = {
+  parameters: { msw: { handlers: handlers() } },
+  play: goToStep2,
+};
+
+/** Opens directly on step 3: order created, payment code and MobilePay QR shown. */
+export const Step3Payment: Story = {
+  parameters: { msw: { handlers: handlers() } },
+  play: async (context) => {
+    await goToStep2(context);
+    const canvas = within(context.canvasElement);
+    await userEvent.type(canvas.getByPlaceholderText("F.eks. Anna Jensen"), "Anna Jensen");
+    await userEvent.type(canvas.getByPlaceholderText("12345678"), "12345678");
+    await userEvent.click(canvas.getByRole("button", { name: "Flere træer" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Opret bestilling" }));
+    await canvas.findByText("Bestillingen er oprettet");
+  },
 };
 
 /** Order creation fails, to see the error state. */
