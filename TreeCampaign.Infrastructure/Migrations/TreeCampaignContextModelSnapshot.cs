@@ -61,6 +61,16 @@ namespace TreeCampaign.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateOnly?>("CollectionDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset?>("LastOrderDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal?>("PricePerTree")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<Guid>("ScoutGroupId")
                         .HasColumnType("uniqueidentifier");
 
@@ -69,6 +79,10 @@ namespace TreeCampaign.Infrastructure.Migrations
 
                     b.Property<Guid?>("TerritoryId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -249,6 +263,18 @@ namespace TreeCampaign.Infrastructure.Migrations
                     b.HasBaseType("TreeCampaign.Domain.Teams.TeamBase");
 
                     b.HasDiscriminator().HasValue("Walking");
+                });
+
+            modelBuilder.Entity("TreeCampaign.Domain.Stops.AbandonedStop", b =>
+                {
+                    b.HasBaseType("TreeCampaign.Domain.Stops.ReopenableStop");
+
+                    b.Property<Guid?>("AssignedTeamId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("AssignedTeamId");
+
+                    b.HasDiscriminator().HasValue("Abandoned");
                 });
 
             modelBuilder.Entity("TreeCampaign.Domain.Stops.CollectedStop", b =>

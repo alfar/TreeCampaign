@@ -9,6 +9,7 @@ import {
   type ResolvedStreetSectionAddress,
 } from "../../shared/api/client";
 import type { Street } from "../../shared/api/models/street";
+import { DEFAULT_PRICE_PER_TREE } from "../../shared/campaignPricing";
 import {
   AddressPicker,
   type Address,
@@ -143,6 +144,7 @@ export default function PublicIntakeForm({
     useState<ResolvedStreetSectionAddress | null>(null);
 
   const [treeCount, setTreeCount] = useState(1);
+  const [pricePerTree, setPricePerTree] = useState(DEFAULT_PRICE_PER_TREE);
   const [senderName, setSenderName] = useState("");
   const [senderPhoneNumber, setSenderPhoneNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -166,7 +168,7 @@ export default function PublicIntakeForm({
   const streetNotInTerritory =
     isStreetSelected && streetName.trim().length > 0 && !selectedStreet;
 
-  const totalAmount = treeCount * 40;
+  const totalAmount = treeCount * pricePerTree;
 
   useEffect(() => {
     let cancelled = false;
@@ -176,6 +178,7 @@ export default function PublicIntakeForm({
         const summary: CampaignSummary = await getCampaignSummary(campaignId);
         if (cancelled) return;
         setTerritoryId(summary.territoryId ?? null);
+        setPricePerTree(summary.pricePerTree ?? DEFAULT_PRICE_PER_TREE);
       } catch {
         if (!cancelled) {
           setValidationError("Kampagnen kunne ikke indlæses.");

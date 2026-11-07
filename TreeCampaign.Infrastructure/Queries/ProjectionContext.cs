@@ -88,6 +88,10 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
         public required CampaignSeason Season { get; init; }
         public TerritoryRef? TerritoryId { get; init; }
         public required ScoutGroupRef ScoutGroupId { get; init; }
+        public DateOnly? CollectionDate { get; init; }
+        public MoneyAmount? PricePerTree { get; init; }
+        public string? Title { get; init; }
+        public DateTimeOffset? LastOrderDateTime { get; init; }
     }
 
     public class TeamProjection
@@ -192,6 +196,14 @@ public class ProjectionContext(DbContextOptions<ProjectionContext> options) : Db
             .Entity<CampaignProjection>()
             .Property(c => c.ScoutGroupId)
             .HasConversion(new ScoutGroupRefValueConverter());
+        modelBuilder.Entity<CampaignProjection>().Property(c => c.CollectionDate);
+        modelBuilder
+            .Entity<CampaignProjection>()
+            .Property(c => c.PricePerTree)
+            .HasConversion(new NullableMoneyAmountValueConverter())
+            .HasPrecision(18, 2);
+        modelBuilder.Entity<CampaignProjection>().Property(c => c.Title).HasMaxLength(200);
+        modelBuilder.Entity<CampaignProjection>().Property(c => c.LastOrderDateTime);
         modelBuilder.Entity<CampaignProjection>().ToTable("Campaigns");
 
         modelBuilder.Entity<TeamProjection>().HasKey(t => t.Id);

@@ -18,5 +18,9 @@ internal static class CampaignConfiguration
         builder.Property(c => c.Season).HasConversion(new CampaignSeasonValueConverter());
         builder.Property(c => c.TerritoryId).HasConversion(new NullableTerritoryRefValueConverter());
         builder.Property(c => c.ScoutGroupId).HasConversion(new ScoutGroupRefValueConverter());
+        builder.Property(c => c.CollectionDate);
+        builder.Property(c => c.PricePerTree).HasConversion(new NullableMoneyAmountValueConverter()).HasPrecision(18, 2);
+        builder.Property(c => c.Title).HasMaxLength(200);
+        builder.Property(c => c.LastOrderDateTime);
     }
 }

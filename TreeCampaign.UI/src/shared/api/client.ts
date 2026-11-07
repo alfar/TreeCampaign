@@ -1,4 +1,4 @@
-import type { Campaign } from "./models/campagin";
+import type { Campaign, CampaignInput } from "./models/campagin";
 import type { Neighborhood } from "./models/neighborhood";
 import type { Order } from "./models/order";
 import type { PaymentImportSummary } from "./models/paymentImport";
@@ -206,6 +206,7 @@ export async function getCampaign(campaignId: string): Promise<Campaign> {
 export interface CampaignSummary {
   id: string;
   territoryId: string | null;
+  pricePerTree?: number | null;
 }
 
 export interface ResolvedStreetSectionAddress {
@@ -262,20 +263,31 @@ export async function createPendingOrder(
   });
 }
 
-export async function createCampaign(year: number, territoryId?: string): Promise<Campaign> {
+function campaignBody(data: CampaignInput) {
+  return JSON.stringify({
+    season: data.year,
+    territoryId: data.territoryId ?? null,
+    collectionDate: data.collectionDate || null,
+    pricePerTree: data.pricePerTree ?? null,
+    title: data.title?.trim() || null,
+    lastOrderDateTime: data.lastOrderDateTime || null,
+  });
+}
+
+export async function createCampaign(data: CampaignInput): Promise<Campaign> {
   const res = await fetch('/api/campaigns', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ season: year, territoryId: territoryId ?? null }),
+    body: campaignBody(data),
   });
   return res.json();
 }
 
-export async function updateCampaign(campaignId: string, year: number, territoryId?: string): Promise<Campaign> {
+export async function updateCampaign(campaignId: string, data: CampaignInput): Promise<Campaign> {
   const res = await fetch(`/api/campaigns/${campaignId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ season: year, territoryId: territoryId ?? null }),
+    body: campaignBody(data),
   });
   return res.json();
 }

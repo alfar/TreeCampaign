@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { updateCampaign, getTerritories } from "../../shared/api/client";
 import type { Campaign } from "../../shared/api/models/campagin";
 import type { Territory } from "../../shared/api/models/territory";
+import CampaignDetailsFields from "./CampaignDetailsFields";
+import {
+  fromLocalInputValue,
+  pricePerTreeIsValid,
+  toLocalInputValue,
+  type CampaignDetailsValues,
+} from "./campaignDetails";
 
 interface UpdateCampaignFormProps {
   campaign: Campaign;
@@ -12,6 +19,12 @@ interface UpdateCampaignFormProps {
 export default function UpdateCampaignForm({ campaign, onUpdated, onCancel }: UpdateCampaignFormProps) {
   const [year, setYear] = useState(campaign.season);
   const [territoryId, setTerritoryId] = useState(campaign.territoryId ?? "");
+  const [details, setDetails] = useState<CampaignDetailsValues>({
+    title: campaign.title ?? "",
+    collectionDate: campaign.collectionDate ?? "",
+    pricePerTree: campaign.pricePerTree != null ? String(campaign.pricePerTree) : "",
+    lastOrderDateTime: toLocalInputValue(campaign.lastOrderDateTime),
+  });
   const [territories, setTerritories] = useState<Territory[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +33,7 @@ export default function UpdateCampaignForm({ campaign, onUpdated, onCancel }: Up
     getTerritories().then(setTerritories);
   }, []);
 
-  const canSubmit = year >= 2000 && year <= 2100 && !isSubmitting;
+  const canSubmit = year >= 2000 && year <= 2100 && pricePerTreeIsValid(details.pricePerTree) && !isSubmitting;
 
   const handleSubmit = async (e: { preventDefault(): void }) => {
     e.preventDefault();
@@ -29,7 +42,14 @@ export default function UpdateCampaignForm({ campaign, onUpdated, onCancel }: Up
     setIsSubmitting(true);
     setError(null);
     try {
-      const updated = await updateCampaign(campaign.id, year, territoryId || undefined);
+      const updated = await updateCampaign(campaign.id, {
+        year,
+        territoryId: territoryId || undefined,
+        title: details.title,
+        collectionDate: details.collectionDate || null,
+        pricePerTree: details.pricePerTree === "" ? null : Number(details.pricePerTree),
+        lastOrderDateTime: fromLocalInputValue(details.lastOrderDateTime),
+      });
       onUpdated(updated);
     } catch {
       setError("Noget gik galt. Prøv igen.");
@@ -67,6 +87,7 @@ export default function UpdateCampaignForm({ campaign, onUpdated, onCancel }: Up
           </select>
         </div>
       </div>
+      <CampaignDetailsFields values={details} onChange={setDetails} />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-2">
         <button

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { createOrder } from "../../shared/api/client";
+import { DEFAULT_PRICE_PER_TREE } from "../../shared/campaignPricing";
 import { AddressPicker, type Address } from "../../shared/components/AddressPicker";
 
 interface CreateOrderFormProps {
   campaignId: string;
   defaultZipCode: string;
+  pricePerTree?: number;
   onOrderCreated: () => void;
 }
 
@@ -12,10 +14,10 @@ function todayIso() {
   return new Date().toISOString().split("T")[0];
 }
 
-export default function CreateOrderForm({ campaignId, defaultZipCode, onOrderCreated }: CreateOrderFormProps) {
+export default function CreateOrderForm({ campaignId, defaultZipCode, pricePerTree = DEFAULT_PRICE_PER_TREE, onOrderCreated }: CreateOrderFormProps) {
   const [senderName, setSenderName] = useState("");
   const [senderPhoneNumber, setSenderPhoneNumber] = useState("");
-  const [amount, setAmount] = useState("40");
+  const [amount, setAmount] = useState(String(pricePerTree));
   const [orderDate, setOrderDate] = useState(todayIso);
   const [address, setAddress] = useState<Address>({ zipCode: defaultZipCode, street: null, streetName: "", isStreetSelected: false, houseNumber: "", isValid: null });
   const [isSubmitting, setIsSubmitting] = useState(false);

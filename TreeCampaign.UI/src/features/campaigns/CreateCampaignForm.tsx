@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { createCampaign, getTerritories } from "../../shared/api/client";
 import type { Campaign } from "../../shared/api/models/campagin";
 import type { Territory } from "../../shared/api/models/territory";
+import CampaignDetailsFields from "./CampaignDetailsFields";
+import {
+  emptyCampaignDetails,
+  fromLocalInputValue,
+  pricePerTreeIsValid,
+  type CampaignDetailsValues,
+} from "./campaignDetails";
 
 interface CreateCampaignFormProps {
   onCreated: (campaign: Campaign) => void;
@@ -11,6 +18,7 @@ export default function CreateCampaignForm({ onCreated }: CreateCampaignFormProp
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const [territoryId, setTerritoryId] = useState("");
+  const [details, setDetails] = useState<CampaignDetailsValues>(emptyCampaignDetails);
   const [territories, setTerritories] = useState<Territory[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +27,7 @@ export default function CreateCampaignForm({ onCreated }: CreateCampaignFormProp
     getTerritories().then(setTerritories);
   }, []);
 
-  const canSubmit = year >= 2000 && year <= 2100 && !isSubmitting;
+  const canSubmit = year >= 2000 && year <= 2100 && pricePerTreeIsValid(details.pricePerTree) && !isSubmitting;
 
   const handleSubmit = async (e: { preventDefault(): void }) => {
     e.preventDefault();
@@ -28,9 +36,17 @@ export default function CreateCampaignForm({ onCreated }: CreateCampaignFormProp
     setIsSubmitting(true);
     setError(null);
     try {
-      const campaign = await createCampaign(year, territoryId || undefined);
+      const campaign = await createCampaign({
+        year,
+        territoryId: territoryId || undefined,
+        title: details.title,
+        collectionDate: details.collectionDate || null,
+        pricePerTree: details.pricePerTree === "" ? null : Number(details.pricePerTree),
+        lastOrderDateTime: fromLocalInputValue(details.lastOrderDateTime),
+      });
       setYear(currentYear);
       setTerritoryId("");
+      setDetails(emptyCampaignDetails);
       onCreated(campaign);
     } catch {
       setError("Noget gik galt. Prøv igen.");
@@ -68,6 +84,7 @@ export default function CreateCampaignForm({ onCreated }: CreateCampaignFormProp
           </select>
         </div>
       </div>
+      <CampaignDetailsFields values={details} onChange={setDetails} />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"

@@ -39,6 +39,7 @@ public static class EndpointExtensions
             options.SerializerOptions.Converters.Add(new TerritoryRefJsonConverter());
             options.SerializerOptions.Converters.Add(new StreetSectionRefJsonConverter());
             options.SerializerOptions.Converters.Add(new ScoutGroupRefJsonConverter());
+            options.SerializerOptions.Converters.Add(new MoneyAmountJsonConverter());
         });
 
         services.Configure<SseJsonOptions>(options =>
@@ -55,6 +56,7 @@ public static class EndpointExtensions
             options.SerializerOptions.Converters.Add(new TerritoryRefJsonConverter());
             options.SerializerOptions.Converters.Add(new StreetSectionRefJsonConverter());
             options.SerializerOptions.Converters.Add(new ScoutGroupRefJsonConverter());
+            options.SerializerOptions.Converters.Add(new MoneyAmountJsonConverter());
         });
 
         return services;

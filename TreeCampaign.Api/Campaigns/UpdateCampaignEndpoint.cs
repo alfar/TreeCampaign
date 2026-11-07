@@ -9,7 +9,13 @@ namespace TreeCampaign.Api.Campaigns;
 
 internal class UpdateCampaignEndpoint
 {
-    public record UpdateCampaignCommand(CampaignSeason Season, TerritoryRef TerritoryId);
+    public record UpdateCampaignCommand(
+        CampaignSeason Season,
+        TerritoryRef TerritoryId,
+        DateOnly? CollectionDate = null,
+        MoneyAmount? PricePerTree = null,
+        string? Title = null,
+        DateTimeOffset? LastOrderDateTime = null);
 
     internal static async Task<IResult> Handle(
         ICurrentUserAccessor currentUser,
@@ -29,6 +35,12 @@ internal class UpdateCampaignEndpoint
         campaign.SetSeason(command.Season);
 
         if (command.TerritoryId is not null) campaign.SetTerritory(command.TerritoryId);
+
+        // The new optional fields are replaced as a whole, so omitting one (or sending null) clears it.
+        campaign.SetCollectionDate(command.CollectionDate);
+        campaign.SetPricePerTree(command.PricePerTree);
+        campaign.SetTitle(command.Title);
+        campaign.SetLastOrderDateTime(command.LastOrderDateTime);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

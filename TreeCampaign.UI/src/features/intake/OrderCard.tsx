@@ -1,4 +1,5 @@
 import type { Order, OrderType } from "../../shared/api/models/order";
+import { DEFAULT_PRICE_PER_TREE } from "../../shared/campaignPricing";
 import {
   BanknotesIcon,
   CheckCircleIcon,
@@ -16,6 +17,7 @@ interface OrderCardProps {
   selected?: boolean;
   onClick?: () => void;
   territoryName?: string;
+  pricePerTree?: number;
 }
 
 const STATE_CONFIG: Record<
@@ -87,9 +89,9 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function OrderCard({ order, selected, onClick, territoryName }: OrderCardProps) {
+export default function OrderCard({ order, selected, onClick, territoryName, pricePerTree = DEFAULT_PRICE_PER_TREE }: OrderCardProps) {
   const state = STATE_CONFIG[order.orderType];
-  const treeCount = Math.round(order.amount / 40);
+  const treeCount = Math.round(order.amount / pricePerTree);
 
   return (
     <div

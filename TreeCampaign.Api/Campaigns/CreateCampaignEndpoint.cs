@@ -9,7 +9,13 @@ namespace TreeCampaign.Api.Campaigns;
 
 internal class CreateCampaignEndpoint
 {
-    public record CreateCampaignCommand(CampaignSeason Season, TerritoryRef? TerritoryId);
+    public record CreateCampaignCommand(
+        CampaignSeason Season,
+        TerritoryRef? TerritoryId,
+        DateOnly? CollectionDate = null,
+        MoneyAmount? PricePerTree = null,
+        string? Title = null,
+        DateTimeOffset? LastOrderDateTime = null);
 
     internal static async Task<IResult> Handle(
         ICurrentUserAccessor currentUser,
@@ -18,7 +24,14 @@ internal class CreateCampaignEndpoint
         CancellationToken cancellationToken
     )
     {
-        var campaign = Campaign.Create(command.Season, currentUser.GetScoutGroupId(), command.TerritoryId);
+        var campaign = Campaign.Create(
+            command.Season,
+            currentUser.GetScoutGroupId(),
+            command.TerritoryId,
+            command.CollectionDate,
+            command.PricePerTree,
+            command.Title,
+            command.LastOrderDateTime);
 
         unitOfWork.GetRepository<Campaign, CampaignId>().Add(campaign);
         await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -49,7 +49,7 @@ export default function CampaignListScreen() {
             <div className="flex items-center justify-between">
               <Link to={`/campaigns/${c.id}/dispatch`} className="flex-1">
                 <h2 className="text-lg font-semibold">
-                  {c.season}
+                  {c.title || c.season}
                 </h2>
               </Link>
               <Button

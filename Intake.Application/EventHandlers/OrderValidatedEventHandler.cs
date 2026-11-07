@@ -4,6 +4,7 @@ using Intake.Domain.Orders;
 using Intake.Domain.Orders.Events;
 using Intake.Domain.Orders.ValueObjects;
 using Intake.Infrastructure;
+using TreeCampaign.Domain.Campaigns;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Stops;
 using TreeCampaign.Domain.Stops.ValueObjects;
@@ -26,9 +27,12 @@ public class OrderValidatedEventHandler(IIntakeUnitOfWork intakeUnitOfWork, ITre
             {
                 var street = await treeTerritoryUnitOfWork.GetRepository<Street, StreetId>().TryFindAsync(StreetId.From(order.StreetId.Value));
 
-                if (street is not null)
+                var campaignId = CampaignId.From(order.CampaignId.Value);
+                var campaign = await treeCampaignUnitOfWork.GetRepository<Campaign, CampaignId>().TryFindAsync(campaignId, cancellationToken);
+
+                if (street is not null && campaign is not null)
                 {
-                    var stop = UnassignedStop.Create(CampaignId.From(order.CampaignId.Value), new Address($"{street.Name} {order.HouseNumber}, {street.ZipCode}", order.Latitude, order.Longitude, TreeCampaign.Domain.ExternalReferences.StreetSectionRef.From(order.StreetSectionId.Value)), TreeCount.From((int)Math.Floor(order.Amount.Value / 40)));
+                    var stop = UnassignedStop.Create(campaignId, new Address($"{street.Name} {order.HouseNumber}, {street.ZipCode}", order.Latitude, order.Longitude, TreeCampaign.Domain.ExternalReferences.StreetSectionRef.From(order.StreetSectionId.Value)), TreeCount.From(campaign.CalculateTreeCount(order.Amount.Value)));
 
                     treeCampaignUnitOfWork.GetRepository<UnassignedStop, StopId>().Add(stop);
 

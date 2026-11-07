@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getCampaigns, getOrders, getTerritories, markOrderUnwashable, revalidateCampaignOrders, settleTerritoryOrders } from "../../shared/api/client";
 import type { Order } from "../../shared/api/models/order";
 import type { Territory } from "../../shared/api/models/territory";
+import { DEFAULT_PRICE_PER_TREE } from "../../shared/campaignPricing";
 import CreateOrderForm from "./CreateOrderForm";
 import CreateStreetSectionForm from "./CreateStreetSectionForm";
 import ImportPaymentsForm from "./ImportPaymentsForm";
@@ -22,6 +23,7 @@ export default function IntakeScreen() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [territoryId, setTerritoryId] = useState<string | null>(null);
+  const [pricePerTree, setPricePerTree] = useState(DEFAULT_PRICE_PER_TREE);
   const [territories, setTerritories] = useState<Territory[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
@@ -45,6 +47,7 @@ export default function IntakeScreen() {
       getCampaigns().then((all) => {
         const campaign = all.find((c) => c.id === campaignId);
         setTerritoryId(campaign?.territoryId ?? null);
+        setPricePerTree(campaign?.pricePerTree ?? DEFAULT_PRICE_PER_TREE);
       });
     }
   }, [campaignId]);
@@ -362,6 +365,7 @@ export default function IntakeScreen() {
                 selectedOrderId={selectedOrderId ?? undefined}
                 onSelectOrder={handleSelectOrder}
                 territoryNameById={territoryNameById}
+                pricePerTree={pricePerTree}
               />
             ) : activeTab === "pending" ? (
               <OrderList
@@ -369,6 +373,7 @@ export default function IntakeScreen() {
                 selectedOrderId={selectedOrderId ?? undefined}
                 onSelectOrder={handleSelectOrder}
                 territoryNameById={territoryNameById}
+                pricePerTree={pricePerTree}
               />
             ) : activeTab === "transferred" ? (
               transferredGroups.length === 0 ? (
@@ -388,6 +393,7 @@ export default function IntakeScreen() {
                       selectedOrderId={selectedOrderId ?? undefined}
                       onSelectOrder={handleSelectOrder}
                       territoryNameById={territoryNameById}
+                      pricePerTree={pricePerTree}
                     />
                   ))}
                 </div>
@@ -404,6 +410,7 @@ export default function IntakeScreen() {
                   selectedOrderId={selectedOrderId ?? undefined}
                   onSelectOrder={handleSelectOrder}
                   territoryNameById={territoryNameById}
+                  pricePerTree={pricePerTree}
                 />
               </div>
             )}
@@ -414,6 +421,7 @@ export default function IntakeScreen() {
               <CreateOrderForm
                 campaignId={campaignId!}
                 defaultZipCode={DEFAULT_ZIP_CODE}
+                pricePerTree={pricePerTree}
                 onOrderCreated={handleOrderCreated}
               />
             </div>

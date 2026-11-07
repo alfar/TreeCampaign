@@ -15,6 +15,7 @@ interface TerritoryGroupSectionProps {
   selectedOrderId?: string;
   onSelectOrder: (orderId: string) => void;
   territoryNameById: Record<string, string>;
+  pricePerTree?: number;
 }
 
 export default function TerritoryGroupSection({
@@ -28,6 +29,7 @@ export default function TerritoryGroupSection({
   selectedOrderId,
   onSelectOrder,
   territoryNameById,
+  pricePerTree,
 }: TerritoryGroupSectionProps) {
   return (
     <Section
@@ -60,6 +62,7 @@ export default function TerritoryGroupSection({
         selectedOrderId={selectedOrderId}
         onSelectOrder={onSelectOrder}
         territoryNameById={territoryNameById}
+        pricePerTree={pricePerTree}
       />
     </Section>
   );
