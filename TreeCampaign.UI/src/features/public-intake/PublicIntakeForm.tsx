@@ -14,7 +14,12 @@ import {
   type Address,
   type AddressPickerHandle,
 } from "../../shared/components/AddressPicker";
-import { CheckIcon, MinusIcon, PlusIcon } from "@heroicons/react/24/solid";
+import {
+  CheckIcon,
+  MinusCircleIcon,
+  MinusIcon,
+  PlusIcon,
+} from "@heroicons/react/24/solid";
 
 type Step = 1 | 2 | 3;
 
@@ -128,6 +133,7 @@ export default function PublicIntakeForm({
   const [territoryId, setTerritoryId] = useState<string | null>(null);
   const [streets, setStreets] = useState<Street[]>([]);
   const [streetName, setStreetName] = useState("");
+  const [isStreetSelected, setIsStreetSelected] = useState(false);
   const [houseNumber, setHouseNumber] = useState("");
   const [isLoadingTerritory, setIsLoadingTerritory] = useState(true);
   const [isLoadingStreets, setIsLoadingStreets] = useState(false);
@@ -156,7 +162,9 @@ export default function PublicIntakeForm({
   );
   const selectedStreetId = selectedStreet?.id ?? "";
   const defaultZipCode = streets[0]?.zipCode ?? "8600";
-  const streetNotInTerritory = streetName.trim().length > 0 && !selectedStreet;
+  // Only warn once a street has been picked; while typing, no match yet is expected.
+  const streetNotInTerritory =
+    isStreetSelected && streetName.trim().length > 0 && !selectedStreet;
 
   const totalAmount = treeCount * 40;
 
@@ -222,6 +230,7 @@ export default function PublicIntakeForm({
 
   const handleAddressChange = useCallback((address: Address) => {
     setStreetName(address.streetName);
+    setIsStreetSelected(address.isStreetSelected);
     setHouseNumber(address.houseNumber);
   }, []);
 
@@ -381,9 +390,10 @@ export default function PublicIntakeForm({
                 />
               )}
               {streetNotInTerritory && (
-                <p className="text-sm text-amber-700">
+                <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                  <MinusCircleIcon className="h-6 w-6 shrink-0 text-red-500" />
                   Vi henter desværre ikke juletræer på denne vej.
-                </p>
+                </h2>
               )}
               <button
                 type="button"

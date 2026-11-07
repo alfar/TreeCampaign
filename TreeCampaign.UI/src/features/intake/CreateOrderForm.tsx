@@ -17,7 +17,7 @@ export default function CreateOrderForm({ campaignId, defaultZipCode, onOrderCre
   const [senderPhoneNumber, setSenderPhoneNumber] = useState("");
   const [amount, setAmount] = useState("40");
   const [orderDate, setOrderDate] = useState(todayIso);
-  const [address, setAddress] = useState<Address>({ zipCode: defaultZipCode, street: null, streetName: "", houseNumber: "", isValid: null });
+  const [address, setAddress] = useState<Address>({ zipCode: defaultZipCode, street: null, streetName: "", isStreetSelected: false, houseNumber: "", isValid: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

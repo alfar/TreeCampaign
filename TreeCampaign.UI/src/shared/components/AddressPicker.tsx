@@ -7,6 +7,8 @@ export interface Address {
   zipCode: string;
   street: Street | null;
   streetName: string;
+  /** True once a street has been picked from the suggestions (not while still typing). */
+  isStreetSelected: boolean;
   houseNumber: string;
   isValid: boolean | null;
 }
@@ -158,9 +160,16 @@ export function AddressPicker({
     : houseNumberCandidates.some((c) => c.husnummer?.toLowerCase() === houseNumber.trim().toLowerCase());
 
   useEffect(() => {
-    onChange({ zipCode, street: resolvedStreet, streetName, houseNumber, isValid });
+    onChange({
+      zipCode,
+      street: resolvedStreet,
+      streetName,
+      isStreetSelected: selectedStreetName !== null,
+      houseNumber,
+      isValid,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zipCode, resolvedStreet, streetName, houseNumber, isValid]);
+  }, [zipCode, resolvedStreet, streetName, selectedStreetName, houseNumber, isValid]);
 
   const filteredHouseNumbers = houseNumberCandidates.filter((c) => c.husnummer?.toLowerCase().startsWith(houseNumber.trim().toLowerCase())
   );

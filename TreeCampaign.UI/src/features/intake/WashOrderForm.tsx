@@ -37,6 +37,7 @@ export default function WashOrderForm({ order, campaignId, defaultZipCode, onStr
     zipCode: parsed?.zipCode ?? defaultZipCode,
     street: null,
     streetName: parsed?.streetName ?? "",
+    isStreetSelected: false,
     houseNumber: parsed?.houseNumber ?? "",
     isValid: null,
   });

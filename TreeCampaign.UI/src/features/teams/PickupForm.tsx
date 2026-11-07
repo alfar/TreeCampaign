@@ -12,7 +12,7 @@ export function PickupForm({
   onCreated: (stop: Stop, team: Team) => void;
 }) {
   const [defaultZipCode, setDefaultZipCode] = useState("");
-  const [address, setAddress] = useState<Address>({ zipCode: "", street: null, streetName: "", houseNumber: "", isValid: null });
+  const [address, setAddress] = useState<Address>({ zipCode: "", street: null, streetName: "", isStreetSelected: false, houseNumber: "", isValid: null });
   const [treeCount, setTreeCount] = useState(8);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
