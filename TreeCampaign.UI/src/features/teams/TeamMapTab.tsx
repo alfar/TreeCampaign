@@ -11,6 +11,7 @@ import type { Stop } from "../../shared/api/models/stop";
 import type { TeamScreenContext } from "./TeamScreen";
 import { StopActionButtons } from "./StopActionButtons";
 import Button from "../../components/Button";
+import { TeamActionDrawer } from "./TeamActionDrawer";
 import { ViewfinderCircleIcon } from "@heroicons/react/24/outline";
 
 const SILKEBORG_CENTER: [number, number] = [56.1697, 9.5451];
@@ -39,41 +40,14 @@ function FitBoundsOnce({ stops }: { stops: Stop[] }) {
   return null;
 }
 
-function TopControls({
-  stops,
-  team,
-  queueAdjustExtraTrees,
-}: {
-  stops: Stop[];
-  team: TeamScreenContext["team"];
-  queueAdjustExtraTrees: TeamScreenContext["queueAdjustExtraTrees"];
-}) {
+function TopControls({ stops }: { stops: Stop[] }) {
   const map = useMap();
 
   return (
-    <div className="absolute z-1000 top-3 left-1/2 -translate-x-1/2 flex items-center gap-3 border rounded-xl px-3 py-2 bg-white shadow">
-      {team && (
-        <>
-          <Button
-            size="md"
-            className="px-3"
-            disabled={team.currentExtraTrees <= 0}
-            onClick={() => queueAdjustExtraTrees(-1)}
-          >
-            −
-          </Button>
-          <span className="text-sm font-semibold whitespace-nowrap">
-            {team.currentExtraTrees} ekstra træer
-          </span>
-          <Button size="md" className="px-3" onClick={() => queueAdjustExtraTrees(1)}>
-            +
-          </Button>
-          <span className="w-px self-stretch bg-gray-200" />
-        </>
-      )}
+    <div className="absolute z-1000 top-3 right-3">
       <Button
         size="md"
-        className="px-3"
+        className="px-3 shadow"
         disabled={stops.length === 0}
         onClick={() => map.fitBounds(stopsToBounds(stops), { padding: [32, 32] })}
         title="Centrer kort"
@@ -85,9 +59,12 @@ function TopControls({
 }
 
 export default function TeamMapTab() {
-  const { stops, team, queueAdjustExtraTrees, queueAction } = useOutletContext<TeamScreenContext>();
+  const { stops, team, queueAdjustExtraTrees, queueAction, queueTeamAction } =
+    useOutletContext<TeamScreenContext>();
 
   const visibleStops = stops.filter((s) => s.stopType !== "Delivered");
+  const hasCollected =
+    stops.some((s) => s.stopType === "Collected") || (team?.currentExtraTrees ?? 0) > 0;
 
   if (team?.status === "OnBreak") {
     return (
@@ -109,11 +86,7 @@ export default function TeamMapTab() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <FitBoundsOnce stops={visibleStops} />
-        <TopControls
-          stops={visibleStops}
-          team={team}
-          queueAdjustExtraTrees={queueAdjustExtraTrees}
-        />
+        <TopControls stops={visibleStops} />
         {visibleStops.map((stop) => (
           <CircleMarker
             key={stop.id}
@@ -134,6 +107,16 @@ export default function TeamMapTab() {
           </CircleMarker>
         ))}
       </MapContainer>
+
+      {team && (
+        <TeamActionDrawer
+          position="absolute"
+          team={team}
+          hasCollected={hasCollected}
+          queueTeamAction={queueTeamAction}
+          queueAdjustExtraTrees={queueAdjustExtraTrees}
+        />
+      )}
     </div>
   );
 }

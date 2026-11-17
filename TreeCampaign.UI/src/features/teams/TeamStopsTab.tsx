@@ -3,6 +3,7 @@ import { useState } from "react";
 import { PickupForm } from "./PickupForm";
 import { StopActionButtons } from "./StopActionButtons";
 import Button from "../../components/Button";
+import { TeamActionDrawer } from "./TeamActionDrawer";
 import type { TeamScreenContext } from "./TeamScreen";
 
 export default function TeamStopsTab() {
@@ -23,7 +24,7 @@ export default function TeamStopsTab() {
   }
 
   return (
-    <div className="m-4 mb-40 flex flex-col gap-4">
+    <div className="m-4 mb-24 flex flex-col gap-4">
       {showPickupForm && campaign && team && (
         <PickupForm
           campaign={campaign}
@@ -81,50 +82,12 @@ export default function TeamStopsTab() {
       </ol>
 
       {team && (
-        <div className="fixed bottom-0 left-0 right-0 z-10 flex flex-col gap-2 p-3 bg-white" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              size="lg"
-              className="px-4"
-              disabled={team.currentExtraTrees <= 0}
-              onClick={() => queueAdjustExtraTrees(-1)}
-            >
-              −
-            </Button>
-            <span className="text-lg font-semibold">
-              {team.currentExtraTrees} ekstra træer
-            </span>
-            <Button
-              size="lg"
-              className="px-4"
-              onClick={() => queueAdjustExtraTrees(1)}
-            >
-              +
-            </Button>
-          </div>
-
-          {team.kind === "Trailer" && (
-            <div className="flex gap-2">
-              <Button
-                size="lg"
-                className="flex-1 bg-orange-500 hover:bg-orange-600"
-                disabled={team.isTrailerFull === true}
-                onClick={() => queueTeamAction("reportTrailerFull")}
-              >
-                {team.isTrailerFull ? "Trailer fuld ✓" : "Trailer fuld"}
-              </Button>
-              {hasCollected && (
-                <Button
-                  size="lg"
-                  className="flex-1 bg-green-700 hover:bg-green-800"
-                  onClick={() => queueTeamAction("deliverLoad")}
-                >
-                  Lever last
-                </Button>
-              )}
-            </div>
-          )}
-
+        <TeamActionDrawer
+          team={team}
+          hasCollected={hasCollected}
+          queueTeamAction={queueTeamAction}
+          queueAdjustExtraTrees={queueAdjustExtraTrees}
+        >
           {team.kind === "Walking" && (
             <Button
               size="lg"
@@ -134,7 +97,7 @@ export default function TeamStopsTab() {
               {showPickupForm ? "Annuller afhentning" : "Anmod om afhentning"}
             </Button>
           )}
-        </div>
+        </TeamActionDrawer>
       )}
     </div>
   );
