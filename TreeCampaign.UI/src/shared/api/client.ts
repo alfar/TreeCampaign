@@ -22,10 +22,22 @@ export class HttpError extends Error {
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
+// Empty for the main app (same origin). The embeddable public intake build sets it to the API host.
+let apiBaseUrl = '';
+
+export function setApiBaseUrl(url: string) {
+  apiBaseUrl = url.replace(/\/+$/, '');
+}
+
+/** Resolves an absolute-path URL (e.g. `/api/...`, `/logo.png`) against the configured API host. */
+export function apiUrl(path: string): string {
+  return `${apiBaseUrl}${path}`;
+}
+
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   // A dead mobile radio can leave fetch() pending indefinitely instead of rejecting —
   // this bounds every request so a stuck one can't wedge the offline queue's drain loop.
-  const res = await fetch(input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  const res = await fetch(typeof input === 'string' ? apiUrl(input) : input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
   if (!res.ok) {
     throw new HttpError(res.status, await res.text());
   }
@@ -180,7 +192,7 @@ export async function revalidateCampaignOrders(campaignId: string): Promise<Resp
 }
 
 export async function getStreetsByZipCode(zipCode: string): Promise<Street[]> {
-  const res = await fetch(`/api/streets/${zipCode}`);
+  const res = await fetch(apiUrl(`/api/streets/${zipCode}`));
   return res.json();
 }
 

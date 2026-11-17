@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  apiUrl,
   createPendingOrder,
   getCampaignSummary,
   getTerritoryStreets,
@@ -338,7 +339,7 @@ export default function PublicIntakeForm({
     Boolean(territoryId && selectedStreetId && houseNumber.trim()) &&
     !isValidatingAddress;
   const amountDueLabel = `${totalAmount} kr.`;
-  const mobilePayImageUrl = "/mobilepay.png";
+  const mobilePayImageUrl = apiUrl("/mobilepay.png");
 
   const backButton = (target: Step) => (
     <button
@@ -354,7 +355,7 @@ export default function PublicIntakeForm({
     <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white shadow-sm">
       <h1 className="flex items-center justify-center rounded-t-2xl bg-blue-800 text-xl font-bold text-white sm:text-3xl">
         <img
-          src="/logo.png"
+          src={apiUrl("/logo.png")}
           alt="Logo"
           className="mr-2 h-16 w-16 rounded-full p-3 sm:h-24 sm:w-24 sm:p-4"
         />{" "}
@@ -535,8 +536,11 @@ export default function PublicIntakeForm({
 
                 <div className="mt-6 flex flex-col items-center">
                   <p className="mt-2 text-lg text-gray-900">
-                    Betal {amountDueLabel} med MobilePay. Skriv koden{" "}
-                    <span className="font-mono text-xl font-bold">
+                    Betal {amountDueLabel} med MobilePay.
+                  </p>
+                  <p className="mt-2 text-lg text-gray-900">
+                    Skriv koden{" "}
+                    <span className="font-mono text-2xl font-bold">
                       {paymentCode}
                     </span>{" "}
                     i betalingsbeskeden.
@@ -556,11 +560,11 @@ export default function PublicIntakeForm({
                   </p>
                   <p className="mt-2 text-center text-lg text-gray-900">
                     Scan QR-koden med MobilePay - er du på mobilen, kan du
-                    trykke på billedet for at åbne MobilePay.
+                    trykke på koden for at åbne MobilePay.
                   </p>
                   <p className="mt-2 text-center text-lg text-gray-900">
-                    Tak for din bestilling! Vi glæder os til at hente dine
-                    juletræer.
+                    Tak for din bestilling! Vi glæder os til at hente{" "}
+                    {treeCount == 1 ? "dit juletræ" : "dine juletræer"}.
                   </p>
                 </div>
 

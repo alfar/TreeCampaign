@@ -20,6 +20,14 @@ var connectionString = builder.Configuration.GetConnectionString("Default")
 
 builder.Services.AddOpenApi();
 
+// CORS for the embeddable public intake form (TreeCampaign.UI build:embed) on third-party sites.
+// No credentials are allowed, so cookie-authenticated endpoints stay unreachable cross-origin.
+var publicIntakeOrigins = builder.Configuration.GetSection("PublicIntake:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(options => options.AddPolicy("PublicIntake", policy => policy
+    .WithOrigins(publicIntakeOrigins)
+    .WithMethods("GET", "POST")
+    .WithHeaders("Content-Type")));
+
 builder.Services.AddDomainEventServices(connectionString);
 builder.Services.AddCurrentUserAccessor();
 builder.Services.AddAccess(connectionString);
@@ -48,6 +56,12 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+// Only the endpoints PublicIntakeForm calls: streets by zip, campaign summary, territory streets,
+// street-section resolve, and creating a pending order.
+app.UseWhen(
+    context => PublicIntakePaths.IsMatch(context.Request.Path),
+    branch => branch.UseCors("PublicIntake"));
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -60,3 +74,13 @@ apiGroup.MapIntakeEndpoints();
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+static partial class PublicIntakePaths
+{
+    [System.Text.RegularExpressions.GeneratedRegex(
+        "^/api/(streets/[^/]+|campaigns/[^/]+/(summary|orders/pending/?)|territories/[^/]+/(streets|street-sections/resolve))/?$",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase)]
+    private static partial System.Text.RegularExpressions.Regex Pattern();
+
+    public static bool IsMatch(PathString path) => Pattern().IsMatch(path.Value ?? "");
+}

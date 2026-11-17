@@ -10,6 +10,9 @@ public interface IStreetSectionQueries
 {
     Task<IReadOnlyCollection<StreetSection>> GetByTerritoryAndStreetAsync(
         TerritoryId territoryId, StreetId streetId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<StreetSection>> GetByIdsAsync(
+        IEnumerable<StreetSectionId> ids, CancellationToken cancellationToken = default);
 }
 
 public class StreetSectionQueries(TreeTerritoryContext dbContext) : IStreetSectionQueries

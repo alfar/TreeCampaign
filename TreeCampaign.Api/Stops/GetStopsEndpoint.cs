@@ -1,5 +1,6 @@
 using Common.Infrastructure.Auth;
 using TreeCampaign.Api.Helpers;
+using TreeCampaign.Application;
 using TreeCampaign.Domain.Campaigns.ValueObjects;
 using TreeCampaign.Domain.Teams.ValueObjects;
 using TreeCampaign.Infrastructure.Queries;
@@ -14,6 +15,7 @@ public class GetStopsEndpoint
         ICurrentUserAccessor currentUser,
         ICampaignQueries campaignQueries,
         IStopQueries stopQueries,
+        TeamStopsService teamStopsService,
         CancellationToken cancellationToken
     )
     {
@@ -27,6 +29,7 @@ public class GetStopsEndpoint
             return TypedResults.Ok(await stopQueries.GetStopsAsync(campaignId));
         }
 
-        return TypedResults.Ok(await stopQueries.GetStopsByTeamIdAsync(campaignId, teamId));
+        return TypedResults.Ok(
+            await teamStopsService.GetSortedStopsForTeamAsync(campaignId, teamId, cancellationToken));
     }
 }

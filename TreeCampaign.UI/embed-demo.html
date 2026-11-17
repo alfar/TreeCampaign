@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Embed demo</title>
+  </head>
+  <body>
+    <div id="tree-intake"></div>
+    <script src="./dist-embed/tree-campaign-intake.js"></script>
+    <script>
+      TreeCampaignIntake.mount(document.getElementById("tree-intake"), {
+        campaignId: "00000000-0000-0000-0000-000000000000",
+        apiBaseUrl: "https://your-treecampaign-host.example",
+      });
+    </script>
+  </body>
+</html>

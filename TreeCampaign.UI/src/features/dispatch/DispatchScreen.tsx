@@ -24,6 +24,7 @@ export default function DispatchScreen() {
 
   const {
     sortedStops,
+    allSortedStops,
     stopsByNeighborhood,
     ungroupedStops,
     teamExceedsSelection,
@@ -80,7 +81,7 @@ export default function DispatchScreen() {
           <TeamListPanel
             campaignId={campaignId}
             sortedTeams={sortedTeams}
-            stops={stops}
+            stops={allSortedStops}
             assignMode={selectedStopIds.size > 0}
             teamExceedsSelection={teamExceedsSelection}
             onTeamClick={clickTeam}

@@ -69,7 +69,7 @@ export function useDispatchDerivedState({
         .startsWith(filter.toLocaleLowerCase()),
   );
 
-  const sortedStops = filteredStops.toSorted((a, b) => {
+  const compareStops = (a: Stop, b: Stop) => {
     const sA = sectionById.get(a.address.streetSectionId);
     const sB = sectionById.get(b.address.streetSectionId);
     if (!sA && !sB) return 0;
@@ -79,7 +79,10 @@ export function useDispatchDerivedState({
     const hA = parseHouseNumber(a.address.displayName);
     const hB = parseHouseNumber(b.address.displayName);
     return sA.direction === 0 ? hA - hB : hB - hA;
-  });
+  };
+
+  const sortedStops = filteredStops.toSorted(compareStops);
+  const allSortedStops = stops.toSorted(compareStops);
 
   const stopsByNeighborhood = neighborhoods
     .toSorted((a, b) =>
@@ -147,6 +150,7 @@ export function useDispatchDerivedState({
 
   return {
     sortedStops,
+    allSortedStops,
     stopsByNeighborhood,
     ungroupedStops,
     teamExceedsSelection,
