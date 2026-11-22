@@ -2,10 +2,11 @@ import { useParams } from "react-router-dom";
 import { assignStopToTeam } from "../../shared/api/client";
 import { useState } from "react";
 import type { StopType } from "../../shared/api/models/stop";
-import type { Team } from "../../shared/api/models/team";
+import type { Team, TrailerSize } from "../../shared/api/models/team";
 import NavigationPage from "../../shared/components/NavigationPage";
 import { useDispatchData } from "./useDispatchData";
 import { useDispatchDerivedState } from "./useDispatchDerivedState";
+import { allMaxTrailerSizes } from "./StopMaxTrailerSizeFilter";
 import StopListPanel from "./StopListPanel";
 import TeamListPanel from "./TeamListPanel";
 
@@ -20,6 +21,9 @@ export default function DispatchScreen() {
   const [selectedStopTypes, setSelectedStopTypes] = useState<Set<StopType>>(
     new Set(["Unassigned"]),
   );
+  const [selectedMaxTrailerSizes, setSelectedMaxTrailerSizes] = useState<
+    Set<TrailerSize>
+  >(new Set(allMaxTrailerSizes));
   const [filter, setFilter] = useState("");
 
   const {
@@ -36,6 +40,7 @@ export default function DispatchScreen() {
     neighborhoods,
     selectedStopIds,
     selectedStopTypes,
+    selectedMaxTrailerSizes,
     filter,
   });
 
@@ -69,6 +74,8 @@ export default function DispatchScreen() {
             campaignId={campaignId}
             selectedStopTypes={selectedStopTypes}
             setSelectedStopTypes={setSelectedStopTypes}
+            selectedMaxTrailerSizes={selectedMaxTrailerSizes}
+            setSelectedMaxTrailerSizes={setSelectedMaxTrailerSizes}
             filter={filter}
             setFilter={setFilter}
             sortedStops={sortedStops}

@@ -47,6 +47,7 @@ interface UseDispatchDerivedStateArgs {
   neighborhoods: Neighborhood[];
   selectedStopIds: Set<string>;
   selectedStopTypes: Set<StopType>;
+  selectedMaxTrailerSizes: Set<TrailerSize>;
   filter: string;
 }
 
@@ -56,17 +57,25 @@ export function useDispatchDerivedState({
   neighborhoods,
   selectedStopIds,
   selectedStopTypes,
+  selectedMaxTrailerSizes,
   filter,
 }: UseDispatchDerivedStateArgs) {
   const streetSections = neighborhoods.flatMap((n) => n.streetSections);
   const sectionById = new Map(streetSections.map((s) => [s.id, s]));
 
+  const matchesMaxTrailerSize = (stop: Stop) => {
+    const size = sectionById.get(stop.address.streetSectionId)?.maxTrailerSize;
+    return size === undefined || selectedMaxTrailerSizes.has(size);
+  };
+
+  const matchesStopTypeAndSearch = (s: Stop) =>
+    selectedStopTypes.has(s.stopType as StopType) &&
+    s.address.displayName
+      .toLocaleLowerCase()
+      .startsWith(filter.toLocaleLowerCase());
+
   const filteredStops = stops.filter(
-    (s) =>
-      selectedStopTypes.has(s.stopType as StopType) &&
-      s.address.displayName
-        .toLocaleLowerCase()
-        .startsWith(filter.toLocaleLowerCase()),
+    (s) => matchesStopTypeAndSearch(s) && matchesMaxTrailerSize(s),
   );
 
   const compareStops = (a: Stop, b: Stop) => {

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import StopListPanel from "./StopListPanel";
+import { allMaxTrailerSizes } from "./StopMaxTrailerSizeFilter";
 import type { Stop } from "../../shared/api/models/stop";
 import type { Neighborhood } from "../../shared/api/models/neighborhood";
 
@@ -82,6 +83,8 @@ export const WithStops: Story = {
   args: {
     campaignId: "00000000-0000-0000-0000-000000000000",
     selectedStopTypes: new Set(["Unassigned", "Assigned"]),
+    selectedMaxTrailerSizes: new Set(allMaxTrailerSizes),
+    setSelectedMaxTrailerSizes: () => {},
     setSelectedStopTypes: () => {},
     filter: "",
     setFilter: () => {},
@@ -104,6 +107,8 @@ export const WithUngroupedStop: Story = {
   args: {
     campaignId: "00000000-0000-0000-0000-000000000000",
     selectedStopTypes: new Set(["Unresolved"]),
+    selectedMaxTrailerSizes: new Set(allMaxTrailerSizes),
+    setSelectedMaxTrailerSizes: () => {},
     setSelectedStopTypes: () => {},
     filter: "",
     setFilter: () => {},
@@ -120,6 +125,8 @@ export const Empty: Story = {
   args: {
     campaignId: "00000000-0000-0000-0000-000000000000",
     selectedStopTypes: new Set(["Unassigned"]),
+    selectedMaxTrailerSizes: new Set(allMaxTrailerSizes),
+    setSelectedMaxTrailerSizes: () => {},
     setSelectedStopTypes: () => {},
     filter: "",
     setFilter: () => {},
@@ -135,6 +142,8 @@ export const SelectionCount: Story = {
   args: {
     campaignId: "00000000-0000-0000-0000-000000000000",
     selectedStopTypes: new Set(["Unassigned", "Assigned"]),
+    selectedMaxTrailerSizes: new Set(allMaxTrailerSizes),
+    setSelectedMaxTrailerSizes: () => {},
     setSelectedStopTypes: () => {},
     filter: "",
     setFilter: () => {},

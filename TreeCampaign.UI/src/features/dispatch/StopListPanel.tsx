@@ -3,6 +3,8 @@ import type { Neighborhood } from "../../shared/api/models/neighborhood";
 import type { Stop, StopType } from "../../shared/api/models/stop";
 import NeighborhoodSection from "./NeighborhoodSection";
 import StopCard from "./StopCard";
+import type { TrailerSize } from "../../shared/api/models/team";
+import StopMaxTrailerSizeFilter from "./StopMaxTrailerSizeFilter";
 import StopTypeFilter from "./StopTypeFilter";
 import type { NeighborhoodStopCounts } from "./useDispatchDerivedState";
 
@@ -10,6 +12,8 @@ interface StopListPanelProps {
   campaignId: string;
   selectedStopTypes: Set<StopType>;
   setSelectedStopTypes: (value: Set<StopType>) => void;
+  selectedMaxTrailerSizes: Set<TrailerSize>;
+  setSelectedMaxTrailerSizes: (value: Set<TrailerSize>) => void;
   filter: string;
   setFilter: (value: string) => void;
   sortedStops: Stop[];
@@ -28,6 +32,8 @@ export default function StopListPanel({
   campaignId,
   selectedStopTypes,
   setSelectedStopTypes,
+  selectedMaxTrailerSizes,
+  setSelectedMaxTrailerSizes,
   filter,
   setFilter,
   sortedStops,
@@ -52,7 +58,7 @@ export default function StopListPanel({
           </>
         )}
       </div>
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex gap-4 flex-wrap items-center">
         <div className="flex border rounded-sm p-2 border-gray-200 w-6/12 items-center">
           <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
           <input
@@ -66,6 +72,10 @@ export default function StopListPanel({
         <StopTypeFilter
           selectedStopTypes={selectedStopTypes}
           setSelectedStopTypes={setSelectedStopTypes}
+        />
+        <StopMaxTrailerSizeFilter
+          selectedSizes={selectedMaxTrailerSizes}
+          setSelectedSizes={setSelectedMaxTrailerSizes}
         />
       </div>
       {stopsByNeighborhood.map(({ neighborhood, stops: nStops, counts }) => (
