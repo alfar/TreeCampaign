@@ -3,6 +3,7 @@ import TeamScreen from "../features/teams/TeamScreen";
 import TeamStopsTab from "../features/teams/TeamStopsTab";
 import TeamMapTab from "../features/teams/TeamMapTab";
 import TeamInfoTab from "../features/teams/TeamInfoTab";
+import TeamFaqTab from "../features/teams/TeamFaqTab";
 import DispatchScreen from "../features/dispatch/DispatchScreen";
 import OverviewMapScreen from "../features/overview-map/OverviewMapScreen";
 import CampaignListScreen from "../features/campaigns/CampaignListScreen";
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
       { path: "stops", element: <TeamStopsTab /> },
       { path: "map", element: <TeamMapTab /> },
       { path: "info", element: <TeamInfoTab /> },
+      { path: "faq", element: <TeamFaqTab /> },
     ],
   },
   {

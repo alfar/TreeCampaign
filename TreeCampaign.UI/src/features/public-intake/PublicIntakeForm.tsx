@@ -135,6 +135,7 @@ export default function PublicIntakeForm({
   const [territoryId, setTerritoryId] = useState<string | null>(null);
   const [streets, setStreets] = useState<Street[]>([]);
   const [streetName, setStreetName] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [isStreetSelected, setIsStreetSelected] = useState(false);
   const [houseNumber, setHouseNumber] = useState("");
   const [isLoadingTerritory, setIsLoadingTerritory] = useState(true);
@@ -159,9 +160,10 @@ export default function PublicIntakeForm({
     () =>
       streets.find(
         (street) =>
-          street.name.toLowerCase() === streetName.trim().toLowerCase(),
+          street.name.toLowerCase() === streetName.trim().toLowerCase() &&
+          street.zipCode === zipCode.trim(),
       ) ?? null,
-    [streetName, streets],
+    [streetName, zipCode, streets],
   );
   const selectedStreetId = selectedStreet?.id ?? "";
   const defaultZipCode = streets[0]?.zipCode ?? "8600";
@@ -234,6 +236,7 @@ export default function PublicIntakeForm({
 
   const handleAddressChange = useCallback((address: Address) => {
     setStreetName(address.streetName);
+    setZipCode(address.zipCode);
     setIsStreetSelected(address.isStreetSelected);
     setHouseNumber(address.houseNumber);
   }, []);
@@ -244,7 +247,7 @@ export default function PublicIntakeForm({
     setOrderResult(null);
     setPaymentCode(null);
     setSubmittedKey(null);
-  }, [selectedStreetId, houseNumber]);
+  }, [selectedStreetId, zipCode, houseNumber]);
 
   const goToStep = (target: Step) => {
     setValidationError(null);

@@ -146,6 +146,11 @@ public class CsvStreetSectionParser : ICsvStreetSectionParser
             case "stor":
                 trailerSize = TrailerSize.Large;
                 return true;
+            case "løber":
+            case "loeber":
+            case "runner":
+                trailerSize = TrailerSize.Runner;
+                return true;
             default:
                 trailerSize = default;
                 return false;

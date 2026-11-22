@@ -146,7 +146,7 @@ export function AddressPicker({
     let cancelled = false;
     getStreetsByZipCode(zipCode).then((streets) => {
       if (cancelled) return;
-      const match = streets.find((s) => s.name.toLowerCase() === selectedStreetName.toLowerCase());
+      const match = streets.find((s) => s.name.toLowerCase() === selectedStreetName.toLowerCase() && s.zipCode === zipCode);
       setResolvedStreet(match ?? null);
     });
 

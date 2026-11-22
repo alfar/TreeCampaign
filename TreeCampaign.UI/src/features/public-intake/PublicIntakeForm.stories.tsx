@@ -159,3 +159,27 @@ export const OrderCreationFails: Story = {
 export const NoTerritory: Story = {
   parameters: { msw: { handlers: handlers({ territoryId: null }) } },
 };
+
+/**
+ * Regression: "Vestergade" exists in the territory (8600), but the customer enters another zip code.
+ * The street must not match, so the order can't be placed in a different town.
+ */
+export const SameStreetNameWrongZip: Story = {
+  parameters: { msw: { handlers: handlers() } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.queryByText("Henter område…")).toBeNull());
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    await waitFor(() => expect(canvas.queryByText("Henter gader…")).toBeNull(), { timeout: 3000 });
+
+    const zip = await canvas.findByDisplayValue("8600");
+    await userEvent.clear(zip);
+    await userEvent.type(zip, "8000");
+    await userEvent.type(canvas.getByPlaceholderText("Søg gade..."), "Vester");
+    await userEvent.click(await canvas.findByText("Vestergade", {}, { timeout: 3000 }));
+    await userEvent.type(canvas.getByPlaceholderText("12A"), "12");
+
+    await canvas.findByText("Vi henter desværre ikke juletræer på denne vej.");
+    await expect(canvas.getByRole("button", { name: "Check adresse" })).toBeDisabled();
+  },
+};

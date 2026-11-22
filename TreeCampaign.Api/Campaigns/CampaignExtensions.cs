@@ -15,10 +15,12 @@ public static class CampaignExtensions
 
         group.MapPut("/{campaignId:guid}", UpdateCampaignEndpoint.Handle);
 
-        // Unauthenticated: the team detail route needs this to show the pickup form for scouts in the field who aren't logged in.
-        app.MapGroup("/campaigns")
-            .WithTags("Campaigns")
-            .MapGet("/{campaignId:guid}/summary", GetCampaignSummaryEndpoint.Handle);
+        // Unauthenticated: the team detail route needs these for scouts in the field who aren't logged in.
+        var publicGroup = app.MapGroup("/campaigns").WithTags("Campaigns");
+        // Pickup form.
+        publicGroup.MapGet("/{campaignId:guid}/summary", GetCampaignSummaryEndpoint.Handle);
+        // Progress pie on the team info tab (aggregate counts only).
+        publicGroup.MapGet("/{campaignId:guid}/progress", GetCampaignProgressEndpoint.Handle);
 
         return app;
     }

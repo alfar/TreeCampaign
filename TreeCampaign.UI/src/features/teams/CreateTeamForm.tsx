@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createTeam } from "../../shared/api/client";
-import { trailerSizeLabels, type Team, type TeamKind, type TrailerSize } from "../../shared/api/models/team";
+import { teamTrailerSizes, trailerSizeLabels, type Team, type TeamKind, type TrailerSize } from "../../shared/api/models/team";
 
 interface CreateTeamFormProps {
   campaignId: string;
@@ -71,7 +71,7 @@ export default function CreateTeamForm({ campaignId, onCreated, onCancel }: Crea
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1">Trailerstørrelse</label>
           <div className="flex gap-2">
-            {(Object.keys(trailerSizeLabels) as TrailerSize[]).map((size) => (
+            {teamTrailerSizes.map((size) => (
               <button
                 key={size}
                 type="button"

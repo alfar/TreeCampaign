@@ -18,6 +18,19 @@ public class TeamQueries(ProjectionContext context) : ITeamQueries
             .ToListAsync();
     }
 
+    async Task<int> ITeamQueries.GetTotalExtraTreesAsync(
+        CampaignId campaignId,
+        CancellationToken cancellationToken
+    )
+    {
+        var totals = await context
+            .Teams.Where(t => EF.Property<CampaignId>(t, "CampaignId") == campaignId)
+            .Select(t => t.TotalExtraTrees)
+            .ToListAsync(cancellationToken);
+
+        return totals.Sum(t => t.Value);
+    }
+
     async Task<ProjectionContext.TeamProjection?> ITeamQueries.GetTeamAsync(
         TeamId teamId,
         CancellationToken cancellationToken

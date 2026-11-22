@@ -55,6 +55,9 @@ export default function TeamScreen() {
           <NavLink to={`${base}/info`} className={navLink}>
             Info
           </NavLink>
+          <NavLink to={`${base}/faq`} className={navLink}>
+            FAQ
+          </NavLink>
           <button
             type="button"
             onClick={handleRefresh}

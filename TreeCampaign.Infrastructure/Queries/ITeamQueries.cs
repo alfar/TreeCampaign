@@ -9,6 +9,8 @@ public interface ITeamQueries
         CancellationToken cancellationToken
     );
 
+    Task<int> GetTotalExtraTreesAsync(CampaignId campaignId, CancellationToken cancellationToken);
+
     Task<ProjectionContext.TeamProjection?> GetTeamAsync(
         TeamId teamId,
         CancellationToken cancellationToken

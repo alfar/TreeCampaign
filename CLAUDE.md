@@ -40,7 +40,7 @@ Manages campaign seasons, stop assignment, and team dispatch. Receives validated
 
 **Campaign** carries a `TerritoryRef` (local value object wrapping a Guid, defined in `TreeCampaign.Domain/Campaigns/ExternalReferences/`) to scope address validation to the right territory. This is a correlation ID — Campaign has no compile-time dependency on the Territory domain. It also carries a `ScoutGroupRef` (same pattern) for tenant ownership — see Access above.
 
-**Trailer size**: each `Team` has a trailer capacity, and each `StreetSection` (Territory) declares a `MaxTrailerSize` — the largest trailer that can physically access that section. `TrailerSize` is a shared enum (`Small` | `Large` | `Boogie`, defined in `TreeTerritory.Domain/StreetSections/TrailerSize.cs`) surfaced to TreeCampaign only as data on the read-model projection, not a cross-context type reference. `ClearTrailerFullEndpoint` (Teams) lets the dispatcher clear a team's "trailer full" flag once it's emptied.
+**Trailer size**: each `Team` has a trailer capacity, and each `StreetSection` (Territory) declares a `MaxTrailerSize` — the largest trailer that can physically access that section (`Runner` = no trailer at all; a walking team gathers on foot). `TrailerSize` is a shared enum (`Small` | `Large` | `Boogie` | `Runner`, defined in `TreeTerritory.Domain/StreetSections/TrailerSize.cs`) surfaced to TreeCampaign only as data on the read-model projection, not a cross-context type reference. `ClearTrailerFullEndpoint` (Teams) lets the dispatcher clear a team's "trailer full" flag once it's emptied.
 
 ### Territory (supporting subdomain) — implemented
 
@@ -57,7 +57,7 @@ Territory (aggregate root)
               ├─ OddStartHouseNumber / OddEndHouseNumber     ← range for odd house numbers, independently nullable
               ├─ Direction (enum: Ascending | Descending)   ← direction of travel within the section
               ├─ SortOrder (int)        ← position in the neighborhood's route
-              └─ MaxTrailerSize (enum: Small | Large | Boogie) ← largest trailer that fits this section
+              └─ MaxTrailerSize (enum: Small | Large | Boogie | Runner) ← largest trailer that fits this section
 
 Street (separate aggregate — a street can span multiple neighborhoods)
   ├─ Name

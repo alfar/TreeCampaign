@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { trailerSizeLabels, type Team, type TrailerSize } from "../../shared/api/models/team";
+import { teamTrailerSizes, trailerSizeLabels, type Team, type TrailerSize } from "../../shared/api/models/team";
 
 interface UpdateTeamFormProps {
   team: Team;
@@ -34,7 +34,7 @@ export default function UpdateTeamForm({ team, onUpdate }: UpdateTeamFormProps) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 border rounded bg-gray-50">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 border rounded">
       <h2 className="text-base font-semibold">Rediger hold</h2>
       <div>
         <label className="text-sm font-medium text-gray-700 block mb-1">Navn</label>
@@ -52,7 +52,7 @@ export default function UpdateTeamForm({ team, onUpdate }: UpdateTeamFormProps) 
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1">Trailerstørrelse</label>
           <div className="flex gap-2">
-            {(Object.keys(trailerSizeLabels) as TrailerSize[]).map((size) => (
+            {teamTrailerSizes.map((size) => (
               <button
                 key={size}
                 type="button"

@@ -241,6 +241,20 @@ export async function getCampaignSummary(campaignId: string): Promise<CampaignSu
   return fetchJson(`/api/campaigns/${campaignId}/summary`);
 }
 
+export interface CampaignProgress {
+  unassigned: number;
+  assigned: number;
+  unresolved: number;
+  collected: number;
+  extra: number;
+  total: number;
+}
+
+// Unauthenticated: aggregate tree counts only, used by the team info tab.
+export async function getCampaignProgress(campaignId: string): Promise<CampaignProgress> {
+  return fetchJson(`/api/campaigns/${campaignId}/progress`);
+}
+
 export async function getTerritoryStreets(territoryId: string): Promise<Street[]> {
   return fetchJson<Street[]>(`/api/territories/${territoryId}/streets`);
 }

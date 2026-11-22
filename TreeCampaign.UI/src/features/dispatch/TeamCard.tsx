@@ -79,6 +79,7 @@ export default function TeamCard({
     Small: Bars2Icon,
     Large: Bars3Icon,
     Boogie: Bars4Icon,
+    Runner: UsersIcon,
   };
   const TeamKindIcon =
     team.kind === "Trailer" && team.trailerSize

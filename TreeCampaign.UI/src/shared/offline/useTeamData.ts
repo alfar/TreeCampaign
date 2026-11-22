@@ -5,6 +5,7 @@ import {
   collectStop,
   correctStop,
   deliverLoad,
+  getCampaignProgress,
   getStopsForTeam,
   getTeam,
   markStopUnresolved,
@@ -17,6 +18,7 @@ import {
 // treated as a connectivity failure — only a fetch-level TypeError means "offline."
 import type { Stop } from "../api/models/stop";
 import type { Team, TrailerSize } from "../api/models/team";
+import type { CampaignProgress } from "../api/client";
 import {
   loadTeamStopsState,
   saveTeamStopsState,
@@ -106,6 +108,9 @@ export function useTeamData(campaignId: string, teamId: string) {
   const [team, setTeam] = useState<Team | null>(initial.lastKnownTeam);
   const [queue, setQueue] = useState<QueuedAction[]>(initial.queue);
   const [isOffline, setIsOffline] = useState(false);
+  // Campaign-wide counts for the info tab's pie. Not persisted or queued: it's read-only
+  // and purely informational, so it simply keeps its last value when a poll can't fetch it.
+  const [progress, setProgress] = useState<CampaignProgress | null>(null);
   const draining = useRef(false);
 
   const stopsRef = useRef(stops);
@@ -207,11 +212,14 @@ export function useTeamData(campaignId: string, teamId: string) {
 
   const poll = useCallback(async () => {
     try {
-      const [serverStops, serverTeam] = await Promise.all([
+      const [serverStops, serverTeam, serverProgress] = await Promise.all([
         getStopsForTeam(campaignId, teamId),
         getTeam(campaignId, teamId),
+        // Fail-soft: a progress error must not fail the stops/team poll or flag us offline.
+        getCampaignProgress(campaignId).catch(() => null),
       ]);
       setIsOffline(false);
+      if (serverProgress) setProgress(serverProgress);
 
       const stillPending = pendingStopIds();
       const mergedStops = serverStops.map((serverStop) =>
@@ -453,6 +461,7 @@ export function useTeamData(campaignId: string, teamId: string) {
   return {
     stops,
     team,
+    progress,
     isOffline,
     pendingCount: queue.length,
     queueAction,
