@@ -26,6 +26,7 @@ interface StopListPanelProps {
   getTeamName: (teamId: string | undefined) => string | undefined;
   selectedStopIds: Set<string>;
   toggleStop: (stopId: string) => void;
+  onSelectStops: (stopIds: string[]) => void;
 }
 
 export default function StopListPanel({
@@ -42,6 +43,7 @@ export default function StopListPanel({
   getTeamName,
   selectedStopIds,
   toggleStop,
+  onSelectStops,
 }: StopListPanelProps) {
   return (
     <div className="w-8/12 flex flex-col gap-2 border border-gray-300 rounded-lg p-4">
@@ -88,6 +90,7 @@ export default function StopListPanel({
           campaignId={campaignId}
           selectedStopIds={selectedStopIds}
           toggleStop={toggleStop}
+          onSelectStops={onSelectStops}
         />
       ))}
       {ungroupedStops.map((stop) => (

@@ -25,6 +25,7 @@ export const Empty: Story = {
     stops: [],
     counts: { unassigned: 0, pending: 0, unresolved: 0, collected: 0, total: 0 },
     toggleStop: (_: string) => {},
+    onSelectStops: () => {},
     getTeamName,
   },
 };
@@ -63,6 +64,7 @@ export const TwoStops: Story = {
     ],
     counts: { unassigned: 0, pending: 0, unresolved: 0, collected: 0, total: 0 },
     toggleStop: (_: string) => {},
+    onSelectStops: () => {},
     getTeamName,
   },
 };

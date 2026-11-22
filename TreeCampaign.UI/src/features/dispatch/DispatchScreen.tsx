@@ -84,6 +84,7 @@ export default function DispatchScreen() {
             getTeamName={getTeamName}
             selectedStopIds={selectedStopIds}
             toggleStop={toggleStop}
+            onSelectStops={(ids) => setSelectedStopIds(new Set(ids))}
           />
           <TeamListPanel
             campaignId={campaignId}

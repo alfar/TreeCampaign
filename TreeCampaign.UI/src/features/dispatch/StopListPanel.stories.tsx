@@ -100,6 +100,7 @@ export const WithStops: Story = {
     getTeamName,
     selectedStopIds: new Set<string>(),
     toggleStop: () => {},
+    onSelectStops: () => {},
   },
 };
 
@@ -118,6 +119,7 @@ export const WithUngroupedStop: Story = {
     getTeamName,
     selectedStopIds: new Set<string>(),
     toggleStop: () => {},
+    onSelectStops: () => {},
   },
 };
 
@@ -136,6 +138,7 @@ export const Empty: Story = {
     getTeamName,
     selectedStopIds: new Set<string>(),
     toggleStop: () => {},
+    onSelectStops: () => {},
   },
 };
 export const SelectionCount: Story = {
@@ -159,6 +162,7 @@ export const SelectionCount: Story = {
     getTeamName,
     selectedStopIds: new Set<string>(["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002"]),
     toggleStop: () => {},
+    onSelectStops: () => {},
   },
 };
 
