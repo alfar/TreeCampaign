@@ -12,6 +12,11 @@ export default function TeamFaqTab() {
 
   const faq = [
     {
+      question: "Hvordan får jeg hjælp med appen eller min rute?",
+      answer:
+        <>Ring til dispatch på <a href="tel:+4553674848" className="text-blue-500 font-bold text-lg">53 67 48 48</a></>,
+    },
+    {
       question: "Hvad gør jeg, hvis jeg modtager kontanter?",
       answer:
         "Tæl pengene op, overfør det samlede beløb via MobilePay (brug QR-koden her på siden), og tag kontanterne med hjem.",
@@ -24,7 +29,7 @@ export default function TeamFaqTab() {
     {
       question: "Hvad koster det at få hentet et træ?",
       answer: `Prisen er ${pricePerTree} kr per træ.`,
-    },
+    },    
   ];
 
   const progressParts = progress && [
