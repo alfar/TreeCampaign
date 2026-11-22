@@ -25,6 +25,9 @@ public abstract class OrderBase : IHasDomainEvents
 
     public required Sender Sender { get; init; }
 
+    /// <summary>Optional. Only set when the customer consented to being contacted; clear it to retract consent.</summary>
+    public string? Email { get; init; }
+
     public required MoneyAmount Amount { get; init; }
 
     public required DateTimeOffset OrderDate { get; init; }

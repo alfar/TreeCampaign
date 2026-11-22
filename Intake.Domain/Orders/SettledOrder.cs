@@ -18,6 +18,7 @@ public class SettledOrder : OrderBase
             Id = transferredOrder.Id,
             CampaignId = transferredOrder.CampaignId,
             Sender = transferredOrder.Sender,
+            Email = transferredOrder.Email,
             Amount = transferredOrder.Amount,
             OrderDate = transferredOrder.OrderDate,
             Message = transferredOrder.Message,

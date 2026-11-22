@@ -67,6 +67,10 @@ namespace Intake.Infrastructure.Migrations
                     b.Property<Guid>("CampaignId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -139,6 +143,34 @@ namespace Intake.Infrastructure.Migrations
                         .HasColumnName("StreetId");
 
                     b.HasDiscriminator().HasValue("OutOfBounds");
+                });
+
+            modelBuilder.Entity("Intake.Domain.Orders.PendingOrder", b =>
+                {
+                    b.HasBaseType("Intake.Domain.Orders.OrderBase");
+
+                    b.Property<string>("HouseNumber")
+                        .IsRequired()
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("HouseNumber");
+
+                    b.Property<Guid>("NeighborhoodId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("NeighborhoodId");
+
+                    b.Property<Guid>("StreetId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("StreetId");
+
+                    b.Property<Guid>("StreetSectionId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("StreetSectionId");
+
+                    b.HasDiscriminator().HasValue("Pending");
                 });
 
             modelBuilder.Entity("Intake.Domain.Orders.RefundedOrder", b =>

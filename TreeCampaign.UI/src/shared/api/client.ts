@@ -280,6 +280,8 @@ export async function createPendingOrder(
     streetSectionId: string;
     neighborhoodId: string;
     houseNumber: string;
+    email?: string | null;
+    emailConsent?: boolean;
   },
 ): Promise<PendingOrderResult> {
   return fetchJson<PendingOrderResult>(`/api/campaigns/${campaignId}/orders/pending`, {

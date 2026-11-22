@@ -11,6 +11,7 @@ public class DonatedOrder : OrderBase
             Id = unwashableOrder.Id,
             CampaignId = unwashableOrder.CampaignId,
             Sender = unwashableOrder.Sender,
+            Email = unwashableOrder.Email,
             Amount = unwashableOrder.Amount,
             OrderDate = unwashableOrder.OrderDate,
             Message = unwashableOrder.Message,

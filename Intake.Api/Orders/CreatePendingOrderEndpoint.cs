@@ -16,7 +16,9 @@ internal class CreatePendingOrderEndpoint
         StreetRef StreetId,
         StreetSectionRef StreetSectionId,
         NeighborhoodRef NeighborhoodId,
-        string HouseNumber);
+        string HouseNumber,
+        string? Email = null,
+        bool EmailConsent = false);
 
     public record PendingOrderCreatedResponse(
         OrderId Id,
@@ -30,6 +32,11 @@ internal class CreatePendingOrderEndpoint
         CreatePendingOrderRequest request,
         CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(request.Email) && !request.EmailConsent)
+        {
+            return Results.BadRequest("Email requires consent.");
+        }
+
         var order = PendingOrder.Create(
             campaignId,
             new Sender(request.SenderName ?? "Anonym", request.SenderPhoneNumber),
@@ -37,7 +44,8 @@ internal class CreatePendingOrderEndpoint
             request.StreetId,
             request.StreetSectionId,
             request.NeighborhoodId,
-            HouseNumber.Parse(request.HouseNumber));
+            HouseNumber.Parse(request.HouseNumber),
+            request.Email);
 
         unitOfWork.GetRepository<PendingOrder, OrderId>().Add(order);
         await unitOfWork.SaveChangesAsync(cancellationToken);

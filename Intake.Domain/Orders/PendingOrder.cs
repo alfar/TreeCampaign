@@ -19,7 +19,8 @@ public class PendingOrder : OrderBase
         StreetRef streetId,
         StreetSectionRef streetSectionId,
         NeighborhoodRef neighborhoodId,
-        HouseNumber houseNumber)
+        HouseNumber houseNumber,
+        string? email = null)
     {
         var orderId = OrderId.From(Guid.NewGuid());
         var paymentCode = GeneratePaymentCode(orderId);
@@ -29,6 +30,7 @@ public class PendingOrder : OrderBase
             Id = orderId,
             CampaignId = campaignId,
             Sender = sender,
+            Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
             Amount = amount,
             OrderDate = DateTimeOffset.UtcNow,
             Message = paymentCode,

@@ -32,6 +32,7 @@ internal static class OrderConfiguration
             s.Property(p => p.Name).HasColumnName("SenderName");
             s.Property(p => p.PhoneNumber).HasColumnName("SenderPhoneNumber");
         });
+        orderBase.Property(o => o.Email).HasMaxLength(320);
         orderBase.Property(o => o.Amount).HasConversion(new MoneyAmountValueConverter());
         orderBase.Property(o => o.TransactionId).HasConversion(new TransactionIdValueConverter());
         orderBase.HasIndex(o => o.TransactionId).IsUnique().HasFilter("TransactionId IS NOT NULL");

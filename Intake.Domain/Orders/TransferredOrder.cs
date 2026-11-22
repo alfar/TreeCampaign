@@ -21,6 +21,7 @@ public class TransferredOrder : OrderBase
             Id = outOfBoundsOrder.Id,
             CampaignId = outOfBoundsOrder.CampaignId,
             Sender = outOfBoundsOrder.Sender,
+            Email = outOfBoundsOrder.Email,
             Amount = outOfBoundsOrder.Amount,
             OrderDate = outOfBoundsOrder.OrderDate,
             Message = outOfBoundsOrder.Message,

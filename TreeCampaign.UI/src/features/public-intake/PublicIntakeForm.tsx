@@ -125,6 +125,56 @@ function SummaryBlock({
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-3 py-2 text-base";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const EMAIL_CONSENT_TEXT =
+  "Ja tak, 1. Silkeborg Spejdergruppe må gerne sende mig en takke-mail i januar og 1-2 påmindelser om indhentning af juletræer næste år.";
+
+const PRIVACY_TEXT =
+  "Vi bruger dit navn, adresse og  telefonnummer til at planlægge og gennemføre afhentningen af dit juletræ. Oplysningerne slettes efter indsamlingen. Hvis du har indtastet din e-mail sender vi dig en kort mail i januar og 1-2 mails næste gang vi samler ind. Du framelder dig påmindelser ved at skrive til os på gruppeleder@1silkeborg.dk.";
+
+function PrivacyDialog({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  // Rendered inside the form card (no portal) so it keeps the widget's scoped styles.
+  return (
+    <div
+      className="absolute inset-0 z-50 flex items-start justify-center rounded-2xl bg-black/60 p-4 pt-24"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="privacy-dialog-title"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2
+          id="privacy-dialog-title"
+          className="text-xl font-bold text-gray-900"
+        >
+          Behandling af dine oplysninger
+        </h2>
+        <p className="mt-3 text-base text-gray-700">{PRIVACY_TEXT}</p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-6 w-full rounded-lg bg-blue-700 px-4 py-3 text-base font-medium text-white"
+        >
+          Luk
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function PublicIntakeForm({
   campaignId,
 }: {
@@ -149,6 +199,9 @@ export default function PublicIntakeForm({
   const [pricePerTree, setPricePerTree] = useState(DEFAULT_PRICE_PER_TREE);
   const [senderName, setSenderName] = useState("");
   const [senderPhoneNumber, setSenderPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailConsent, setEmailConsent] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderResult, setOrderResult] = useState<PendingOrderResult | null>(
     null,
@@ -284,11 +337,19 @@ export default function PublicIntakeForm({
     }
   };
 
-  const orderKey = `${treeCount}|${senderName.trim()}|${senderPhoneNumber.trim()}`;
+  const trimmedEmail = email.trim();
+  // The email is only used when the consent box is ticked; unticking discards it.
+  const emailInvalid = emailConsent && !EMAIL_PATTERN.test(trimmedEmail);
+  const orderKey = `${treeCount}|${senderName.trim()}|${senderPhoneNumber.trim()}|${emailConsent ? trimmedEmail : ""}`;
 
   const handleSubmitOrder = async () => {
     if (!resolvedAddress) {
       setValidationError("Check først adressen før du fortsætter.");
+      return;
+    }
+
+    if (emailInvalid) {
+      setValidationError("Indtast en gyldig e-mailadresse.");
       return;
     }
 
@@ -310,6 +371,8 @@ export default function PublicIntakeForm({
         streetSectionId: resolvedAddress.streetSectionId,
         neighborhoodId: resolvedAddress.neighborhoodId,
         houseNumber: resolvedAddress.houseNumber,
+        email: emailConsent ? trimmedEmail : null,
+        emailConsent,
       });
 
       setOrderResult(created);
@@ -335,6 +398,8 @@ export default function PublicIntakeForm({
     setTreeCount(1);
     setSenderName("");
     setSenderPhoneNumber("");
+    setEmail("");
+    setEmailConsent(false);
     addressPickerRef.current?.reset();
   };
 
@@ -355,7 +420,7 @@ export default function PublicIntakeForm({
   );
 
   return (
-    <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className="relative mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white shadow-sm">
       <h1 className="flex items-center justify-center rounded-t-2xl bg-blue-800 text-xl font-bold text-white sm:text-3xl">
         <img
           src={apiUrl("/logo.png")}
@@ -504,6 +569,41 @@ export default function PublicIntakeForm({
                       placeholder="12345678"
                     />
                   </div>
+
+                  <div className="mt-2">
+                    <label className="flex items-start gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={emailConsent}
+                        onChange={(event) => {
+                          setEmailConsent(event.target.checked);
+                          if (!event.target.checked) setEmail("");
+                        }}
+                        className="mt-1 h-4 w-4 shrink-0"
+                      />
+                      <span>{EMAIL_CONSENT_TEXT}</span>
+                    </label>
+                    {emailConsent && (
+                      <div className="mt-2">
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          E-mail
+                        </label>
+                        <input
+                          type="email"
+                          autoComplete="email"
+                          value={email}
+                          onChange={(event) => setEmail(event.target.value)}
+                          className={inputClass}
+                          placeholder="anna@eksempel.dk"
+                        />
+                        {emailInvalid && trimmedEmail.length > 0 && (
+                          <p className="mt-1 text-sm text-red-600">
+                            E-mailadressen er ikke gyldig.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row">
@@ -511,7 +611,7 @@ export default function PublicIntakeForm({
                   <button
                     type="button"
                     onClick={handleSubmitOrder}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || emailInvalid}
                     className="w-full rounded-lg bg-green-700 px-4 py-3 text-base font-medium text-white disabled:cursor-not-allowed disabled:bg-green-300 sm:w-auto"
                   >
                     {isSubmitting ? "Opretter bestilling…" : "Opret bestilling"}
@@ -585,7 +685,18 @@ export default function PublicIntakeForm({
             )}
           </div>
         )}
+
+        <p className="mt-6 text-center text-sm">
+          <button
+            type="button"
+            onClick={() => setShowPrivacy(true)}
+            className="text-blue-700 underline"
+          >
+            Behandling af dine oplysninger
+          </button>
+        </p>
       </div>
+      {showPrivacy && <PrivacyDialog onClose={() => setShowPrivacy(false)} />}
     </div>
   );
 }
