@@ -15,9 +15,17 @@ import {
   UsersIcon,
   PauseIcon,
   PlayIcon,
+  ArrowUturnLeftIcon,
 } from "@heroicons/react/24/outline";
-import { clearTrailerFull, returnFromBreak, sendTeamOnBreak } from "../../shared/api/client";
+import {
+  clearTrailerFull,
+  reopenStop,
+  returnFromBreak,
+  sendTeamOnBreak,
+  unassignStop,
+} from "../../shared/api/client";
 import Button from "../../components/Button";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 interface TeamCardProps {
   campaignId: string;
@@ -41,6 +49,7 @@ export default function TeamCard({
   onUpdateTeam,
 }: TeamCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [confirmingRelease, setConfirmingRelease] = useState(false);
   const counts = stops.reduce(
     (acc, stop) => {
       acc.total += stop.amount;
@@ -111,6 +120,20 @@ export default function TeamCard({
     );
   };
 
+  const remainingStops = stops.filter(
+    (s) => s.stopType === "Assigned" || s.stopType === "Unresolved",
+  );
+  const remainingTrees = counts.assigned + counts.unresolved;
+
+  const releaseRemainingStops = () => {
+    setConfirmingRelease(false);
+    remainingStops.forEach((stop) => {
+      const release =
+        stop.stopType === "Assigned" ? unassignStop : reopenStop;
+      release(campaignId, stop.id).then((updated) => onUpdateStop?.(updated));
+    });
+  };
+
   const handleClearTrailerFull = (e: React.MouseEvent) => {
     e.stopPropagation();
     clearTrailerFull(campaignId, team.id).then((updated) =>
@@ -133,6 +156,18 @@ export default function TeamCard({
       }
       onClick={() => !blocked && onClick(team)}
     >
+      {/* The dialog is portalled, but React events still bubble to the card. */}
+      <div onClick={(e) => e.stopPropagation()}>
+        <ConfirmDialog
+          open={confirmingRelease}
+          title="Frigiv resterende stop?"
+          message={`${remainingStops.length} stop (${remainingTrees} træer) fjernes fra ${team.name} og bliver ledige igen.`}
+          confirmLabel="Frigiv"
+          confirmClassName="bg-orange-500 hover:bg-orange-600"
+          onCancel={() => setConfirmingRelease(false)}
+          onConfirm={releaseRemainingStops}
+        />
+      </div>
       <h2 className="text-lg font-semibold flex justify-between gap-2 flex-wrap">
         <span className="flex items-center gap-2">
           <TeamKindIcon className="w-5 h-5 text-gray-500 shrink-0" />
@@ -163,6 +198,19 @@ export default function TeamCard({
           )}
         </span>
         <span className="flex items-center gap-2">
+          {remainingStops.length > 0 && (
+            <Button
+              variant="secondary"
+              title="Frigiv resterende stop"
+              onClick={(e) => {
+                e.stopPropagation();
+                setConfirmingRelease(true);
+              }}
+            >
+              <ArrowUturnLeftIcon className="w-5 h-5" />
+              Frigiv rest
+            </Button>
+          )}
           {team.kind === "Trailer" && team.isTrailerFull && (
             <Button
               variant="secondary"
