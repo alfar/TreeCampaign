@@ -83,6 +83,9 @@ export default function DispatchScreen() {
             ungroupedStops={ungroupedStops}
             getTeamName={getTeamName}
             selectedStopIds={selectedStopIds}
+            selectedTreeCount={stops
+              .filter((stop) => selectedStopIds.has(stop.id))
+              .reduce((sum, stop) => sum + stop.amount, 0)}
             toggleStop={toggleStop}
             onSelectStops={(ids) => setSelectedStopIds(new Set(ids))}
           />

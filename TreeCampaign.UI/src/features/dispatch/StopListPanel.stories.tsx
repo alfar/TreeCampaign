@@ -101,6 +101,7 @@ export const WithStops: Story = {
     selectedStopIds: new Set<string>(),
     toggleStop: () => {},
     onSelectStops: () => {},
+    selectedTreeCount: 0,
   },
 };
 
@@ -120,6 +121,7 @@ export const WithUngroupedStop: Story = {
     selectedStopIds: new Set<string>(),
     toggleStop: () => {},
     onSelectStops: () => {},
+    selectedTreeCount: 0,
   },
 };
 
@@ -139,6 +141,7 @@ export const Empty: Story = {
     selectedStopIds: new Set<string>(),
     toggleStop: () => {},
     onSelectStops: () => {},
+    selectedTreeCount: 0,
   },
 };
 export const SelectionCount: Story = {
@@ -163,6 +166,7 @@ export const SelectionCount: Story = {
     selectedStopIds: new Set<string>(["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002"]),
     toggleStop: () => {},
     onSelectStops: () => {},
+    selectedTreeCount: 0,
   },
 };
 
