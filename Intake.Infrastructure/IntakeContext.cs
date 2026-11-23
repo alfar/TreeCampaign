@@ -136,7 +136,7 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
             .OfType<PendingOrder>()
             .FirstOrDefaultAsync(o => o.CampaignId == campaignId && o.Message == paymentCode, cancellationToken);
 
-    async Task<PendingOrder?> IRepository<PendingOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken cancellationToken = default) =>
+    async Task<PendingOrder?> IRepository<PendingOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken cancellationToken) =>
         await Orders.OfType<PendingOrder>().FirstOrDefaultAsync(o => o.Id == key, cancellationToken);
   
     public void Add(PendingOrder aggregate) => PendingOrders.Add(aggregate);
