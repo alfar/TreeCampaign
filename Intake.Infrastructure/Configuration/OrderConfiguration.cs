@@ -23,7 +23,8 @@ internal static class OrderConfiguration
             .HasValue<SettledOrder>("Settled")
             .HasValue<UnwashableOrder>("Unwashable")
             .HasValue<RefundedOrder>("Refunded")
-            .HasValue<DonatedOrder>("Donated");
+            .HasValue<DonatedOrder>("Donated")
+            .HasValue<DeletedOrder>("Deleted");
 
         orderBase.Property(o => o.Id).HasConversion(new OrderIdValueConverter());
         orderBase.Property(o => o.CampaignId).HasConversion(new CampaignRefValueConverter());
@@ -103,6 +104,26 @@ internal static class OrderConfiguration
             .HasConversion(new NeighborhoodRefValueConverter());
 
         modelBuilder.Entity<PendingOrder>()
+            .Property(o => o.HouseNumber)
+            .HasColumnName("HouseNumber")
+            .HasConversion(new HouseNumberValueConverter());
+
+        modelBuilder.Entity<DeletedOrder>()
+            .Property(o => o.StreetId)
+            .HasColumnName("StreetId")
+            .HasConversion(new StreetRefValueConverter());
+
+        modelBuilder.Entity<DeletedOrder>()
+            .Property(o => o.StreetSectionId)
+            .HasColumnName("StreetSectionId")
+            .HasConversion(new StreetSectionRefValueConverter());
+
+        modelBuilder.Entity<DeletedOrder>()
+            .Property(o => o.NeighborhoodId)
+            .HasColumnName("NeighborhoodId")
+            .HasConversion(new NeighborhoodRefValueConverter());
+
+        modelBuilder.Entity<DeletedOrder>()
             .Property(o => o.HouseNumber)
             .HasColumnName("HouseNumber")
             .HasConversion(new HouseNumberValueConverter());

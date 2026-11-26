@@ -18,7 +18,7 @@ namespace Intake.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -111,6 +111,34 @@ namespace Intake.Infrastructure.Migrations
                     b.HasDiscriminator<string>("OrderType").HasValue("OrderBase");
 
                     b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Intake.Domain.Orders.DeletedOrder", b =>
+                {
+                    b.HasBaseType("Intake.Domain.Orders.OrderBase");
+
+                    b.Property<string>("HouseNumber")
+                        .IsRequired()
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("HouseNumber");
+
+                    b.Property<Guid>("NeighborhoodId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("NeighborhoodId");
+
+                    b.Property<Guid>("StreetId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("StreetId");
+
+                    b.Property<Guid>("StreetSectionId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("StreetSectionId");
+
+                    b.HasDiscriminator().HasValue("Deleted");
                 });
 
             modelBuilder.Entity("Intake.Domain.Orders.DonatedOrder", b =>

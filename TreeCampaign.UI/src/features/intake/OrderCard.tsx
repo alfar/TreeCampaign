@@ -9,6 +9,7 @@ import {
   GiftIcon,
   NoSymbolIcon,
   PaperAirplaneIcon,
+  TrashIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 
@@ -77,6 +78,11 @@ const STATE_CONFIG: Record<
   Donated: {
     label: "Donation",
     icon: <GiftIcon className="w-5 h-5 text-gray-500" />,
+    borderColor: "border-gray-400",
+  },
+  Deleted: {
+    label: "Slettet",
+    icon: <TrashIcon className="w-5 h-5 text-gray-500" />,
     borderColor: "border-gray-400",
   },
 };

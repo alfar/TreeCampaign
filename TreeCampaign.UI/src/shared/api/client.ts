@@ -173,6 +173,18 @@ export async function undoMarkOrderUnwashable(campaignId: string, orderId: strin
   });
 }
 
+export async function deleteOrder(campaignId: string, orderId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/delete`, {
+    method: 'POST',
+  });
+}
+
+export async function undeleteOrder(campaignId: string, orderId: string): Promise<Response> {
+  return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/undelete`, {
+    method: 'POST',
+  });
+}
+
 export async function refundOrder(campaignId: string, orderId: string): Promise<Response> {
   return fetch(`/api/campaigns/${campaignId}/orders/${orderId}/refund`, {
     method: 'POST',

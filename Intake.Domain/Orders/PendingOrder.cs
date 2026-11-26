@@ -66,6 +66,34 @@ public class PendingOrder : OrderBase
         return new string(chars.Reverse().ToArray());
     }
 
+    internal static PendingOrder CreateFrom(DeletedOrder deletedOrder)
+    {
+        var order = new PendingOrder
+        {
+            Id = deletedOrder.Id,
+            CampaignId = deletedOrder.CampaignId,
+            Sender = deletedOrder.Sender,
+            Email = deletedOrder.Email,
+            Amount = deletedOrder.Amount,
+            OrderDate = deletedOrder.OrderDate,
+            Message = deletedOrder.Message,
+            TransactionId = deletedOrder.TransactionId,
+            StreetId = deletedOrder.StreetId,
+            StreetSectionId = deletedOrder.StreetSectionId,
+            NeighborhoodId = deletedOrder.NeighborhoodId,
+            HouseNumber = deletedOrder.HouseNumber
+        };
+
+        order.Raise(new Events.OrderUndeleted(order.Id, order.CampaignId));
+
+        return order;
+    }
+
+    public DeletedOrder Delete()
+    {
+        return DeletedOrder.CreateFrom(this);
+    }
+
     public WashedOrder ConfirmPaid(TransactionId? transactionId = null)
     {
         return WashedOrder.CreateFrom(this, transactionId ?? TransactionId);

@@ -24,7 +24,8 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
       IRepository<SettledOrder, OrderId>,
       IRepository<UnwashableOrder, OrderId>,
       IRepository<RefundedOrder, OrderId>,
-      IRepository<DonatedOrder, OrderId>
+      IRepository<DonatedOrder, OrderId>,
+      IRepository<DeletedOrder, OrderId>
 {
     internal DbSet<OrderBase> Orders { get; set; }
     public DbSet<PendingOrder> PendingOrders { get; set; }
@@ -38,6 +39,7 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public DbSet<UnwashableOrder> UnwashableOrders { get; set; }
     public DbSet<RefundedOrder> RefundedOrders { get; set; }
     public DbSet<DonatedOrder> DonatedOrders { get; set; }
+    public DbSet<DeletedOrder> DeletedOrders { get; set; }
 
     public IQueryable<OrderBase> GetUnvalidatedOrdersByCampaign(CampaignRef campaignId) =>
         Orders.Where(o => !(o is ValidatedOrder) && o.CampaignId == campaignId);
@@ -130,6 +132,13 @@ public class IntakeContext(DbContextOptions<IntakeContext> options, ChannelWrite
     public void Add(DonatedOrder aggregate) => DonatedOrders.Add(aggregate);
 
     public void Delete(DonatedOrder aggregate) => DonatedOrders.Remove(aggregate);
+
+    async Task<DeletedOrder?> IRepository<DeletedOrder, OrderId>.TryFindAsync(OrderId key, CancellationToken cancellationToken) =>
+        await DeletedOrders.FirstOrDefaultAsync(o => o.Id == key, cancellationToken);
+
+    public void Add(DeletedOrder aggregate) => DeletedOrders.Add(aggregate);
+
+    public void Delete(DeletedOrder aggregate) => DeletedOrders.Remove(aggregate);
 
     public async Task<PendingOrder?> FindPendingOrderByPaymentCodeAsync(CampaignRef campaignId, string paymentCode, CancellationToken cancellationToken)
         => await Orders

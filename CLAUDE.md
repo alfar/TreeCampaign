@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **TreeCampaign** is a full-stack management app for a yearly scout Christmas tree collection event in the 8600 postal area (Silkeborg, Denmark). Citizens submit a payment (40 DKK/tree) along with their address; scout teams are dispatched over multiple days to collect trees. The system manages the full pipeline from raw payment intake through address validation, stop assignment, and collection tracking.
 
-The developer is learning Domain-Driven Design by building this system. Claude's role is to coach first, then help with implementation when requested.
+The developer learned Domain-Driven Design by building this system and is now comfortable with it. Claude's role is to implement requested features end to end (domain, infrastructure, API, UI, tests), following the existing DDD conventions. Still flag design trade-offs and aggregate-boundary concerns briefly, but don't withhold implementation for the sake of coaching.
 
 ## Bounded Contexts
 
@@ -87,8 +87,11 @@ Turns raw payment messages into validated orders submitted to TreeCampaign.
 
 ```
 PendingOrder
-  └─ ConfirmPaid()                   → WashedOrder
+  ├─ ConfirmPaid()                   → WashedOrder
+  └─ Delete()                        → DeletedOrder       (obvious rubbish; shown in the "Papirkurv" tab)
 
+DeletedOrder
+  └─ Undelete()                      → PendingOrder       (restores address fields; payment-code matching on CSV import only looks at PendingOrder)
 
 IncomingOrder
   ├─ Accept(ValidationSuccess)       → ValidatedOrder

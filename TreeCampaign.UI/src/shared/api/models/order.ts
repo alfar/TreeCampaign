@@ -9,7 +9,8 @@ export type OrderType =
   | 'Settled'
   | 'Unwashable'
   | 'Refunded'
-  | 'Donated';
+  | 'Donated'
+  | 'Deleted';
 
 export interface Order {
   id: string;

@@ -61,4 +61,61 @@ public class PendingOrderTests
         Assert.Equal(pending.StreetId, washed.StreetId);
         Assert.Equal(pending.HouseNumber, washed.HouseNumber);
     }
+
+    private static PendingOrder NewPending() => PendingOrder.Create(
+        CampaignRef.From(Guid.NewGuid()),
+        new Sender("Carol", "555"),
+        MoneyAmount.From(80m),
+        StreetRef.From(Guid.NewGuid()),
+        StreetSectionRef.From(Guid.NewGuid()),
+        NeighborhoodRef.From(Guid.NewGuid()),
+        HouseNumber.Parse("3"),
+        "carol@example.com");
+
+    [Fact]
+    public void Delete_ReturnsDeletedOrder_KeepingAllData_AndRaisesOrderDeleted()
+    {
+        var pending = NewPending();
+
+        var deleted = pending.Delete();
+
+        Assert.Equal(pending.Id, deleted.Id);
+        Assert.Equal(pending.CampaignId, deleted.CampaignId);
+        Assert.Equal(pending.Sender, deleted.Sender);
+        Assert.Equal(pending.Email, deleted.Email);
+        Assert.Equal(pending.Amount, deleted.Amount);
+        Assert.Equal(pending.OrderDate, deleted.OrderDate);
+        Assert.Equal(pending.Message, deleted.Message);
+        Assert.Equal(pending.StreetId, deleted.StreetId);
+        Assert.Equal(pending.StreetSectionId, deleted.StreetSectionId);
+        Assert.Equal(pending.NeighborhoodId, deleted.NeighborhoodId);
+        Assert.Equal(pending.HouseNumber, deleted.HouseNumber);
+
+        var raised = Assert.IsType<Intake.Domain.Orders.Events.OrderDeleted>(Assert.Single(deleted.NewEvents));
+        Assert.Equal(pending.Id, raised.Id);
+        Assert.Equal(pending.CampaignId, raised.CampaignId);
+    }
+
+    [Fact]
+    public void Undelete_RestoresEquivalentPendingOrder_AndRaisesOrderUndeleted()
+    {
+        var pending = NewPending();
+
+        var restored = pending.Delete().Undelete();
+
+        Assert.Equal(pending.Id, restored.Id);
+        Assert.Equal(pending.CampaignId, restored.CampaignId);
+        Assert.Equal(pending.Sender, restored.Sender);
+        Assert.Equal(pending.Email, restored.Email);
+        Assert.Equal(pending.Amount, restored.Amount);
+        Assert.Equal(pending.OrderDate, restored.OrderDate);
+        Assert.Equal(pending.Message, restored.Message);
+        Assert.Equal(pending.StreetId, restored.StreetId);
+        Assert.Equal(pending.StreetSectionId, restored.StreetSectionId);
+        Assert.Equal(pending.NeighborhoodId, restored.NeighborhoodId);
+        Assert.Equal(pending.HouseNumber, restored.HouseNumber);
+
+        var raised = Assert.IsType<Intake.Domain.Orders.Events.OrderUndeleted>(Assert.Single(restored.NewEvents));
+        Assert.Equal(pending.Id, raised.Id);
+    }
 }

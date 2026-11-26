@@ -18,6 +18,8 @@ public static class OrderExtensions
         group.MapDelete("/{orderId:guid}/unwashable", UndoMarkOrderUnwashableEndpoint.Handle);
         group.MapPost("/{orderId:guid}/refund", RefundOrderEndpoint.Handle);
         group.MapPost("/{orderId:guid}/donate", MarkOrderAsDonationEndpoint.Handle);
+        group.MapPost("/{orderId:guid}/delete", DeleteOrderEndpoint.Handle);
+        group.MapPost("/{orderId:guid}/undelete", UndeleteOrderEndpoint.Handle);
         group.MapPost("/import", ImportPaymentsEndpoint.Handle).DisableAntiforgery();
         group.MapPost("/revalidate", RevalidateCampaignOrdersEndpoint.Handle);
 

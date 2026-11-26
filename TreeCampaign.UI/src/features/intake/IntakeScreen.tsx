@@ -12,11 +12,15 @@ import TerritoryGroupSection from "./TerritoryGroupSection";
 import TransferOrderForm from "./TransferOrderForm";
 import UndoTransferForm from "./UndoTransferForm";
 import UnwashableOrderForm from "./UnwashableOrderForm";
+import PendingOrderForm from "./PendingOrderForm";
+import DeletedOrderForm from "./DeletedOrderForm";
 import WashOrderForm from "./WashOrderForm";
 import NavigationPage from "../../shared/components/NavigationPage";
 import Button from "../../components/Button";
 
 const DEFAULT_ZIP_CODE = "8600";
+
+type IntakeTab = "processing" | "pending" | "transferred" | "unusable" | "trash";
 
 export default function IntakeScreen() {
   const { campaignId } = useParams<{ campaignId: string }>();
@@ -27,7 +31,7 @@ export default function IntakeScreen() {
   const [territories, setTerritories] = useState<Territory[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showImportForm, setShowImportForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<"processing" | "pending" | "transferred" | "unusable">("processing");
+  const [activeTab, setActiveTab] = useState<IntakeTab>("processing");
   const [oobAction, setOobAction] = useState<"section" | "transfer" | "unwashable">("section");
   const [bulkSettling, setBulkSettling] = useState<Record<string, boolean>>({});
   const [bulkError, setBulkError] = useState<Record<string, string | undefined>>({});
@@ -135,6 +139,12 @@ export default function IntakeScreen() {
         OrderMarkedAsDonation: patchOrderFunc(data.id as string, {
           orderType: "Donated",
         }),
+        OrderDeleted: patchOrderFunc(data.id as string, {
+          orderType: "Deleted",
+        }),
+        OrderUndeleted: patchOrderFunc(data.id as string, {
+          orderType: "Pending",
+        }),
       };
 
       const action = actionByEvent[type];
@@ -178,7 +188,9 @@ export default function IntakeScreen() {
     selectedOrder?.orderType === "Unwashed" ||
     selectedOrder?.orderType === "OutOfBounds" ||
     selectedOrder?.orderType === "Transferred" ||
-    selectedOrder?.orderType === "Unwashable";
+    selectedOrder?.orderType === "Unwashable" ||
+    selectedOrder?.orderType === "Pending" ||
+    selectedOrder?.orderType === "Deleted";
 
   const unusableOrderRank = (orderType: Order["orderType"]) =>
     orderType === "Unwashable" ? 0 : 1;
@@ -245,6 +257,10 @@ export default function IntakeScreen() {
     setSelectedOrderId(null);
   };
 
+  const handleDeletedOrRestored = () => {
+    setSelectedOrderId(null);
+  };
+
   const handleMarkOutOfBoundsUnwashable = async () => {
     if (!campaignId || !selectedOrder) return;
     setMarkingUnwashable(true);
@@ -291,14 +307,17 @@ export default function IntakeScreen() {
     }
   };
 
-  const handleSelectTab = (tab: "processing" | "pending" | "transferred" | "unusable") => {
+  const handleSelectTab = (tab: IntakeTab) => {
     setSelectedOrderId(null);
     setShowCreateForm(false);
     setShowImportForm(false);
     setActiveTab(tab);
   };
 
-  const pendingOrders = orders.filter((o) => o.orderType === "Pending");
+  const newestFirst = (a: Order, b: Order) =>
+    new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime();
+  const pendingOrders = orders.filter((o) => o.orderType === "Pending").sort(newestFirst);
+  const deletedOrders = orders.filter((o) => o.orderType === "Deleted").sort(newestFirst);
   const processingOrders = orders.filter(
     (o) => o.orderType === "Unwashed" || o.orderType === "OutOfBounds" || o.id === selectedOrderId,
   );
@@ -354,6 +373,15 @@ export default function IntakeScreen() {
               <span className="ml-1 text-gray-500">({outstandingUnusableCount})</span>
             )}
           </button>
+          <button
+            onClick={() => handleSelectTab("trash")}
+            className={`text-sm py-2 px-4 border-b-2 -mb-px ${activeTab === "trash" ? "border-blue-600 text-blue-600 font-medium" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          >
+            Papirkurv
+            {deletedOrders.length > 0 && (
+              <span className="ml-1 text-gray-500">({deletedOrders.length})</span>
+            )}
+          </button>
         </div>
         <div
           className={`flex gap-6 items-start ${showSidePanel ? "flex-col md:flex-row" : ""}`}
@@ -398,6 +426,14 @@ export default function IntakeScreen() {
                   ))}
                 </div>
               )
+            ) : activeTab === "trash" ? (
+              <OrderList
+                orders={deletedOrders}
+                selectedOrderId={selectedOrderId ?? undefined}
+                onSelectOrder={handleSelectOrder}
+                territoryNameById={territoryNameById}
+                pricePerTree={pricePerTree}
+              />
             ) : (
               <div className="flex flex-col gap-2">
                 {donatedAmount > 0 && (
@@ -416,7 +452,7 @@ export default function IntakeScreen() {
             )}
           </div>
           {showCreateForm && (
-            <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+            <div className="w-full md:w-1/2 border rounded p-4 bg-white md:sticky md:top-4 md:max-h-[calc(100svh-2rem)] md:overflow-y-auto">
               <h2 className="text-base font-semibold mb-4">Ny bestilling</h2>
               <CreateOrderForm
                 campaignId={campaignId!}
@@ -427,13 +463,13 @@ export default function IntakeScreen() {
             </div>
           )}
           {showImportForm && (
-            <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+            <div className="w-full md:w-1/2 border rounded p-4 bg-white md:sticky md:top-4 md:max-h-[calc(100svh-2rem)] md:overflow-y-auto">
               <h2 className="text-base font-semibold mb-4">Importér betalinger</h2>
               <ImportPaymentsForm campaignId={campaignId!} onImported={loadOrders} />
             </div>
           )}
           {!showCreateForm && !showImportForm && selectedOrder?.orderType === "Unwashed" && (
-            <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+            <div className="w-full md:w-1/2 border rounded p-4 bg-white md:sticky md:top-4 md:max-h-[calc(100svh-2rem)] md:overflow-y-auto">
               <h2 className="text-base font-semibold mb-4">Ret adresse</h2>
               <WashOrderForm
                 order={selectedOrder}
@@ -449,7 +485,7 @@ export default function IntakeScreen() {
             selectedOrder?.orderType === "OutOfBounds" &&
             territoryId &&
             selectedOrder.streetId && (
-              <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+              <div className="w-full md:w-1/2 border rounded p-4 bg-white md:sticky md:top-4 md:max-h-[calc(100svh-2rem)] md:overflow-y-auto">
                 <div className="flex gap-2 mb-4">
                   <Button
                     variant={oobAction === "section" ? "primary" : "secondary"}
@@ -503,7 +539,7 @@ export default function IntakeScreen() {
           {!showCreateForm &&
             !showImportForm &&
             selectedOrder?.orderType === "Transferred" && (
-              <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+              <div className="w-full md:w-1/2 border rounded p-4 bg-white md:sticky md:top-4 md:max-h-[calc(100svh-2rem)] md:overflow-y-auto">
                 <h2 className="text-base font-semibold mb-4">Overført bestilling</h2>
                 <UndoTransferForm
                   order={selectedOrder}
@@ -521,7 +557,7 @@ export default function IntakeScreen() {
           {!showCreateForm &&
             !showImportForm &&
             selectedOrder?.orderType === "Unwashable" && (
-              <div className="w-full md:w-1/2 border rounded p-4 bg-white">
+              <div className="w-full md:w-1/2 border rounded p-4 bg-white md:sticky md:top-4 md:max-h-[calc(100svh-2rem)] md:overflow-y-auto">
                 <h2 className="text-base font-semibold mb-4">Ikke brugbar bestilling</h2>
                 <UnwashableOrderForm
                   order={selectedOrder}
@@ -529,6 +565,30 @@ export default function IntakeScreen() {
                   onRefunded={handleUnwashableResolved}
                   onDonated={handleUnwashableResolved}
                   onUndone={handleUnwashableResolved}
+                />
+              </div>
+            )}
+          {!showCreateForm &&
+            !showImportForm &&
+            selectedOrder?.orderType === "Pending" && (
+              <div className="w-full md:w-1/2 border rounded p-4 bg-white md:sticky md:top-4 md:max-h-[calc(100svh-2rem)] md:overflow-y-auto">
+                <h2 className="text-base font-semibold mb-4">Afventende bestilling</h2>
+                <PendingOrderForm
+                  order={selectedOrder}
+                  campaignId={campaignId!}
+                  onDeleted={handleDeletedOrRestored}
+                />
+              </div>
+            )}
+          {!showCreateForm &&
+            !showImportForm &&
+            selectedOrder?.orderType === "Deleted" && (
+              <div className="w-full md:w-1/2 border rounded p-4 bg-white md:sticky md:top-4 md:max-h-[calc(100svh-2rem)] md:overflow-y-auto">
+                <h2 className="text-base font-semibold mb-4">Slettet bestilling</h2>
+                <DeletedOrderForm
+                  order={selectedOrder}
+                  campaignId={campaignId!}
+                  onUndeleted={handleDeletedOrRestored}
                 />
               </div>
             )}
